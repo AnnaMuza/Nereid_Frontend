@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import FloatingConfigurator from '@/components/FloatingConfigurator.vue';
-import { ref, reactive } from 'vue';
-import axios from 'axios';
+import { ref, reactive, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import AuthService from '@/services/AuthService';
 
 const router = useRouter();
 const email = ref('');
 const password = ref('');
 const checked = ref(false);
-const apiUrl = 'http://localhost:3000';
 const loading = ref(false);
 const errorMessage = ref('');
 const successMessage = ref('');
@@ -73,24 +72,15 @@ const handleLogin = async () => {
         loading.value = true;
         errorMessage.value = '';
 
-        const response = await axios.post(`${apiUrl}/log-in`, {
-            email: email.value,
-            password: password.value
-        });
+        const response = await AuthService.login(email.value, password.value);
 
-        if (response.data?.token) {
-            // Store token in localStorage or cookies
-            localStorage.setItem('token', response.data.token);
-            if (checked.value) {
-                localStorage.setItem('rememberedEmail', email.value);
-            }
-
-            successMessage.value = 'Login successful!';
-            // Redirect to home page after successful login
-            router.push('/');
-        } else {
-            errorMessage.value = 'Login failed. Please check your credentials.';
+        if (checked.value) {
+            localStorage.setItem('rememberedEmail', email.value);
         }
+
+        successMessage.value = 'Login successful!';
+        // Redirect to home page after successful login
+        router.push('/');
     } catch (error: any) {
         console.error('Login error:', error);
         if (error.response?.status === 401) {
@@ -113,16 +103,18 @@ const sendOtp = async (isSignup = false) => {
         loading.value = true;
         errorMessage.value = '';
 
-        const endpoint = isSignup ? '/sign-up' : '/send-otp';
-        const response = await axios.post(`${apiUrl}${endpoint}`, {
-            email: email.value
-        });
+        let response;
+        if (isSignup) {
+            response = await AuthService.register(email.value);
+        } else {
+            response = await AuthService.sendOtp(email.value);
+        }
 
-        if (response.data?.success) {
+        if (response.success) {
             showOtpForm.value = true;
             successMessage.value = 'OTP sent to your email!';
         } else {
-            errorMessage.value = 'Failed to send OTP. Please try again.';
+            errorMessage.value = response.message || 'Failed to send OTP. Please try again.';
         }
     } catch (error: any) {
         console.error('OTP sending error:', error);
@@ -144,19 +136,16 @@ const verifyOtp = async () => {
         loading.value = true;
         errorMessage.value = '';
 
-        const response = await axios.post(`${apiUrl}/check-otp`, {
-            email: email.value,
-            otp: otpCode.value
-        });
+        const response = await AuthService.verifyOtp(email.value, otpCode.value);
 
-        if (response.data?.verified) {
+        if (response.verified) {
             if (forgotPassword.value) {
                 // Navigate to reset password page
                 router.push({
                     path: '/reset-password',
                     query: {
                         email: email.value,
-                        token: response.data.token
+                        token: response.token
                     }
                 });
             } else {
@@ -165,7 +154,7 @@ const verifyOtp = async () => {
                 // For signup flow, might proceed to additional steps or login
             }
         } else {
-            errorMessage.value = 'Invalid OTP. Please try again.';
+            errorMessage.value = response.message || 'Invalid OTP. Please try again.';
         }
     } catch (error: any) {
         console.error('OTP verification error:', error);
@@ -186,10 +175,18 @@ const handleForgotPassword = () => {
 };
 
 // Check if there's a remembered email on component mount
-if (localStorage.getItem('rememberedEmail')) {
-    email.value = localStorage.getItem('rememberedEmail') || '';
-    checked.value = true;
-}
+onMounted(() => {
+    const rememberedEmail = localStorage.getItem('rememberedEmail');
+    if (rememberedEmail) {
+        email.value = rememberedEmail;
+        checked.value = true;
+    }
+
+    // If user is already authenticated, redirect to home
+    if (AuthService.isAuthenticated()) {
+        router.push('/');
+    }
+});
 </script>
 
 <template>
