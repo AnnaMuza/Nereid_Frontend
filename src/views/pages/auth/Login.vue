@@ -1,12 +1,195 @@
 <script setup lang="ts">
 import FloatingConfigurator from '@/components/FloatingConfigurator.vue';
-import { ref } from 'vue';
+import { ref, reactive } from 'vue';
 import axios from 'axios';
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
 const email = ref('');
 const password = ref('');
 const checked = ref(false);
 const apiUrl = 'http://localhost:3000';
+const loading = ref(false);
+const errorMessage = ref('');
+const successMessage = ref('');
+
+// OTP related states
+const showOtpForm = ref(false);
+const otpCode = ref('');
+const forgotPassword = ref(false);
+
+// Form validation
+const errors = reactive({
+    email: '',
+    password: '',
+    otp: ''
+});
+
+// Validate email
+const validateEmail = () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email.value) {
+        errors.email = 'Email is required';
+        return false;
+    } else if (!emailRegex.test(email.value)) {
+        errors.email = 'Please enter a valid email address';
+        return false;
+    }
+    errors.email = '';
+    return true;
+};
+
+// Validate password
+const validatePassword = () => {
+    if (!password.value) {
+        errors.password = 'Password is required';
+        return false;
+    } else if (password.value.length < 6) {
+        errors.password = 'Password must be at least 6 characters';
+        return false;
+    }
+    errors.password = '';
+    return true;
+};
+
+// Validate OTP
+const validateOtp = () => {
+    if (!otpCode.value) {
+        errors.otp = 'OTP code is required';
+        return false;
+    } else if (otpCode.value.length !== 6) {
+        errors.otp = 'OTP must be 6 digits';
+        return false;
+    }
+    errors.otp = '';
+    return true;
+};
+
+// Handle login
+const handleLogin = async () => {
+    if (!validateEmail() || !validatePassword()) return;
+
+    try {
+        loading.value = true;
+        errorMessage.value = '';
+
+        const response = await axios.post(`${apiUrl}/log-in`, {
+            email: email.value,
+            password: password.value
+        });
+
+        if (response.data?.token) {
+            // Store token in localStorage or cookies
+            localStorage.setItem('token', response.data.token);
+            if (checked.value) {
+                localStorage.setItem('rememberedEmail', email.value);
+            }
+
+            successMessage.value = 'Login successful!';
+            // Redirect to home page after successful login
+            router.push('/');
+        } else {
+            errorMessage.value = 'Login failed. Please check your credentials.';
+        }
+    } catch (error: any) {
+        console.error('Login error:', error);
+        if (error.response?.status === 401) {
+            errorMessage.value = 'Invalid email or password';
+        } else if (error.response?.data?.message) {
+            errorMessage.value = error.response.data.message;
+        } else {
+            errorMessage.value = 'An error occurred during login. Please try again.';
+        }
+    } finally {
+        loading.value = false;
+    }
+};
+
+// Send OTP for password reset or signup verification
+const sendOtp = async (isSignup = false) => {
+    if (!validateEmail()) return;
+
+    try {
+        loading.value = true;
+        errorMessage.value = '';
+
+        const endpoint = isSignup ? '/sign-up' : '/send-otp';
+        const response = await axios.post(`${apiUrl}${endpoint}`, {
+            email: email.value
+        });
+
+        if (response.data?.success) {
+            showOtpForm.value = true;
+            successMessage.value = 'OTP sent to your email!';
+        } else {
+            errorMessage.value = 'Failed to send OTP. Please try again.';
+        }
+    } catch (error: any) {
+        console.error('OTP sending error:', error);
+        if (error.response?.data?.message) {
+            errorMessage.value = error.response.data.message;
+        } else {
+            errorMessage.value = 'An error occurred. Please try again.';
+        }
+    } finally {
+        loading.value = false;
+    }
+};
+
+// Verify OTP
+const verifyOtp = async () => {
+    if (!validateOtp() || !validateEmail()) return;
+
+    try {
+        loading.value = true;
+        errorMessage.value = '';
+
+        const response = await axios.post(`${apiUrl}/check-otp`, {
+            email: email.value,
+            otp: otpCode.value
+        });
+
+        if (response.data?.verified) {
+            if (forgotPassword.value) {
+                // Navigate to reset password page
+                router.push({
+                    path: '/reset-password',
+                    query: {
+                        email: email.value,
+                        token: response.data.token
+                    }
+                });
+            } else {
+                successMessage.value = 'OTP verified successfully!';
+                showOtpForm.value = false;
+                // For signup flow, might proceed to additional steps or login
+            }
+        } else {
+            errorMessage.value = 'Invalid OTP. Please try again.';
+        }
+    } catch (error: any) {
+        console.error('OTP verification error:', error);
+        if (error.response?.data?.message) {
+            errorMessage.value = error.response.data.message;
+        } else {
+            errorMessage.value = 'Failed to verify OTP. Please try again.';
+        }
+    } finally {
+        loading.value = false;
+    }
+};
+
+// Handle forgot password
+const handleForgotPassword = () => {
+    forgotPassword.value = true;
+    sendOtp(false);
+};
+
+// Check if there's a remembered email on component mount
+if (localStorage.getItem('rememberedEmail')) {
+    email.value = localStorage.getItem('rememberedEmail') || '';
+    checked.value = true;
+}
 </script>
 
 <template>
@@ -37,21 +220,84 @@ const apiUrl = 'http://localhost:3000';
                         <span class="text-muted-color font-medium">Sign in to continue</span>
                     </div>
 
-                    <div>
+                    <!-- Alert Messages -->
+                    <Message v-if="errorMessage" severity="error" :closable="true" @close="errorMessage = ''">{{ errorMessage }}</Message>
+                    <Message v-if="successMessage" severity="success" :closable="true" @close="successMessage = ''">{{ successMessage }}</Message>
+
+                    <!-- OTP Form -->
+                    <div v-if="showOtpForm">
+                        <label for="otp" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Enter OTP Code</label>
+                        <InputText id="otp" type="text" placeholder="6-digit OTP code" class="w-full md:w-[30rem] mb-2" v-model="otpCode" maxlength="6" />
+                        <small v-if="errors.otp" class="text-red-500 block mb-4">{{ errors.otp }}</small>
+                        <div class="mt-4 mb-8">
+                            <Button
+                                label="Verify OTP"
+                                class="w-full"
+                                @click="verifyOtp"
+                                :loading="loading"
+                                :disabled="loading">
+                            </Button>
+                            <Button
+                                label="Back"
+                                class="w-full mt-3"
+                                outlined
+                                @click="showOtpForm = false"
+                                :disabled="loading">
+                            </Button>
+                        </div>
+                    </div>
+
+                    <!-- Login Form -->
+                    <div v-else>
                         <label for="email1" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Email</label>
-                        <InputText id="email1" type="text" placeholder="Email address" class="w-full md:w-[30rem] mb-8" v-model="email" />
+                        <InputText
+                            id="email1"
+                            type="text"
+                            placeholder="Email address"
+                            class="w-full md:w-[30rem] mb-2"
+                            v-model="email"
+                            @blur="validateEmail" />
+                        <small v-if="errors.email" class="text-red-500 block mb-4">{{ errors.email }}</small>
 
                         <label for="password1" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Password</label>
-                        <Password id="password1" v-model="password" placeholder="Password" :toggleMask="true" class="mb-4" fluid :feedback="false"></Password>
+                        <Password
+                            id="password1"
+                            v-model="password"
+                            placeholder="Password"
+                            :toggleMask="true"
+                            class="mb-2"
+                            fluid
+                            :feedback="false"
+                            @blur="validatePassword">
+                        </Password>
+                        <small v-if="errors.password" class="text-red-500 block mb-4">{{ errors.password }}</small>
 
                         <div class="flex items-center justify-between mt-2 mb-8 gap-8">
                             <div class="flex items-center">
                                 <Checkbox v-model="checked" id="rememberme1" binary class="mr-2"></Checkbox>
                                 <label for="rememberme1">Remember me</label>
                             </div>
-                            <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary">Forgot password?</span>
+                            <span
+                                class="font-medium no-underline ml-2 text-right cursor-pointer text-primary"
+                                @click="handleForgotPassword">
+                                Forgot password?
+                            </span>
                         </div>
-                        <Button label="Sign In" class="w-full" as="router-link" to="/"></Button>
+                        <Button
+                            label="Sign In"
+                            class="w-full"
+                            @click="handleLogin"
+                            :loading="loading"
+                            :disabled="loading">
+                        </Button>
+                        <div class="text-center mt-4">
+                            <span>Don't have an account? </span>
+                            <span
+                                class="font-medium cursor-pointer text-primary"
+                                @click="sendOtp(true)">
+                                Sign up
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
