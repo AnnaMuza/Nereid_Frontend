@@ -1,6 +1,7 @@
 // src/services/AuthService.ts
 import axios from 'axios';
 
+const routeName = 'user';
 // Create axios instance with common config
 const apiClient = axios.create({
     baseURL: import.meta.env.VITE_API_URL,
@@ -58,7 +59,7 @@ class AuthService {
     // Login user
     async login(email: string, password: string): Promise<LoginResponse> {
         try {
-            const response = await apiClient.post('/log-in', { email, password });
+            const response = await apiClient.post(`/${routeName}/log-in`, { email, password });
             if (response.data?.token) {
                 localStorage.setItem('token', response.data.token);
                 return response.data;
@@ -73,7 +74,7 @@ class AuthService {
     // Register user (send OTP)
     async register(email: string): Promise<OtpResponse> {
         try {
-            const response = await apiClient.post('/sign-up', { email });
+            const response = await apiClient.post(`/${routeName}/sign-up`, { email });
             return response.data;
         } catch (error) {
             this.handleError(error);
@@ -84,7 +85,7 @@ class AuthService {
     // Send OTP for password reset
     async sendOtp(email: string): Promise<OtpResponse> {
         try {
-            const response = await apiClient.post('/send-otp', { email });
+            const response = await apiClient.post(`/${routeName}/send-otp`, { email });
             return response.data;
         } catch (error) {
             this.handleError(error);
@@ -95,7 +96,7 @@ class AuthService {
     // Verify OTP
     async verifyOtp(email: string, otp: string): Promise<OtpVerifyResponse> {
         try {
-            const response = await apiClient.post('/check-otp', { email, otp });
+            const response = await apiClient.post(`/${routeName}/check-otp`, { email, otp });
             return response.data;
         } catch (error) {
             this.handleError(error);
@@ -106,7 +107,7 @@ class AuthService {
     // Get current user
     async getCurrentUser(): Promise<User> {
         try {
-            const response = await apiClient.get('/get');
+            const response = await apiClient.get(`/${routeName}/get`);
             return response.data.user;
         } catch (error) {
             this.handleError(error);
@@ -117,7 +118,7 @@ class AuthService {
     // Change password
     async changePassword(oldPassword: string, newPassword: string): Promise<PasswordChangeResponse> {
         try {
-            const response = await apiClient.put('/change-password', {
+            const response = await apiClient.put(`/${routeName}/change-password`, {
                 oldPassword,
                 newPassword
             });
@@ -131,7 +132,7 @@ class AuthService {
     // Reset password (after OTP verification)
     async resetPassword(email: string, token: string, newPassword: string): Promise<PasswordChangeResponse> {
         try {
-            const response = await apiClient.put('/reset-password', {
+            const response = await apiClient.put(`/${routeName}/reset-password`, {
                 email,
                 token,
                 newPassword
