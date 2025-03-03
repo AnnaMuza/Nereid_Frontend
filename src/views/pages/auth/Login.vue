@@ -43,8 +43,8 @@ const validatePassword = () => {
     if (!password.value) {
         errors.password = 'Password is required';
         return false;
-    } else if (password.value.length < 6) {
-        errors.password = 'Password must be at least 6 characters';
+    } else if (password.value.length < 3) {
+        errors.password = 'Password must be at least 3 characters';
         return false;
     }
     errors.password = '';
@@ -213,7 +213,7 @@ onMounted(() => {
                                 />
                             </g>
                         </svg>
-                        <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">Welcome to Nereid!</div>
+                        <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">Welcome to Nereid</div>
                         <span class="text-muted-color font-medium">Sign in to continue</span>
                     </div>
 
