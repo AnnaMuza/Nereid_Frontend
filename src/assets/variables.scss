@@ -1,0 +1,68 @@
+@import "~bootstrap/scss/variables";
+
+$border-radius: 10px;
+$border-radius-sm: 8px;
+$border-radius-lg: 20px;
+$border-radius-xl: 25px;
+$border-radius-xxl: 30px;
+
+$border-width: 0;
+
+$font-weight-bold: 600;
+
+$spacers: map-merge($spacers, (
+        20: 20px,
+        by: 15px,
+        bx: 20px,
+));
+
+:root {
+  // Button
+  --p-button-label-font-weight: unset;
+  --p-button-icon-only-width: 2rem;
+  --p-button-lg-padding-y: 1rem;
+  --p-button-lg-padding-x: 1.5rem;
+  --p-button-border-radius: #{$border-radius};
+
+  // Card
+  --p-card-border-radius: 25px;
+  --p-card-shadow: none;
+  --p-card-body-padding: #{map-get($spacers, 20)};
+
+  // Menu
+  --p-tieredmenu-border-color: none;
+
+  // Checkbox
+  --p-checkbox-border-radius: 50%;
+  --p-checkbox-icon-size: 100%;
+
+  // InputText
+  --p-inputtext-lg-padding-x: 25px;
+  --p-inputtext-lg-padding-y: 18px;
+
+  // FormField
+  --p-form-field-border-radius: #{$border-radius};
+
+  // MultiSelect
+  --p-multiselect-shadow: none;
+
+  // DataTable
+  --p-datatable-row-color: #{$dark};
+  --p-datatable-header-color: #{$body-color};
+  --p-datatable-column-title-font-weight: inherit;
+  --p-datatable-body-cell-padding: 1.3rem 0.5rem;
+  --p-datatable-header-cell-padding: var(--p-datatable-body-cell-padding);
+  --p-datatable-paginator-bottom-border-width: 0;
+  --p-datatable-header-border-width: 0;
+  --p-datatable-header-padding: 0.75rem var(--p-card-body-padding);
+
+  // Dialog
+  $dialog-padding: calc(var(--p-card-body-padding) * 2);
+  --p-dialog-border-radius: #{$border-radius-xl};
+  --p-dialog-header-padding: #{$dialog-padding} #{$dialog-padding} 10px;
+  --p-dialog-content-padding: 0 #{$dialog-padding} #{$dialog-padding};
+
+  // Tabs
+  --p-tabs-tab-font-weight: initial;
+  --p-tabs-tabpanel-focus-ring-width: 0;
+}

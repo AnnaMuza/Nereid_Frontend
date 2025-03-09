@@ -1,13 +1,9 @@
-# Editor configuration, see https://editorconfig.org
-root = true
-
-[*]
-charset = utf-8
+[*.{js,jsx,ts,tsx,vue}]
 indent_style = space
 indent_size = 4
-insert_final_newline = true
 trim_trailing_whitespace = true
-
-[*.md]
-max_line_length = off
-trim_trailing_whitespace = false
+insert_final_newline = true
+[*.vue]
+ij_vue_indent_children_of_top_level = template,script,style
+[*.json]
+indent_size = 4
