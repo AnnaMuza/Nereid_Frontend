@@ -39,7 +39,7 @@ class AuthService extends ApiService {
 
     login(data: UsersApi.User.Login, rememberMe: boolean) {
         return this.post<UsersApi.User.Login, UsersApi.User.LoginResponse>(this.endpoints.login, data).pipe(
-            map(({ data }) => {
+            map((data) => {
                 const { token, user } = data;
                 this.setAuthToken(token, rememberMe);
                 this.user$.next(user);

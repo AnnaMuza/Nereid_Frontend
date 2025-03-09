@@ -32,9 +32,9 @@ export default class ApiService {
         );
     }
 
-    post<D extends any, T extends any, M extends any = any, AR = DefaultApiResponse<T, M>>(url: string, data: D, config?: AxiosRequestConfig<T>) {
+    post<D extends any, T extends any>(url: string, data: D, config?: AxiosRequestConfig<T>) {
         return this.wrap(
-            axiosInstance.post<D, AxiosResponse<AR>>(this.getEndpoint(url), data, config)
+            axiosInstance.post<D, AxiosResponse<T>>(this.getEndpoint(url), data, config)
         ).pipe(
             map(({data}) => data)
         );
