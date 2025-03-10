@@ -1,6 +1,7 @@
 import AuthService from './auth.service';
 import { RouteLocationNormalized } from 'vue-router';
 import ApiService from '@/services/api.service';
+import { Role } from "@/types/api/users.api.types";
 
 class PermissionService extends ApiService {
 
@@ -16,7 +17,7 @@ class PermissionService extends ApiService {
     constructor() {
         super();
         AuthService.user$.subscribe((user) => {
-            this.permissions = [];
+            this.permissions = user ? [Role[user.roleId]] : [];
         });
     }
 
@@ -28,7 +29,8 @@ class PermissionService extends ApiService {
     }
 
     userCan(checkPermissions: string[]) {
-        return checkPermissions.every((p) => (this.permissions || []).includes(p));
+        if (!checkPermissions.length) { return true; }
+        return checkPermissions.some((p) => (this.permissions || []).includes(p));
     }
 }
 

@@ -1,5 +1,11 @@
 import { PartialBy } from '../global.interface';
 
+export enum Role {
+    admin = 1,
+    teacher,
+    student
+}
+
 export namespace UsersApi {
 
     export namespace User {
@@ -11,7 +17,7 @@ export namespace UsersApi {
             patronymic: string,
             email: string,
             roleId: number,
-            roleName: string,
+            // roleName: string,
         }
 
         export type Create = Omit<Get, 'id'>

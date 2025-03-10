@@ -4,11 +4,11 @@ import { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { from } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-export type DefaultApiResponse<T = any, M = any> = {
-    data: T;
-    message: string;
-    metadata: M;
-};
+// export type DefaultApiResponse<T = any, M = any> = {
+//     data: T;
+//     message: string;
+//     metadata: M;
+// };
 
 export default class ApiService {
 
@@ -16,7 +16,6 @@ export default class ApiService {
     }
 
     private getEndpoint(endpoint: string) {
-        // console.log(this.apiEndpoint, endpoint, [this.apiEndpoint, endpoint].join('/'));
         return [this.apiEndpoint, endpoint].join('/').replace(/([^:]\/)\/+/g, '$1');
     }
 
@@ -24,9 +23,9 @@ export default class ApiService {
         return from(method);
     }
 
-    get<T extends any = any, M extends any = any, AR = DefaultApiResponse<T, M>>(url: string, config?: AxiosRequestConfig<T>) {
+    get<T extends any = any, M extends any = any>(url: string, config?: AxiosRequestConfig<T>) {
         return this.wrap(
-            axiosInstance.get<AR>(this.getEndpoint(url), config)
+            axiosInstance.get<T>(this.getEndpoint(url), config)
         ).pipe(
             map(({data}) => data)
         );
@@ -40,12 +39,11 @@ export default class ApiService {
         );
     }
 
-    delete<T extends any = any, M extends any = any, AR = DefaultApiResponse<T, M>>(url: string, config?: AxiosRequestConfig<T>) {
+    delete<T extends any = any, M extends any = any>(url: string, config?: AxiosRequestConfig<T>) {
         return this.wrap(
-            axiosInstance.delete<AR>(this.getEndpoint(url), config)
+            axiosInstance.delete<T>(this.getEndpoint(url), config)
         ).pipe(
             map(({data}) => data)
         );
     }
-
 }

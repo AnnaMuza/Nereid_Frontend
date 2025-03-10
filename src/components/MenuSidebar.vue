@@ -4,8 +4,8 @@
         <template #header v-if="isExpanded">
             <div class="d-flex align-items-center pb-20">
                 <div class="d-flex flex-column overflow-x-hidden">
-                    <h5 class="text-dark">@{{ email }}</h5>
-                    <span class="text-truncate">{{ email }}@syneforge.com</span>
+                    <h5 class="text-dark">{{ email }}</h5>
+                    <span class="text-truncate">{{ lastName }}<br>{{ firstName }}<br>{{ patronymic }}</span>
                 </div>
             </div>
         </template>
@@ -13,7 +13,7 @@
         <template #content>
             <TieredMenu :model="menuItems" breakpoint="10000px">
                 <template #item="{ item, props, hasSubmenu }">
-                    <div v-if="userCan(item.permissions)">
+<!--                    <div v-if="userCan(item.permissions)">-->
                         <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom>
                             <a v-ripple
                                :class="{'current': $router.currentRoute.value.path === item.route}"
@@ -30,7 +30,7 @@
                             <span class="p-tieredmenu-item-label">{{ item.label }}</span>
                             <span v-if="hasSubmenu" class="fi fi-rr-angle-small-down ms-auto" style="color: var(--bs-body-color)"/>
                         </a>
-                    </div>
+<!--                    </div>-->
                 </template>
             </TieredMenu>
         </template>
@@ -142,11 +142,17 @@ import { defineComponent, ref } from 'vue';
             return {
                 menuItems: sidebarMenuItems,
                 email: '',
+                firstName: '',
+                lastName: '',
+                patronymic: '',
             };
         },
         mounted() {
             AuthService.user$.subscribe((user) => {
                 this.email = user?.email ?? '';
+                this.firstName = user?.firstName ?? '';
+                this.lastName = user?.lastName ?? '';
+                this.patronymic = user?.patronymic ?? '';
             });
         },
         methods: {

@@ -7,7 +7,7 @@ import ToastsService from '@/services/toasts.service';
 const LeftSidebarTemplate = () => import('@/templates/routes/LeftSidebar.template.vue');
 // Routes
 const Login = () => import('@/views/Login.vue');
-const Dashboard = () => import('@/views/Dashboard.vue');
+const Managing = () => import('@/views/Managing.vue');
 
 // TODO 404 routes for groups of routes
 
@@ -18,7 +18,7 @@ const recursiveSearchCanEnterRoute = (route: RouteRecordRaw): RouteRecordRaw | n
     const needParams = new RegExp(/:/gm).test(path);
     if (!needParams) {
         if (name && hasPermissions) {
-            return route
+            return route;
         } else if (children && children.length && hasPermissions) {
             for (const child of children) {
                 const childRoute = recursiveSearchCanEnterRoute(child);
@@ -72,15 +72,15 @@ const routes: RouteRecordRaw[] = [
         },
         children: [
             {
-                path: 'nereid',
+                path: 'admin',
                 meta: {
-                  permissions: ['Nlp']
+                    permissions: ['admin']
                 },
                 children: [
                     {
-                        path: 'dashboard',
-                        component: Dashboard,
-                        name: 'dashboard'
+                        path: 'managing',
+                        component: Managing,
+                        name: 'managing'
                     },
                 ]
             },
@@ -95,11 +95,8 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
     const loginRedirectQuery = to?.name && to.fullPath !== 'login' ? { redirectTo: to.fullPath.toString() } : {};
-    const openedRouts = ['anonymous', 'hms'];
     if (!AuthService.authToken) {
         if (to.name === 'login') {
-            next();
-        } else if (openedRouts.includes(String(to.name))) {
             next();
         } else {
             next({
@@ -140,7 +137,7 @@ router.beforeEach((to, from, next) => {
             next();
         } else if (to.meta.checkHierarchy) {
             // next(false);
-            next({ path: '/me' }); //YH-5309 1.3
+            next({ path: '/me' });
             ToastsService.globalToasts.next({
                 severity: 'error',
                 summary: 'You must have permissions OR be a chief for visit this route',

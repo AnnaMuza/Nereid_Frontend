@@ -8,7 +8,7 @@ class AuthService extends ApiService {
     private readonly TOKEN_KEY = 'access_token';
     private readonly endpoints = {
         login: 'user/log-in',
-        me: 'get'
+        me: 'user/get'
     };
 
     public get authToken() {
@@ -60,11 +60,9 @@ class AuthService extends ApiService {
             ),
             of(null).pipe(
                 switchMap(() => {
-                    return this.get<{
-                        user: UsersApi.User.Get
-                    }>(this.endpoints.me).pipe(
-                        map(({ data }) => {
-                            const { user } = data;
+                    return this.get<{user: UsersApi.User.Get}>(this.endpoints.me)
+                      .pipe(
+                        map(({user}) => {
                             if (!user) {
                                 throw new Error('User is empty');
                             }

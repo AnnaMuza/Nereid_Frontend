@@ -1,6 +1,5 @@
 <template>
-    <Toast baseZIndex.number="1000"/>
-    <router-view/>
+    <div>Hello</div>
 </template>
 
 <script lang="ts" setup>
