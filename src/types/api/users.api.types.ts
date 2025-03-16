@@ -6,6 +6,14 @@ export enum Role {
     student
 }
 
+export const RoleName = {
+    admin: 'admin',
+    teacher: 'teacher',
+    student: 'student'
+} as const;
+
+export type RoleString = typeof RoleName[keyof typeof RoleName];
+
 export namespace UsersApi {
 
     export namespace User {
@@ -133,5 +141,4 @@ export namespace UsersApi {
         }
 
     }
-
 }

@@ -3,6 +3,7 @@ import { take, tap } from 'rxjs';
 import AuthService from '@/services/auth.service';
 import PermissionService from '@/services/permission.service';
 import ToastsService from '@/services/toasts.service';
+import { RoleName } from "@/types/api/users.api.types";
 // Routes templates
 const LeftSidebarTemplate = () => import('@/templates/routes/LeftSidebar.template.vue');
 // Routes
@@ -72,9 +73,14 @@ const routes: RouteRecordRaw[] = [
         },
         children: [
             {
+                path: 'account',
+                component: Managing,
+                name: 'account'
+            },
+            {
                 path: 'admin',
                 meta: {
-                    permissions: ['admin']
+                    permissions: [RoleName.admin]
                 },
                 children: [
                     {
@@ -137,7 +143,7 @@ router.beforeEach((to, from, next) => {
             next();
         } else if (to.meta.checkHierarchy) {
             // next(false);
-            next({ path: '/me' });
+            next({ path: '/account' });
             ToastsService.globalToasts.next({
                 severity: 'error',
                 summary: 'You must have permissions OR be a chief for visit this route',

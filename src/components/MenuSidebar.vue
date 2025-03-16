@@ -4,7 +4,7 @@
         <template #header v-if="isExpanded">
             <div class="d-flex align-items-center pb-20">
                 <div class="d-flex flex-column overflow-x-hidden">
-                    <h5 class="text-dark">{{ email }}</h5>
+                    <h5 class="text-dark text-truncate">{{ email }}</h5>
                     <span class="text-truncate">{{ lastName }}<br>{{ firstName }}<br>{{ patronymic }}</span>
                 </div>
             </div>
@@ -13,24 +13,22 @@
         <template #content>
             <TieredMenu :model="menuItems" breakpoint="10000px">
                 <template #item="{ item, props, hasSubmenu }">
-<!--                    <div v-if="userCan(item.permissions)">-->
-                        <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom>
-                            <a v-ripple
-                               :class="{'current': $router.currentRoute.value.path === item.route}"
-                               :href="href"
-                               v-bind="props.action"
-                               @click="navigate">
-                                <span :class="[{'current': $router.currentRoute.value.path === item.route}, item.icon]"
-                                      class="p-tieredmenu-item-icon"/>
-                                <span class="p-tieredmenu-item-label">{{ item.label }}</span>
-                            </a>
-                        </router-link>
-                        <a v-else v-ripple :href="item.url" :target="item.target" v-bind="props.action">
-                            <span :class="item.icon" class="p-tieredmenu-item-icon"/>
+                    <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom>
+                        <a v-ripple
+                           :class="{'current': $router.currentRoute.value.path === item.route}"
+                           :href="href"
+                           v-bind="props.action"
+                           @click="navigate">
+                            <span :class="[{'current': $router.currentRoute.value.path === item.route}, item.icon]"
+                                  class="p-tieredmenu-item-icon"/>
                             <span class="p-tieredmenu-item-label">{{ item.label }}</span>
-                            <span v-if="hasSubmenu" class="fi fi-rr-angle-small-down ms-auto" style="color: var(--bs-body-color)"/>
                         </a>
-<!--                    </div>-->
+                    </router-link>
+                    <a v-else v-ripple :href="item.url" :target="item.target" v-bind="props.action">
+                        <span :class="item.icon" class="p-tieredmenu-item-icon"/>
+                        <span class="p-tieredmenu-item-label">{{ item.label }}</span>
+                        <span v-if="hasSubmenu" class="fi fi-rr-angle-small-down ms-auto" style="color: var(--bs-body-color)"/>
+                    </a>
                 </template>
             </TieredMenu>
         </template>
@@ -140,7 +138,7 @@ import { defineComponent, ref } from 'vue';
         },
         data() {
             return {
-                menuItems: sidebarMenuItems,
+                menuItems: sidebarMenuItems.filter(i => this.userCan(i.permissions)),
                 email: '',
                 firstName: '',
                 lastName: '',

@@ -1,39 +1,56 @@
 import { MenuItem } from "primevue/menuitem";
+import { RoleName } from "@/types/api/users.api.types";
 
 export const sidebarMenuItems: MenuItem[] = [
+  // common
+    {
+        label: 'My Account',
+        icon: 'pi pi-user',
+        route: '/account',
+    },
+  // admin
     {
         label: 'Managing',
         icon: 'pi pi-briefcase',
-        route: '/managing',
+        route: '/admin/managing',
+        permissions: [RoleName.admin],
     },
     {
         label: 'Students',
         icon: 'pi pi-users',
-        route: '/students'
+        route: '/admin/students',
+        permissions: [RoleName.admin],
     },
     {
         label: 'Teachers',
         icon: 'pi pi-user-edit',
-        route: '/teachers'
+        route: '/admin/teachers',
+        permissions: [RoleName.admin],
     },
     {
         label: 'Disciplines',
         icon: 'pi pi-book',
-        route: '/disciplines'
+        route: '/admin/disciplines',
+        permissions: [RoleName.admin],
     },
+  // teacher
     {
         label: 'All Disciplines',
         icon: 'pi pi-list',
-        route: '/all-disciplines'
+        route: '/teacher/all-disciplines',
+        permissions: [RoleName.teacher],
     },
     {
         label: 'Taken Disciplines',
         icon: 'pi pi-check-square',
-        route: '/taken-disciplines'
+        route: '/teacher/taken-disciplines',
+        permissions: [RoleName.teacher],
     },
+  // student
     {
         label: 'My Disciplines',
         icon: 'pi pi-bookmark',
-        route: '/my-disciplines'
+        route: '/student/my-disciplines',
+        permissions: [RoleName.student],
     },
 ];
