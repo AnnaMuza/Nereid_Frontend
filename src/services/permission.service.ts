@@ -1,18 +1,10 @@
-import AuthService from './auth.service';
+import AuthService from './user.service';
 import { RouteLocationNormalized } from 'vue-router';
 import ApiService from '@/services/api.service';
-import { Role } from "@/types/api/users.api.types";
+import { Role } from "@/types/api/user.api.types";
 
 class PermissionService extends ApiService {
-
     private permissions: any = [];
-    private readonly endpoints = {
-        addGroupPermission: `permissions/groups/add`,
-        addDirectPermission: `permissions/users/add`,
-        removeDirectPermission: `permissions/users/remove`,
-        removeGroupPermission: `permissions/groups/remove`,
-        searchByName: `permissions/search`,
-    };
 
     constructor() {
         super();

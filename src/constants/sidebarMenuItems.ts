@@ -1,5 +1,5 @@
 import { MenuItem } from "primevue/menuitem";
-import { RoleName } from "@/types/api/users.api.types";
+import { RoleName } from "@/types/api/user.api.types";
 
 export const sidebarMenuItems: MenuItem[] = [
   // common

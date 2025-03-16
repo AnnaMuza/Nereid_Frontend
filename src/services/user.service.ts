@@ -2,13 +2,17 @@ import { BehaviorSubject, concat, filter, map, of, switchMap, take } from 'rxjs'
 import ApiService from '@/services/api.service';
 import { UsersApi } from '@/types/api';
 
-class AuthService extends ApiService {
+class UserService extends ApiService {
 
     public readonly user$ = new BehaviorSubject<UsersApi.User.Get | null>(null);
     private readonly TOKEN_KEY = 'access_token';
     private readonly endpoints = {
         login: 'user/log-in',
-        me: 'user/get'
+        getUser: 'user/get',
+        changePassword: '/user/change-password',
+        signUp: '/user/sign-up',
+        checkOtp: '/user/check-otp',
+        sendOtp: '/user/send-otp',
     };
 
     public get authToken() {
@@ -60,7 +64,7 @@ class AuthService extends ApiService {
             ),
             of(null).pipe(
                 switchMap(() => {
-                    return this.get<{user: UsersApi.User.Get}>(this.endpoints.me)
+                    return this.get<{user: UsersApi.User.Get}>(this.endpoints.getUser)
                       .pipe(
                         map(({user}) => {
                             if (!user) {
@@ -95,4 +99,4 @@ class AuthService extends ApiService {
 
 }
 
-export default new AuthService();
+export default new UserService();

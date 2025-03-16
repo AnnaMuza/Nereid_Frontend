@@ -23,7 +23,7 @@ export default class ApiService {
         return from(method);
     }
 
-    get<T extends any = any, M extends any = any>(url: string, config?: AxiosRequestConfig<T>) {
+    get<T extends any = any>(url: string, config?: AxiosRequestConfig<T>) {
         return this.wrap(
             axiosInstance.get<T>(this.getEndpoint(url), config)
         ).pipe(
@@ -39,7 +39,15 @@ export default class ApiService {
         );
     }
 
-    delete<T extends any = any, M extends any = any>(url: string, config?: AxiosRequestConfig<T>) {
+    patch<D extends any, T extends any>(url: string, data: D, config?: AxiosRequestConfig<T>) {
+        return this.wrap(
+          axiosInstance.patch<D, AxiosResponse<T>>(this.getEndpoint(url), data, config)
+        ).pipe(
+          map(({data}) => data)
+        );
+    }
+
+    delete<T extends any = any>(url: string, config?: AxiosRequestConfig<T>) {
         return this.wrap(
             axiosInstance.delete<T>(this.getEndpoint(url), config)
         ).pipe(

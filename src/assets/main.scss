@@ -12,13 +12,26 @@
 
 // Card
 .p-card {
-  .p-card-header {
-    padding: var(--p-card-body-padding);
-    padding-bottom: 0;
+  &.sidebar {
+    --p-card-body-padding: #{map-get($spacers, 20)};
+
+    .p-card-header {
+      padding-bottom: 0;
+    }
+
+    .p-card-body {
+      padding-top: 0;
+    }
+  }
+}
+
+.p-card {
+  .p-card-body {
+    padding-top: 20px;
   }
 
-  .p-card-body {
-    padding-top: 0;
+  .p-card-header {
+    padding: var(--p-card-body-padding);
   }
 }
 

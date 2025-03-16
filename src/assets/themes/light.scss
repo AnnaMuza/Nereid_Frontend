@@ -1,5 +1,7 @@
-$primary: #FF8E47;
-$primary-light: #FFF2E5CC;
+//$primary: #FF8E47;
+//$primary-light: #FFF2E5CC;
+$primary: #4AB3FE;
+$primary-light: #0284c7;
 $secondary: #4AB3FE;
 $light: #fff;
 $dark: #232323;
@@ -37,13 +39,13 @@ $theme-colors: map-merge($theme-colors, (
   --p-text-color: #{$body-color};
 
   // Button
-  --p-button-primary-color: #{$white};
-  --p-button-primary-background: #{$primary};
-  --p-button-primary-border-color: transparent;
-  --p-button-primary-hover-background: #e68040;
-  --p-button-primary-hover-border-color: transparent;
-  --p-button-primary-active-background: #cc7239;
-  --p-button-primary-active-border-color: transparent;
+  //--p-button-primary-color: #{$white};
+  //--p-button-primary-background: #{$primary};
+  //--p-button-primary-border-color: transparent;
+  //--p-button-primary-hover-background: #e68040;
+  //--p-button-primary-hover-border-color: transparent;
+  //--p-button-primary-active-background: #cc7239;
+  //--p-button-primary-active-border-color: transparent;
   //--p-button-primary-hover-color);
 
   //--p-button-text-primary-color: #{$white};

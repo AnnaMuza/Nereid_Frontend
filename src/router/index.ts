@@ -1,14 +1,16 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 import { take, tap } from 'rxjs';
-import AuthService from '@/services/auth.service';
+import AuthService from '@/services/user.service';
 import PermissionService from '@/services/permission.service';
 import ToastsService from '@/services/toasts.service';
-import { RoleName } from "@/types/api/users.api.types";
+import { RoleName } from "@/types/api/user.api.types";
 // Routes templates
 const LeftSidebarTemplate = () => import('@/templates/routes/LeftSidebar.template.vue');
 // Routes
 const Login = () => import('@/views/Login.vue');
-const Managing = () => import('@/views/Managing.vue');
+const Managing = () => import('@/views/admin/Managing.vue');
+// @ts-ignore
+const Account = () => import('@/views/Account.vue');
 
 // TODO 404 routes for groups of routes
 
@@ -74,7 +76,7 @@ const routes: RouteRecordRaw[] = [
         children: [
             {
                 path: 'account',
-                component: Managing,
+                component: Account,
                 name: 'account'
             },
             {

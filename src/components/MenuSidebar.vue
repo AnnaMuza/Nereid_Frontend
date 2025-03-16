@@ -123,7 +123,7 @@ $sidebar-padding: calc(10px + 14px + var(--p-tieredmenu-item-gap));
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
     import { sidebarMenuItems } from '@/constants/sidebarMenuItems';
-    import AuthService from "@/services/auth.service";
+    import AuthService from "@/services/user.service";
     import { router } from "@/router";
     import PermissionService from '@/services/permission.service';
 

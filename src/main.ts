@@ -21,10 +21,15 @@ import DataView from 'primevue/dataview';
 import StyleClass from "primevue/styleclass";
 import Ripple from "primevue/ripple";
 import InputText from 'primevue/inputtext';
+import Password from 'primevue/password';
 import Checkbox from "primevue/checkbox";
+import Message from "primevue/message";
+import { CheckboxGroup } from "primevue";
 import IconField from "primevue/iconfield";
 import InputIcon from "primevue/inputicon";
 import Dialog from "primevue/dialog";
+import Divider from "primevue/divider";
+import { CardHeader } from "@/components";
 import ConfirmationService from 'primevue/confirmationservice';
 import VueApexCharts from "vue3-apexcharts";
 import { definePreset } from '@primevue/themes';
@@ -86,13 +91,18 @@ createApp(App)
     .component('DataTable', DataTable)
     .component('ToggleSwitch', ToggleSwitch)
     .component('InputText', InputText)
+    .component('Password', Password)
     .component('Checkbox', Checkbox)
+    .component('Message', Message)
+    .component('CheckboxGroup', CheckboxGroup)
     .component('IconField', IconField)
+    .component('Divider', Divider)
     .component('InputIcon', InputIcon)
     .component("Toast", Toast)
     .component("PanelMenu", PanelMenu)
     .component("Dialog", Dialog)
     .component("FloatLabel", FloatLabel)
+    .component("CardHeader", CardHeader)
     .directive('tooltip', Tooltip)
     .directive('styleClass', StyleClass)
     .directive('ripple', Ripple)

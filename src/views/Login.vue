@@ -21,11 +21,11 @@
                 </div>
 
                 <div>
-                    <Checkbox name="rememberMe" inputId="rememberMe"/>
+                    <Checkbox inputId="rememberMe" name="rememberMe" value="true"/>
                     <label for="rememberMe" class="ms-2">Remember Me</label>
                 </div>
 
-                <Button type="submit" class="w-100 rounded-3 mt-3 fw-bold" label="Login" size="large"/>
+                <Button type="submit" class="w-100 rounded-3 mt-4 fw-bold" label="Login" size="large"/>
             </Form>
         </div>
     </div>
@@ -64,12 +64,7 @@
 import { reactive } from 'vue';
 import { useToast } from 'primevue/usetoast';
 import { Form, FormResolverOptions, FormSubmitEvent } from '@primevue/forms';
-import IconField from 'primevue/iconfield';
-import InputIcon from 'primevue/inputicon';
-import Password from 'primevue/password';
-import Message from 'primevue/message';
-import Checkbox from 'primevue/checkbox';
-import AuthService from '../services/auth.service';
+import AuthService from '../services/user.service';
 import { router } from '@/router';
 
 interface FormValues {
@@ -118,7 +113,7 @@ const onFormSubmit = ({ valid, values }: FormSubmitEvent): void => {
         AuthService.login({
             email,
             password
-        }, rememberMe).subscribe({
+        }, !!rememberMe[0]).subscribe({
             next: () => {
                 const { redirectTo = '' } = router.currentRoute.value.query;
                 router.push(redirectTo ? { path: redirectTo.toString() } : { path: '/' });

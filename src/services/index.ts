@@ -1,7 +1,5 @@
-import PermissionService from './permission.service';
-import UsersService from './users.service';
+import UserService from './user.service';
 
 export {
-    PermissionService,
-    UsersService,
+    UserService,
 }
