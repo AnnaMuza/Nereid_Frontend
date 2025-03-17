@@ -95,6 +95,26 @@ import AdminService from '@/services/admin.service';
 import PermissionService from "@/services/permission.service";
 import { Role, RoleName } from "@/types/api/user.api.types";
 import TeacherService from "@/services/teacher.service";
+import { UsersApi } from '@/types/api';
+
+
+interface CustomField {
+    name: string;
+    value: string;
+    selected: boolean;
+}
+
+
+interface Data {
+    firstName: string;
+    lastName: string;
+    patronymic: string;
+    email: string;
+    user: UsersApi.User.Get | null;
+    submitted: boolean;
+    PermissionService: typeof PermissionService;
+    customFields: CustomField[];
+};
 
 export default defineComponent({
     name: 'Account',
@@ -103,13 +123,13 @@ export default defineComponent({
             return RoleName
         }
     },
-    data() {
+    data(): Data {
         return {
             firstName: '',
             lastName: '',
             patronymic: '',
             email: '',
-            roleId: -1,
+            user: null,
             submitted: false,
             PermissionService,
             customFields: [
@@ -125,7 +145,7 @@ export default defineComponent({
             this.firstName = user?.firstName ?? '';
             this.lastName = user?.lastName ?? '';
             this.patronymic = user?.patronymic ?? '';
-            this.roleId = user?.roleId ?? -1;
+            this.user = user;
         });
     },
     methods: {
@@ -141,9 +161,10 @@ export default defineComponent({
                     email: this.email
                 };
 
-                (this.roleId === Role.admin ? AdminService.editAdminProfile(userData) : TeacherService.editTeacherProfile(userData))
+                (this.user?.roleId === Role.admin ? AdminService.editAdminProfile(userData) : TeacherService.editTeacherProfile(this.user?.id ?? -1, userData))
+                    // @ts-ignore
                     .subscribe({
-                        next: (response) => {
+                        next: () => {
                             this.$toast.add({
                                 severity: 'success',
                                 summary: 'Success',
@@ -151,7 +172,7 @@ export default defineComponent({
                                 life: 3000
                             });
                         },
-                        error: (error) => {
+                        error: (error: any) => {
                             this.$toast.add({
                                 severity: 'error',
                                 summary: 'Error',

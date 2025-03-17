@@ -6,20 +6,35 @@ import UserService from "@/services/user.service";
 
 class TeacherService extends ApiService {
   private readonly endpoints = {
+    health: '/teacher/healthy',
+
+    // Teacher endpoints
     getTeacher: '/teacher/get',
-    editTeacher: '/teacher/edit',
-  }
+    editTeacher: '/teacher/edit', // :id
+    addField: '/teacher/add-field',
+    deleteField: '/teacher/delete-field/:fieldId',
+
+    // Discipline endpoints
+    getAllDisciplines: '/teacher/get-all-disciplines',
+    takeDiscipline: '/teacher/take-discipline',
+    releaseDiscipline: '/teacher/release-discipline',
+    getAllTakenDisciplines: '/teacher/get-all-taken-disciplines/:teacherId',
+
+    getDiscipline: '/teacher/get-discipline/:id',
+    editDiscipline: '/teacher/edit-discipline/:id',
+    addFieldToDiscipline: '/teacher/add-field-to-discipline',
+    deleteFieldFromDiscipline: '/teacher/delete-field-from-discipline/:fieldId'
+  };
 
 
-  editTeacherProfile(data: UsersApi.Teacher.EditTeacher): Observable<UsersApi.Teacher.TeacherResponse> {
-    return this.patch<UsersApi.Teacher.EditTeacher, UsersApi.Teacher.TeacherResponse>(this.endpoints.editTeacher, data).pipe(
-      map(() => {
+  editTeacherProfile(id: number, data: UsersApi.Teacher.EditRequest): Observable<UsersApi.Teacher.EditResponse> {
+    return this.patch<UsersApi.Teacher.EditRequest, UsersApi.Teacher.EditResponse>(`${this.endpoints.editTeacher}/${id}`, data).pipe(
+      map((response) => {
         UserService.getMe();
+        return response;
       })
     );
   }
-
-
 }
 
 export default new TeacherService();
