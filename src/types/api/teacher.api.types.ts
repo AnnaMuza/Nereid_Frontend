@@ -1,32 +1,23 @@
+import { UsersApi } from ".";
+
 export namespace Teacher {
   // Common types
   export interface Field {
     id: number;
-    name: string;
-    content: string;
-    teacherId?: number;
-    disciplineId?: number;
+    name?: string;
+    content?: string;
+    teacherId: number;
   }
 
   export interface Get {
-    id: number;
-    email: string;
-    firstName: string;
-    lastName: string;
-    patronymic?: string;
-    isActive: boolean;
+    teacher: UsersApi.User.Get & { userId: number };
+    allTeacherFields: Field[];
   }
 
   export interface Discipline {
     id: number;
     name: string;
     description: string | null;
-  }
-
-  // Teacher endpoints
-  export interface GetResponse {
-    teacher: Get;
-    allTeacherFields: Field[];
   }
 
   export interface EditRequest {

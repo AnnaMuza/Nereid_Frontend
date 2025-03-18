@@ -5,7 +5,7 @@ import { map } from "rxjs/operators";
 import UserService from "@/services/user.service";
 
 class TeacherService extends ApiService {
-  public readonly teacher$ = new BehaviorSubject<UsersApi.Teacher.Get | null>(null);
+  public readonly teacher$ = new BehaviorSubject<UsersApi.Teacher.Get['teacher'] | null>(null);
 
   private readonly endpoints = {
     health: '/teacher/healthy',
@@ -29,8 +29,8 @@ class TeacherService extends ApiService {
   };
 
   // Teacher endpoints
-  getTeacher(): Observable<UsersApi.Teacher.GetResponse> {
-    return this.get<UsersApi.Teacher.GetResponse>(this.endpoints.getTeacher).pipe(
+  getTeacher(): Observable<UsersApi.Teacher.Get> {
+    return this.get<UsersApi.Teacher.Get>(this.endpoints.getTeacher).pipe(
       tap(response => {
         this.teacher$.next(response.teacher);
       })

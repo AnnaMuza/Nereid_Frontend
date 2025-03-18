@@ -5,24 +5,31 @@
         </template>
 
         <template #content>
-            <div class="disciplines-container">
-                <div v-for="discipline in takenDisciplines" :key="discipline.id" class="discipline-item">
+            <div class="d-flex flex-column gap-4">
+                <div v-for="discipline in takenDisciplines" :key="discipline.id" class="d-flex gap-2">
                     <Checkbox
                         v-model="selectedDisciplines"
                         :value="discipline.id"
                         :binary="false"
                     />
-                    <div class="discipline-name">{{ discipline.name }}</div>
-                </div>
-
-                <div class="action-container">
-                    <Button
-                        label="Release Disciplines"
-                        @click="releaseDisciplines"
-                        :disabled="selectedDisciplines.length === 0"
-                    />
+                    <router-link
+                        :to="{
+                            name: 'teacher-discipline',
+                            params: {
+                                id: discipline.id
+                            }
+                        }">
+                        <div>{{ discipline.name }}</div>
+                    </router-link>
                 </div>
             </div>
+            <Button
+                class="d-flex mt-4"
+                style="justify-self: center;"
+                label="Release Disciplines"
+                @click="releaseDisciplines"
+                :disabled="selectedDisciplines.length === 0"
+            />
         </template>
     </Card>
 </template>
@@ -34,11 +41,11 @@ import { UsersApi } from '@/types/api';
 import { Subscription } from 'rxjs';
 
 export default defineComponent({
-    name: 'TakenDisciplinesManager',
+    name: 'TakenDisciplines',
     setup() {
         const takenDisciplines = ref<UsersApi.Teacher.Discipline[]>([]);
         const selectedDisciplines = ref<number[]>([]);
-        const teacher = ref<UsersApi.Teacher.Get | null>(null);
+        const teacher = ref<UsersApi.Teacher.Get['teacher'] | null>(null);
         const loading = ref(false);
         const error = ref<string | null>(null);
         const subscriptions = new Set<Subscription>();
@@ -134,27 +141,3 @@ export default defineComponent({
     }
 });
 </script>
-
-<style scoped>
-.disciplines-container {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-}
-
-.discipline-item {
-    display: flex;
-    align-items: center;
-    padding: 0.5rem 0;
-}
-
-.discipline-name {
-    margin-left: 0.5rem;
-}
-
-.action-container {
-    display: flex;
-    justify-content: center;
-    margin-top: 1rem;
-}
-</style>

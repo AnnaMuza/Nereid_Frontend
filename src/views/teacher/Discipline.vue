@@ -29,9 +29,9 @@
 
             <!-- Discipline fields section -->
             <div class="d-flex flex-column">
-                <div class="d-flex flex-column gap-4">
-                    <div v-for="(field, index) in disciplineFields" :key="index" class="d-flex align-items-center gap-3">
-                        <Checkbox v-model="selectedFields" :binary="true"/>
+                <div class="d-flex flex-column gap-3">
+                    <div v-for="field in disciplineFields" :key="field.id" class="d-flex align-items-center gap-3">
+                        <Checkbox v-model="selectedFields" :value="field.id"/>
                         <div class="flex-grow-1">
                             <small style="padding-left: 0.75rem">{{ field.name }}</small>
                             <Message class="mt-1">{{ field.content }}</Message>
@@ -51,14 +51,12 @@
                     </div>
                 </div>
 
-                <div class="d-flex gap-3 justify-content-around mt-4">
+                <div v-if="!showAddField" class="d-flex gap-3 justify-content-around mt-4">
                     <Button
-                        v-if="!showAddField"
                         label="Add field"
                         @click="showAddFieldForm"
                     />
                     <Button
-                        v-if="!showAddField"
                         label="Delete field"
                         @click="deleteSelectedFields"
                         :disabled="selectedFields.length === 0"
@@ -256,5 +254,3 @@ export default defineComponent({
     }
 });
 </script>
-
-<style scoped src="@/views/temp.css"></style>

@@ -48,26 +48,41 @@
 
         <div v-if="PermissionService.userCan([RoleName.teacher])">
             <Divider class="my-5"/>
-            <div class="d-flex flex-column gap-4">
-                <div v-for="(field, index) in customFields" :key="index" class="d-flex align-items-center gap-3">
-                    <Checkbox v-model="field.selected" :binary="true"/>
-                    <div class="flex-grow-1">
-                        <small style="padding-left: 0.75rem">{{ field.name }}</small>
-                        <Message class="mt-1">{{ field.value }}</Message>
+            <div class="d-flex flex-column">
+                <div class="d-flex flex-column gap-3">
+                    <div v-for="field in fields" :key="field.id" class="d-flex align-items-center gap-3">
+                        <Checkbox v-model="selectedFields" :value="field.id"/>
+                        <div class="flex-grow-1">
+                            <small style="padding-left: 0.75rem">{{ field.name }}</small>
+                            <Message class="mt-1">{{ field.content }}</Message>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="d-flex gap-3 justify-content-around mt-4">
-                <Button
-                    label="Add field"
-                    @click="addCustomField"
-                />
-                <Button
-                    label="Delete field"
-                    severity="info"
-                    :disabled="!customFields.some(field => field.selected)"
-                    @click="deleteSelectedFields"
-                />
+
+                <!-- Add new field form -->
+                <div v-if="showAddField" class="d-flex flex-column my-4">
+                    <div class="d-flex flex-row gap-4">
+                        <InputText v-model="newField.name" placeholder="Field name"/>
+                        <InputText v-model="newField.content" placeholder="Field content"/>
+                    </div>
+                    <div class="d-flex gap-3 justify-content-around mt-4">
+                        <Button label="Save Field" @click="saveNewField"/>
+                        <Button label="Cancel" @click="cancelAddField" severity="secondary"/>
+                    </div>
+                </div>
+
+                <div v-if="!showAddField" class="d-flex gap-3 justify-content-around mt-4">
+                    <Button
+                        label="Add field"
+                        @click="showAddFieldForm"
+                    />
+                    <Button
+                        label="Delete field"
+                        severity="info"
+                        :disabled="selectedFields.length === 0"
+                        @click="deleteSelectedFields"
+                    />
+                </div>
             </div>
         </div>
     </template>
@@ -76,19 +91,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, onUnmounted, reactive, ref } from 'vue';
 import UserService from '@/services/user.service';
 import AdminService from '@/services/admin.service';
 import PermissionService from "@/services/permission.service";
 import { Role, RoleName } from "@/types/api/user.api.types";
 import TeacherService from "@/services/teacher.service";
 import { UsersApi } from '@/types/api';
-
-interface CustomField {
-    name: string;
-    value: string;
-    selected: boolean;
-}
+import { Subscription } from "rxjs";
 
 interface Data {
     firstName: string;
@@ -98,7 +108,6 @@ interface Data {
     user: UsersApi.User.Get | null;
     submitted: boolean;
     PermissionService: typeof PermissionService;
-    customFields: CustomField[];
 }
 
 export default defineComponent({
@@ -117,10 +126,6 @@ export default defineComponent({
             user: null,
             submitted: false,
             PermissionService,
-            customFields: [
-                { name: 'Field1', value: 'ertretre', selected: false },
-                { name: 'Field2', value: 'ertretretr', selected: false }
-            ],
         };
     },
     created() {
@@ -131,6 +136,10 @@ export default defineComponent({
             this.lastName = user?.lastName ?? '';
             this.patronymic = user?.patronymic ?? '';
             this.user = user;
+
+            if (user?.roleId === Role.teacher) {
+                this.fetchTeacher();
+            }
         });
     },
     methods: {
@@ -168,20 +177,126 @@ export default defineComponent({
                     });
             }
         },
-        addCustomField() {
-            const newFieldNumber = this.customFields.length + 1;
-            this.customFields.push({
-                name: `Field${newFieldNumber}`,
-                value: '',
-                selected: false
-            });
-        },
-        deleteSelectedFields() {
-            this.customFields = this.customFields.filter(field => !field.selected);
-        },
     },
-    beforeUnmount() {
-        // Cleanup subscriptions if needed
+    setup() {
+        const showAddField = ref(false);
+        const loading = ref(false);
+        const fields = ref<any[]>([]);
+        const selectedFields = ref<number[]>([]);
+        const newField = reactive({
+            name: '',
+            content: ''
+        });
+        const subscriptions = new Set<Subscription>();
+        const teacher = ref<UsersApi.Teacher.Get['teacher'] | null>(null);
+
+        const fetchTeacher = () => {
+            const subscription = TeacherService.getTeacher().subscribe({
+                next: (response) => {
+                    teacher.value = response.teacher;
+                    fields.value = response.allTeacherFields;
+                    fields.value.forEach(f => {f.selected = false});
+                    loading.value = false;
+                },
+                error: (err) => {
+                    console.error('Failed to load teacher data', err);
+                    loading.value = false;
+                }
+            });
+
+            subscriptions.add(subscription);
+        };
+
+        const cancelAddField = () => {
+            showAddField.value = false;
+        };
+
+        const showAddFieldForm = () => {
+            showAddField.value = true;
+            newField.name = '';
+            newField.content = '';
+        };
+
+        const saveNewField = () => {
+            if (!teacher.value || !newField.name.trim()) return;
+
+            loading.value = true;
+
+            const subscription = TeacherService.addField({
+                teacherId: teacher.value.id,
+                fieldName: newField.name,
+                fieldContent: newField.content
+            }).subscribe({
+                next: () => {
+                    // Reset and hide form
+                    showAddField.value = false;
+                    newField.name = '';
+                    newField.content = '';
+
+                    // Refresh discipline fields
+                    fetchTeacher();
+                    loading.value = false;
+                },
+                error: (err) => {
+                    err.value = 'Failed to add field';
+                    console.error(err);
+                    loading.value = false;
+                }
+            });
+
+            subscriptions.add(subscription);
+        };
+
+        const deleteSelectedFields = () => {
+            if (selectedFields.value.length === 0) return;
+
+            loading.value = true;
+
+            // Track how many operations are completed
+            let completedOps = 0;
+            const totalOps = selectedFields.value.length;
+
+            selectedFields.value.forEach(fieldId => {
+                const subscription = TeacherService.deleteField(fieldId).subscribe({
+                    next: () => {
+                        completedOps++;
+                        // When all operations are done
+                        if (completedOps === totalOps) {
+                            selectedFields.value = [];
+                            loading.value = false;
+
+                            // Refresh discipline fields
+                            fetchTeacher();
+                        }
+                    },
+                    error: (err) => {
+                        err.value = 'Failed to delete field';
+                        console.error(err);
+                        loading.value = false;
+                    }
+                });
+
+                subscriptions.add(subscription);
+            });
+        };
+
+        onUnmounted(() => {
+            // Clean up all subscriptions to prevent memory leaks
+            subscriptions.forEach(subscription => subscription.unsubscribe());
+            subscriptions.clear();
+        });
+
+        return {
+            showAddField,
+            newField,
+            cancelAddField,
+            saveNewField,
+            fields,
+            showAddFieldForm,
+            deleteSelectedFields,
+            selectedFields,
+            fetchTeacher,
+        };
     }
 });
 </script>
