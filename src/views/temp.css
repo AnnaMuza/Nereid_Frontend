@@ -1,0 +1,68 @@
+.discipline-details-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.discipline-form-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  margin: 1rem 0;
+}
+
+.divider {
+  width: 100%;
+  margin: 1rem 0;
+}
+
+.discipline-fields-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.field-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.field-name {
+  margin: 0 0.5rem;
+  min-width: 6rem;
+}
+
+.field-name-input {
+  margin-right: 0.5rem;
+  min-width: 6rem;
+}
+
+.field-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+}
+
+.add-field-form {
+  display: flex;
+  flex-direction: column;
+  margin: 1rem 0;
+  padding: 1rem 0;
+}
+
+.add-field-buttons {
+  display: flex;
+  justify-content: space-between;
+}

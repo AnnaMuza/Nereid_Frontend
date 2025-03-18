@@ -52,14 +52,8 @@
                 <div v-for="(field, index) in customFields" :key="index" class="d-flex align-items-center gap-3">
                     <Checkbox v-model="field.selected" :binary="true"/>
                     <div class="flex-grow-1">
-                        <FloatLabel variant="on">
-                            <label :for="'field' + index" class="mb-2">{{ field.name }}</label>
-                            <InputText
-                                :id="'field' + index"
-                                v-model="field.value"
-                                class="w-100"
-                            />
-                        </FloatLabel>
+                        <small style="padding-left: 0.75rem">{{ field.name }}</small>
+                        <Message class="mt-1">{{ field.value }}</Message>
                     </div>
                 </div>
             </div>
@@ -80,15 +74,6 @@
 </Card>
 
 </template>
-
-<style lang="scss" scoped>
-
-::v-deep(.p-inputtext) {
-    width: 100%;
-    padding-block: 0.7rem;
-}
-
-</style>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
@@ -133,8 +118,8 @@ export default defineComponent({
             submitted: false,
             PermissionService,
             customFields: [
-                { name: 'Field1', value: '', selected: false },
-                { name: 'Field2', value: '', selected: false }
+                { name: 'Field1', value: 'ertretre', selected: false },
+                { name: 'Field2', value: 'ertretretr', selected: false }
             ],
         };
     },

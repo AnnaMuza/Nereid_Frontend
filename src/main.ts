@@ -26,6 +26,7 @@ import Checkbox from "primevue/checkbox";
 import Message from "primevue/message";
 import { CheckboxGroup } from "primevue";
 import IconField from "primevue/iconfield";
+import Textarea from 'primevue/textarea';
 import InputIcon from "primevue/inputicon";
 import Dialog from "primevue/dialog";
 import Divider from "primevue/divider";
@@ -98,6 +99,7 @@ createApp(App)
     .component('InputText', InputText)
     .component('Password', Password)
     .component('Checkbox', Checkbox)
+    .component('Textarea', Textarea)
     .component('Message', Message)
     .component('CheckboxGroup', CheckboxGroup)
     .component('IconField', IconField)

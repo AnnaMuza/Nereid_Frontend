@@ -66,4 +66,10 @@ $spacers: map-merge($spacers, (
   // Tabs
   --p-tabs-tab-font-weight: initial;
   --p-tabs-tabpanel-focus-ring-width: 0;
+
+  // Message
+  --p-message-border-radius: #{$border-radius};
+  --p-message-border-width: 0;
+  --p-message-info-shadow: none;
+  --p-message-info-color: #{$secondary};
 }

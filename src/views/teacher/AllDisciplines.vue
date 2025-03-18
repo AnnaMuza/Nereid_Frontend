@@ -14,7 +14,15 @@
                         :disabled="isAlreadyTaken(discipline.id)"
                         :checked="isAlreadyTaken(discipline.id)"
                     />
-                    <div class="discipline-name">{{ discipline.name }}</div>
+                    <router-link
+                        :to="{
+                            name: 'teacher-discipline',
+                            params: {
+                                id: discipline.id
+                            }
+                        }">
+                        <div class="discipline-name">{{ discipline.name }}</div>
+                    </router-link>
                 </div>
 
                 <div class="action-container">
