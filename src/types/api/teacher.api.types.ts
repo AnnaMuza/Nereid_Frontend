@@ -8,7 +8,7 @@ export namespace Teacher {
     disciplineId?: number;
   }
 
-  export interface Teacher {
+  export interface Get {
     id: number;
     email: string;
     firstName: string;
@@ -20,12 +20,12 @@ export namespace Teacher {
   export interface Discipline {
     id: number;
     name: string;
-    description: string;
+    description: string | null;
   }
 
   // Teacher endpoints
   export interface GetResponse {
-    teacher: Teacher;
+    teacher: Get;
     allTeacherFields: Field[];
   }
 
@@ -55,11 +55,7 @@ export namespace Teacher {
   }
 
   // Discipline endpoints
-  export type GetAllDisciplinesResponse = Array<{
-    id: number;
-    name: string;
-    description: string;
-  }>;
+  export type GetAllDisciplinesResponse = Discipline[];
 
   export type GetAllTakenDisciplinesResponse = Array<{
     id: number;

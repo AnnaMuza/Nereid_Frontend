@@ -20,7 +20,7 @@ export default {
     },
     computed: {
         iconClass() {
-            return `fi fi-sr-${this.icon}`;
+            return `pi pi-${this.icon}`;
         }
     }
 }

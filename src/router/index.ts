@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 import { take, tap } from 'rxjs';
 import AuthService from '@/services/user.service';
@@ -9,8 +10,9 @@ const LeftSidebarTemplate = () => import('@/templates/routes/LeftSidebar.templat
 // Routes
 const Login = () => import('@/views/Login.vue');
 const Managing = () => import('@/views/admin/Managing.vue');
-// @ts-ignore
 const Account = () => import('@/views/Account.vue');
+const AllDisciplines = () => import('@/views/teacher/AllDisciplines.vue');
+const TakenDisciplines = () => import('@/views/teacher/TakenDisciplines.vue');
 
 // TODO 404 routes for groups of routes
 
@@ -89,6 +91,24 @@ const routes: RouteRecordRaw[] = [
                         path: 'managing',
                         component: Managing,
                         name: 'managing'
+                    },
+                ]
+            },
+            {
+                path: 'teacher',
+                meta: {
+                    permissions: [RoleName.teacher]
+                },
+                children: [
+                    {
+                        path: 'all-disciplines',
+                        component: AllDisciplines,
+                        name: 'all-disciplines'
+                    },
+                    {
+                        path: 'taken-disciplines',
+                        component: TakenDisciplines,
+                        name: 'taken-disciplines'
                     },
                 ]
             },

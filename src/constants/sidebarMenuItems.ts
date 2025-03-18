@@ -42,7 +42,7 @@ export const sidebarMenuItems: MenuItem[] = [
     },
     {
         label: 'Taken Disciplines',
-        icon: 'pi pi-check-square',
+        icon: 'pi pi-check-circle',
         route: '/teacher/taken-disciplines',
         permissions: [RoleName.teacher],
     },

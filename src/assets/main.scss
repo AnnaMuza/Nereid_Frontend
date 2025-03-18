@@ -13,6 +13,7 @@
 // Card
 .p-card {
   &.sidebar {
+    min-height: 0;
     --p-card-body-padding: #{map-get($spacers, 20)};
 
     .p-card-header {
@@ -26,12 +27,15 @@
 }
 
 .p-card {
+  min-height: 50%;
+
   .p-card-body {
-    padding-top: 20px;
+    padding-top: 0;
   }
 
   .p-card-header {
     padding: var(--p-card-body-padding);
+    padding-bottom: 20px;
   }
 }
 

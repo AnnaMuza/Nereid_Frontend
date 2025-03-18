@@ -73,6 +73,11 @@ createApp(App)
           root: {
             class: 'p-datatable-striped'
           }
+        },
+        inputtext: {
+          root: {
+            class: 'p-variant-filled'
+          }
         }
       }
     })

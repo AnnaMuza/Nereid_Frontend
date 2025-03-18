@@ -6,7 +6,7 @@
     </template>
 
     <template #content>
-        <div class="d-flex flex-column gap-5">
+        <div class="d-flex flex-column gap-5 mt-20">
             <FloatLabel variant="over">
                 <label for="firstName">First Name</label>
                 <InputText
@@ -39,19 +39,20 @@
                 />
                 <small v-if="submitted && !email" class="p-error">Email is required.</small>
             </FloatLabel>
-
-            <div class="d-flex justify-content-center">
-                <Button label="Save" @click="saveProfile" />
-            </div>
         </div>
+        <Button
+            class="d-flex mt-4"
+            style="justify-self: center;"
+            label="Save"
+            @click="saveProfile"/>
 
         <div v-if="PermissionService.userCan([RoleName.teacher])">
             <Divider class="my-5"/>
-            <div class="d-flex flex-column gap-5">
+            <div class="d-flex flex-column gap-4">
                 <div v-for="(field, index) in customFields" :key="index" class="d-flex align-items-center gap-3">
                     <Checkbox v-model="field.selected" :binary="true"/>
                     <div class="flex-grow-1">
-                        <FloatLabel variant="over">
+                        <FloatLabel variant="on">
                             <label :for="'field' + index" class="mb-2">{{ field.name }}</label>
                             <InputText
                                 :id="'field' + index"
@@ -61,17 +62,18 @@
                         </FloatLabel>
                     </div>
                 </div>
-
-                <div class="d-flex gap-3 justify-content-around">
-                    <Button
-                        label="Add field"
-                        @click="addCustomField"
-                    />
-                    <Button
-                        label="Delete field"
-                        @click="deleteSelectedFields"
-                    />
-                </div>
+            </div>
+            <div class="d-flex gap-3 justify-content-around mt-4">
+                <Button
+                    label="Add field"
+                    @click="addCustomField"
+                />
+                <Button
+                    label="Delete field"
+                    severity="info"
+                    :disabled="!customFields.some(field => field.selected)"
+                    @click="deleteSelectedFields"
+                />
             </div>
         </div>
     </template>
@@ -97,13 +99,11 @@ import { Role, RoleName } from "@/types/api/user.api.types";
 import TeacherService from "@/services/teacher.service";
 import { UsersApi } from '@/types/api';
 
-
 interface CustomField {
     name: string;
     value: string;
     selected: boolean;
 }
-
 
 interface Data {
     firstName: string;
@@ -114,7 +114,7 @@ interface Data {
     submitted: boolean;
     PermissionService: typeof PermissionService;
     customFields: CustomField[];
-};
+}
 
 export default defineComponent({
     name: 'Account',
