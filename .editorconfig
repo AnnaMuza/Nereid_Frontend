@@ -1,0 +1,9 @@
+[*.{js,jsx,ts,tsx,vue}]
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = true
+insert_final_newline = true
+[*.vue]
+ij_vue_indent_children_of_top_level = template,script,style
+[*.json]
+indent_size = 4

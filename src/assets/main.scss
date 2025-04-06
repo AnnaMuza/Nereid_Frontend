@@ -1,0 +1,238 @@
+@import '~bootstrap/scss/functions';
+@import '~bootstrap/scss/mixins';
+@import "themes/light";
+@import "variables";
+@import "~bootstrap";
+@import "primeicons/primeicons.css";
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600&display=swap');
+@import url('https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css');
+@import url('https://cdn-uicons.flaticon.com/2.5.0/uicons-solid-rounded/css/uicons-solid-rounded.css');
+
+/* Global components styles */
+
+// Card
+.p-card {
+  &.sidebar {
+    min-height: 0;
+    --p-card-body-padding: #{map-get($spacers, 20)};
+
+    .p-card-header {
+      padding-bottom: 0;
+    }
+
+    .p-card-body {
+      padding-top: 0;
+    }
+  }
+}
+
+.p-card {
+  min-height: 50%;
+
+  .p-card-body {
+    padding-top: 0;
+  }
+
+  .p-card-header {
+    padding: var(--p-card-body-padding);
+    padding-bottom: 20px;
+  }
+}
+
+// TieredMenu
+.p-tieredmenu-root-list {
+
+  .p-tieredmenu-item-link,
+  .p-tieredmenu-item-icon {
+    transition: color var(--p-tieredmenu-transition-duration);
+  }
+}
+
+// Button
+button {
+  border-radius: revert-layer; // override theme styles
+}
+
+// MultiSelect
+.p-multiselect-list {
+  padding-left: 0.25rem;
+}
+
+// Tree
+.p-tree-root-children {
+  padding-left: 0;
+}
+
+// DatePicker
+.p-datepicker-panel {
+  width: min-content !important;
+}
+
+// Toolbar
+.p-toolbar {
+  border: none;
+  padding-left: 0;
+  padding-right: 0;
+  align-items: stretch;
+  margin-top: 0.5rem;
+
+  &.force-high {
+    // --p-toggleswitch-height \/           \/ border-button Y padding + border width
+    min-height:          calc(1.5rem + (8px + 2px) * 2 + var(--p-toolbar-padding) * 2);
+  }
+
+  .p-toolbar-start,
+  .p-toolbar-center,
+  .p-toolbar-end {
+    gap: 0.9rem;
+    align-items: stretch;
+  }
+}
+
+// ButtonGroup
+.p-buttongroup {
+  gap: 2px;
+  //border-radius: var(--p-form-field-border-radius);
+}
+
+// DataTable
+.p-datatable:not(.default) {
+  margin: 0 calc(var(--p-card-body-padding) * -1);
+  font-size: 0.9rem;
+
+  .p-datatable-thead {
+    > tr {
+      > th:first-child {
+        padding-left: var(--p-card-body-padding);
+      }
+
+      > th:last-child {
+        padding-right: var(--p-card-body-padding);
+      }
+    }
+  }
+
+  .p-datatable-tbody {
+    > tr {
+      > td:first-child {
+        padding-left: var(--p-card-body-padding);
+      }
+
+      > td:last-child {
+        padding-right: var(--p-card-body-padding);
+      }
+    }
+  }
+}
+
+.p-datatable {
+  &.default {
+    .p-datatable-tbody {
+      > tr.p-row-odd {
+        background: var(--p-datatable-row-background);
+      }
+    }
+  }
+}
+
+.p-datatable-row-expansion {
+  .p-datatable-table-container {
+    --p-datatable-body-cell-padding: 1.3rem;
+    --p-datatable-header-cell-padding: var(--p-datatable-body-cell-padding);
+    border-radius: #{$border-radius};
+  }
+}
+
+td[data-pc-section="rowexpansioncell"]:has(> .p-datatable) {
+  padding: 0;
+}
+
+// Checkbox
+.p-checkbox-box {
+  padding: 0.2rem;
+}
+
+/* Global style settings */
+
+body {
+  font-family: 'Montserrat', serif;
+  //font-size: 14px;
+  font-weight: 500;
+  line-height: 1.2;
+
+  .fi {
+    line-height: 0.8;
+    font-family: var(--bs-body-font-family); // Montserrat makes icons not square
+  }
+
+  .p-inputtext,
+  .p-treeselect,
+  .p-textarea {
+    border: 2px solid var(--p-inputtext-border-color);
+    width: 100%;
+    padding-block: 0.7rem;
+  }
+}
+
+html,
+body {
+  height: 100%;
+}
+
+#app {
+  height: 100%;
+}
+
+a {
+  text-decoration: none;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #{$back-dark};
+  border-radius: 20px;
+  border: 6px solid transparent;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--p-surface-300);
+}
+
+/* Small components styles */
+
+.border-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 2px solid #{$back};
+  border-radius: #{$border-radius};
+  padding: 8px 15px;
+}
+
+.date-button {
+  background: transparent;
+  color: var(--bs-secondary);
+  font-size: larger;
+}
+
+.fi-anim-spin {
+  animation: spin-animation 3s infinite;
+  animation-timing-function: linear;
+}
+
+@keyframes spin-animation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(359deg);
+  }
+}
