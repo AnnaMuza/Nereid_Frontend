@@ -12,10 +12,21 @@
                 </FloatLabel>
 
                 <FloatLabel variant="over">
+                    <label for="credits">Credits</label>
+                    <InputText v-model="disciplineForm.credits" id="credits"/>
+                </FloatLabel>
+
+                <FloatLabel variant="over">
+                    <label for="semester">Semester</label>
+                    <InputText v-model="disciplineForm.semester" id="semester"/>
+                </FloatLabel>
+
+                <FloatLabel variant="over">
                     <label for="disciplineDescription">Short Description</label>
                     <Textarea
                         v-model="disciplineForm.description"
                         rows="3"
+                        variant="filled"
                         id="disciplineDescription"
                     />
                 </FloatLabel>
@@ -97,7 +108,9 @@ export default defineComponent({
 
         const disciplineForm = reactive({
             name: '',
-            description: ''
+            description: '',
+            credits: '',
+            semester: '',
         });
 
         const newField = reactive({
@@ -116,6 +129,8 @@ export default defineComponent({
                     // Update form data
                     disciplineForm.name = response.discipline.name;
                     disciplineForm.description = response.discipline.description || '';
+                    disciplineForm.credits = response.discipline.credits.toString() || '';
+                    disciplineForm.semester = response.discipline.semester || '';
 
                     loading.value = false;
                 },
@@ -136,7 +151,9 @@ export default defineComponent({
 
             const subscription = TeacherService.editDiscipline(id, {
                 name: disciplineForm.name,
-                description: disciplineForm.description
+                description: disciplineForm.description,
+                semester: disciplineForm.semester,
+                credits: +disciplineForm.credits,
             }).subscribe({
                 next: () => {
                     // Refresh discipline data

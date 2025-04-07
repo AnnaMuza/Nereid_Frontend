@@ -55,12 +55,12 @@ export namespace Teacher {
   export interface GetDisciplineResponse {
     discipline: Discipline;
     disciplineFields: Field[];
-    disciplineTeachers: Array<{
-      teacherId: number;
+    disciplineTeachers: {
+      id: number;
       firstName: string;
       lastName: string;
-      patronymic?: string;
-    }>;
+      patronymic: string;
+    }[];
   }
 
   export interface TakeDisciplineRequest {
@@ -98,6 +98,8 @@ export namespace Teacher {
   export interface EditDisciplineRequest {
     name: string;
     description: string;
+    semester: string;
+    credits: number;
   }
 
   export interface EditDisciplineResponse {
