@@ -23,7 +23,7 @@ export default class ApiService {
         return from(method);
     }
 
-    get<T extends any = any>(url: string, config?: AxiosRequestConfig<T>) {
+    get<T extends any = any>(url: string, config?: any) {
         return this.wrap(
             axiosInstance.get<T>(this.getEndpoint(url), config)
         ).pipe(

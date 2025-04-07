@@ -30,6 +30,17 @@
             </FloatLabel>
 
             <FloatLabel variant="over">
+                <label for="patronymic">Patronymic</label>
+                <InputText
+                    id="patronymic"
+                    v-model="patronymic"
+                    aria-describedby="patronymic-help"
+                    :class="{ 'p-invalid': submitted && !patronymic }"
+                />
+                <small v-if="submitted && !patronymic" class="p-error">Patronymic is required.</small>
+            </FloatLabel>
+
+            <FloatLabel variant="over">
                 <label for="email">Email</label>
                 <InputText
                     id="email"
@@ -41,6 +52,7 @@
             </FloatLabel>
         </div>
         <Button
+            v-if="PermissionService.userCan([RoleName.admin, RoleName.teacher])"
             class="d-flex mt-4"
             style="justify-self: center;"
             label="Save"
@@ -85,6 +97,24 @@
                 </div>
             </div>
         </div>
+
+        <div v-if="PermissionService.userCan([RoleName.student])" class="mt-5 d-flex flex-column gap-5">
+            <FloatLabel variant="over">
+                <label for="group">Group</label>
+                <InputText
+                    id="group"
+                    v-model="group"
+                    aria-describedby="group-help"/>
+            </FloatLabel>
+
+            <FloatLabel variant="over">
+                <label for="year">Year</label>
+                <InputText
+                    id="year"
+                    v-model="year"
+                    aria-describedby="year-help"/>
+            </FloatLabel>
+        </div>
     </template>
 </Card>
 
@@ -99,6 +129,7 @@ import { Role, RoleName } from "@/types/api/user.api.types";
 import TeacherService from "@/services/teacher.service";
 import { UsersApi } from '@/types/api';
 import { Subscription } from "rxjs";
+import StudentService from "@/services/student.service";
 
 interface Data {
     firstName: string;
@@ -139,6 +170,8 @@ export default defineComponent({
 
             if (user?.roleId === Role.teacher) {
                 this.fetchTeacher();
+            } else if (user?.roleId === Role.student) {
+                this.fetchStudent();
             }
         });
     },
@@ -189,6 +222,9 @@ export default defineComponent({
         });
         const subscriptions = new Set<Subscription>();
         const teacher = ref<UsersApi.Teacher.Get['teacher'] | null>(null);
+        const student = ref<UsersApi.Student.Get | null>(null);
+        const group = ref<string>('');
+        const year = ref<string>('');
 
         const fetchTeacher = () => {
             const subscription = TeacherService.getTeacher().subscribe({
@@ -200,6 +236,23 @@ export default defineComponent({
                 },
                 error: (err) => {
                     console.error('Failed to load teacher data', err);
+                    loading.value = false;
+                }
+            });
+
+            subscriptions.add(subscription);
+        };
+
+        const fetchStudent = () => {
+            const subscription = StudentService.getStudent().subscribe({
+                next: (response) => {
+                    student.value = response;
+                    group.value = response.educationalProgram;
+                    year.value = response.year;
+                    loading.value = false;
+                },
+                error: (err) => {
+                    console.error('Failed to load student data', err);
                     loading.value = false;
                 }
             });
@@ -296,6 +349,9 @@ export default defineComponent({
             deleteSelectedFields,
             selectedFields,
             fetchTeacher,
+            fetchStudent,
+            group,
+            year,
         };
     }
 });

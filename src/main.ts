@@ -8,6 +8,7 @@ import ToggleSwitch from 'primevue/toggleswitch';
 import Toast from "primevue/toast";
 import Button from "primevue/button";
 import SelectButton from 'primevue/selectbutton';
+import Select from 'primevue/select';
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import PanelMenu from 'primevue/panelmenu';
@@ -95,6 +96,7 @@ createApp(App)
     .component('Column', Column)
     .component('Button', Button)
     .component('SelectButton', SelectButton)
+    .component('Select', Select)
     .component('DataTable', DataTable)
     .component('ToggleSwitch', ToggleSwitch)
     .component('InputText', InputText)
