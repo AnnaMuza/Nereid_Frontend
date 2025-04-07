@@ -6,7 +6,7 @@
 
         <template #content>
             <div class="d-flex flex-column gap-4">
-                <div v-for="discipline in disciplines" :key="discipline.id" class="d-flex gap-2">
+                <div v-for="discipline in disciplines" :key="discipline.id" class="d-flex gap-2 align-items-center">
                     <Checkbox
                         v-model="selectedDisciplines"
                         :value="discipline.id"
@@ -14,15 +14,18 @@
                         :disabled="isAlreadyTaken(discipline.id)"
                         :checked="isAlreadyTaken(discipline.id)"
                     />
-                    <router-link
-                        :to="{
-                            name: 'teacher-discipline',
-                            params: {
-                                id: discipline.id
-                            }
-                        }">
-                        <div>{{ discipline.name }}</div>
-                    </router-link>
+                    <Chip>
+                        <router-link
+                            :to="{
+                                name: 'teacher-discipline',
+                                params: {
+                                    id: discipline.id
+                                }
+                            }">
+                            <div>{{ discipline.name }}</div>
+                        </router-link>
+                        | Semester {{ discipline.semester }}
+                    </Chip>
                 </div>
             </div>
             <Button

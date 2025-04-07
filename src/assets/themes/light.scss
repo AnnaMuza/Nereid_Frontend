@@ -142,6 +142,9 @@ $theme-colors: map-merge($theme-colors, (
   // FloatLabel
   --p-floatlabel-color: #{$body-color};
 
+  // Chip
+  --p-chip-color: #{$main};
+
   // DataTable
   .p-datatable:not(.default) {
     --p-datatable-row-color: var(--bs-dark);

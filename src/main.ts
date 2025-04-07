@@ -14,6 +14,7 @@ import PanelMenu from 'primevue/panelmenu';
 import Drawer from "primevue/drawer";
 import Card from "primevue/card";
 import Menu from 'primevue/menu';
+import Chip from 'primevue/chip';
 import Toolbar from "primevue/toolbar";
 import TieredMenu from 'primevue/tieredmenu';
 import FloatLabel from 'primevue/floatlabel';
@@ -101,6 +102,7 @@ createApp(App)
     .component('Checkbox', Checkbox)
     .component('Textarea', Textarea)
     .component('Message', Message)
+    .component('Chip', Chip)
     .component('CheckboxGroup', CheckboxGroup)
     .component('IconField', IconField)
     .component('Divider', Divider)

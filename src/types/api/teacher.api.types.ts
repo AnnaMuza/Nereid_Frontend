@@ -17,6 +17,8 @@ export namespace Teacher {
   export interface Discipline {
     id: number;
     name: string;
+    credits: number;
+    semester: string;
     description: string | null;
   }
 
@@ -48,11 +50,7 @@ export namespace Teacher {
   // Discipline endpoints
   export type GetAllDisciplinesResponse = Discipline[];
 
-  export type GetAllTakenDisciplinesResponse = Array<{
-    id: number;
-    name: string;
-    description: string;
-  }>;
+  export type GetAllTakenDisciplinesResponse = Discipline[];
 
   export interface GetDisciplineResponse {
     discipline: Discipline;
