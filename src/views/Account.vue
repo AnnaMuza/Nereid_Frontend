@@ -100,11 +100,19 @@
 
         <div v-if="PermissionService.userCan([RoleName.student])" class="mt-5 d-flex flex-column gap-5">
             <FloatLabel variant="over">
-                <label for="group">Group</label>
+                <label for="group">Educational program</label>
                 <InputText
                     id="group"
                     v-model="group"
                     aria-describedby="group-help"/>
+            </FloatLabel>
+
+            <FloatLabel variant="over">
+                <label for="course">Course</label>
+                <InputText
+                    id="course"
+                    v-model="course"
+                    aria-describedby="course-help"/>
             </FloatLabel>
 
             <FloatLabel variant="over">
@@ -225,6 +233,7 @@ export default defineComponent({
         const student = ref<UsersApi.Student.Get | null>(null);
         const group = ref<string>('');
         const year = ref<string>('');
+        const course = ref<string>('');
 
         const fetchTeacher = () => {
             const subscription = TeacherService.getTeacher().subscribe({
@@ -249,6 +258,7 @@ export default defineComponent({
                     student.value = response;
                     group.value = response.educationalProgram;
                     year.value = response.year;
+                    course.value = response.course;
                     loading.value = false;
                 },
                 error: (err) => {
@@ -352,6 +362,7 @@ export default defineComponent({
             fetchStudent,
             group,
             year,
+            course,
         };
     }
 });
