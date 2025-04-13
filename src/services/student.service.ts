@@ -40,9 +40,13 @@ class StudentService extends ApiService {
     return this.get<UsersApi.Student.GetAllSelectedDisciplinesResponse>(this.endpoints.getAllSelectedDisciplines, {params: {semester}});
   }
 
-  // getDiscipline(id: number): Observable<UsersApi.Teacher.GetDisciplineResponse> {
-  //   return this.get<UsersApi.Teacher.GetDisciplineResponse>(`${this.endpoints.getDiscipline}/${id}`);
-  // }
+  getDiscipline(id: number): Observable<UsersApi.Student.GetDisciplineResponse> {
+    return this.get<UsersApi.Student.GetDisciplineResponse>(`${this.endpoints.getDiscipline}/${id}`);
+  }
+
+  getTeacher(id: number): Observable<UsersApi.Student.GetTeacherResponse> {
+    return this.get<UsersApi.Student.GetTeacherResponse>(`${this.endpoints.getTeacher}/${id}`);
+  }
 
   selectDiscipline(id: number): Observable<UsersApi.Student.SelectDisciplineResponse> {
     return this.patch<null, UsersApi.Student.SelectDisciplineResponse>(`${this.endpoints.selectDiscipline}/${id}`, null);

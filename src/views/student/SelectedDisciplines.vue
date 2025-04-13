@@ -33,7 +33,7 @@
                     <Chip>
                         <router-link
                             :to="{
-                                name: 'teacher-discipline',
+                                name: 'student-discipline',
                                 params: {
                                     id: discipline.id
                                 }

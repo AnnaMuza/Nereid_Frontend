@@ -1,13 +1,11 @@
 import { UsersApi } from ".";
-import Discipline from "@/views/teacher/Discipline.vue";
 
 export namespace Student {
   // Common types
   export interface Field {
     id: number;
-    name?: string;
-    content?: string;
-    teacherId: number;
+    name: string | null;
+    content: string | null;
   }
 
   export interface Get {
@@ -35,31 +33,6 @@ export namespace Student {
     name: string;
   }
 
-  export interface EditRequest {
-    email: string;
-    firstName: string;
-    lastName: string;
-    patronymic?: string;
-  }
-
-  export interface EditResponse {
-    message: string;
-  }
-
-  export interface AddFieldRequest {
-    teacherId: number;
-    fieldName: string;
-    fieldContent: string;
-  }
-
-  export interface AddFieldResponse {
-    message: string;
-  }
-
-  export interface DeleteFieldResponse {
-    message: string;
-  }
-
   // Discipline endpoints
   export interface GetAllDisciplinesResponse {
     disciplines: Discipline[];
@@ -76,54 +49,33 @@ export namespace Student {
   }
 
   export interface GetDisciplineResponse {
-    discipline: Discipline;
+    discipline: Discipline & {
+      credits: number;
+      semester: string;
+      description: string;
+    };
     disciplineFields: Field[];
     disciplineTeachers: Array<{
-      teacherId: number;
+      id: number;
       firstName: string;
       lastName: string;
       patronymic?: string;
     }>;
   }
 
+  export interface GetTeacherResponse {
+    teacher: {
+      id: number;
+      userId: number;
+    } & Required<UsersApi.Admin.EditTeacher>
+    teacherFields: (Field & { teacherId: number })[];
+  }
+
   export interface SelectDisciplineResponse {
     currentCredits: number;
   }
 
-  export interface ReleaseDisciplineRequest {
-    teacherId: number;
-    disciplineId: number;
-  }
-
   export interface DeselectDisciplineResponse {
     currentCredits: number;
-  }
-
-  export interface AddFieldToDisciplineRequest {
-    disciplineId: number;
-    fieldName: string;
-    fieldContent: string;
-  }
-
-  export interface AddFieldToDisciplineResponse {
-    message: string;
-  }
-
-  export interface DeleteFieldFromDisciplineResponse {
-    message: string;
-  }
-
-  export interface EditDisciplineRequest {
-    name: string;
-    description: string;
-  }
-
-  export interface EditDisciplineResponse {
-    message: string;
-  }
-
-  // Error response
-  export interface ErrorResponse {
-    message: string;
   }
 }
