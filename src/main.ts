@@ -26,6 +26,7 @@ import InputText from 'primevue/inputtext';
 import Password from 'primevue/password';
 import Checkbox from "primevue/checkbox";
 import Message from "primevue/message";
+import Panel from "primevue/panel";
 import { CheckboxGroup } from "primevue";
 import IconField from "primevue/iconfield";
 import Textarea from 'primevue/textarea';
@@ -111,6 +112,7 @@ createApp(App)
     .component('InputIcon', InputIcon)
     .component("Toast", Toast)
     .component("PanelMenu", PanelMenu)
+    .component("Panel", Panel)
     .component("Dialog", Dialog)
     .component("FloatLabel", FloatLabel)
     .component("CardHeader", CardHeader)

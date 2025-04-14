@@ -72,4 +72,6 @@ $spacers: map-merge($spacers, (
   --p-message-border-width: 0;
   --p-message-info-shadow: none;
   --p-message-info-color: #{$secondary};
+
+  --p-panel-border-radius: #{$border-radius};
 }

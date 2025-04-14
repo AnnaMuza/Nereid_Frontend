@@ -61,6 +61,9 @@ import { defineComponent, ref, onMounted, onUnmounted, computed } from 'vue';
 import StudentService from "@/services/student.service";
 import { UsersApi } from '@/types/api';
 import { Subscription } from 'rxjs';
+import { useToast } from "primevue/usetoast";
+import { AxiosError } from "axios";
+import { AxiosErrorData } from "@/types/global.interface";
 
 export interface Semester {
     name: string;
@@ -70,6 +73,7 @@ export interface Semester {
 export default defineComponent({
     name: 'AllDisciplines',
     setup() {
+        const toast = useToast();
         const disciplines = ref<UsersApi.Student.Discipline[]>([]);
         const selectedDisciplines = ref<number[]>([]);
         const takenDisciplines = ref<UsersApi.Student.Discipline[]>([]);
@@ -187,9 +191,13 @@ export default defineComponent({
                             }
                         }
                     },
-                    error: (err) => {
-                        error.value = 'Failed to select disciplines';
-                        console.error(err);
+                    error: (err: AxiosError<AxiosErrorData>) => {
+                        toast.add({
+                            severity: 'error',
+                            summary: 'Error',
+                            detail: err.response?.data.message,
+                            life: 3000
+                        });
                         loading.value = false;
                     }
                 });

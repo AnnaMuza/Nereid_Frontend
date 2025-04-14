@@ -61,10 +61,14 @@ import { UsersApi } from '@/types/api';
 import { Subscription } from 'rxjs';
 import { Semester } from "@/views/student/Disciplines.vue";
 import studentService from "@/services/student.service";
+import { AxiosError } from "axios";
+import { AxiosErrorData } from "@/types/global.interface";
+import { useToast } from "primevue/usetoast";
 
 export default defineComponent({
     name: 'TakenDisciplines',
     setup() {
+        const toast = useToast();
         const selectedDisciplines = ref<number[]>([]);
         const takenDisciplines = ref<UsersApi.Student.Discipline[]>([]);
         const student = ref<UsersApi.Student.Get | null>(null);
@@ -134,9 +138,13 @@ export default defineComponent({
                             }
                         }
                     },
-                    error: (err) => {
-                        error.value = 'Failed to release disciplines';
-                        console.error(err);
+                    error: (err: AxiosError<AxiosErrorData>) => {
+                        toast.add({
+                            severity: 'error',
+                            summary: 'Error',
+                            detail: err.response?.data.message,
+                            life: 3000
+                        });
                         loading.value = false;
                     }
                 });
