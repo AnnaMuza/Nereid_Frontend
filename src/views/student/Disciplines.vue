@@ -174,37 +174,28 @@ export default defineComponent({
                 return;
             }
 
-            // Track how many operations are completed
-            let completedOps = 0;
-            const totalOps = disciplinesToTake.length;
-
-            disciplinesToTake.forEach(disciplineId => {
-                const subscription = StudentService.selectDiscipline(disciplineId).subscribe({
-                    next: () => {
-                        completedOps++;
-                        // When all operations are done
-                        if (completedOps === totalOps) {
-                            loading.value = false;
-
-                            // Refresh the list of taken disciplines
-                            if (student.value) {
-                                fetchTakenDisciplines();
-                            }
-                        }
-                    },
-                    error: (err: AxiosError<AxiosErrorData>) => {
-                        toast.add({
-                            severity: 'error',
-                            summary: 'Error',
-                            detail: err.response?.data.message,
-                            life: 3000
-                        });
-                        loading.value = false;
+            const subscription = StudentService.selectDisciplines({
+                semester: semester.value.code,
+                disciplineIds: disciplinesToTake,
+            }).subscribe({
+                next: () => {
+                    selectedDisciplines.value = [];
+                    if (student.value) {
+                        fetchTakenDisciplines();
                     }
-                });
-
-                subscriptions.add(subscription);
+                },
+                error: (err: AxiosError<AxiosErrorData>) => {
+                    toast.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: err.response?.data.message,
+                        life: 3000
+                    });
+                    loading.value = false;
+                }
             });
+
+            subscriptions.add(subscription);
         };
 
         onMounted(() => {

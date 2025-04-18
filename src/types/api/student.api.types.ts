@@ -71,6 +71,11 @@ export namespace Student {
     teacherFields: (Field & { teacherId: number })[];
   }
 
+  export interface SelectDisciplineRequest {
+    semester: string;
+    disciplineIds: number[];
+  }
+
   export interface SelectDisciplineResponse {
     currentCredits: number;
   }

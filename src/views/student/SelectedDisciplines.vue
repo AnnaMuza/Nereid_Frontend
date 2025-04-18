@@ -128,41 +128,30 @@ export default defineComponent({
 
         const deselectDisciplines = () => {
             if (!student.value || selectedDisciplines.value.length === 0) return;
-
             loading.value = true;
 
-            // Track how many operations are completed
-            let completedOps = 0;
-            const totalOps = selectedDisciplines.value.length;
-
-            selectedDisciplines.value.forEach(disciplineId => {
-                const subscription = studentService.deselectDiscipline(disciplineId).subscribe({
-                    next: () => {
-                        completedOps++;
-                        // When all operations are done
-                        if (completedOps === totalOps) {
-                            loading.value = false;
-                            selectedDisciplines.value = [];
-
-                            // Refresh the list of taken disciplines
-                            if (student.value) {
-                                fetchTakenDisciplines();
-                            }
-                        }
-                    },
-                    error: (err: AxiosError<AxiosErrorData>) => {
-                        toast.add({
-                            severity: 'error',
-                            summary: 'Error',
-                            detail: err.response?.data.message,
-                            life: 3000
-                        });
-                        loading.value = false;
+            const subscription = studentService.deselectDisciplines({
+                semester: semester.value.code,
+                disciplineIds: selectedDisciplines.value,
+            }).subscribe({
+                next: () => {
+                    selectedDisciplines.value = [];
+                    if (student.value) {
+                        fetchTakenDisciplines();
                     }
-                });
-
-                subscriptions.add(subscription);
+                },
+                error: (err: AxiosError<AxiosErrorData>) => {
+                    toast.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: err.response?.data.message,
+                        life: 3000
+                    });
+                    loading.value = false;
+                }
             });
+
+            subscriptions.add(subscription);
         };
 
         onMounted(() => {
