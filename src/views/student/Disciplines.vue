@@ -11,7 +11,7 @@
                         v-model="semester"
                         :options="semesters"
                         variant="filled"
-                        @change="fetchDisciplines(); fetchTakenDisciplines()"
+                        @change="resetState(); fetchDisciplines(); fetchTakenDisciplines()"
                         option-label="name"/>
                     <Chip>
                         Minimum credits: {{ minimumCredits }}
@@ -151,6 +151,11 @@ export default defineComponent({
             subscriptions.add(subscription);
         };
 
+        const resetState = () => {
+            selectedDisciplines.value = [];
+            UtilsService.removeFromFromSessionStorage(STUDENT_DISCIPLINES_SELECTED);
+        }
+
         const saveState = () => {
             UtilsService.saveToSessionStorage(STUDENT_DISCIPLINES_SELECTED, selectedDisciplines.value);
         }
@@ -202,7 +207,7 @@ export default defineComponent({
                 subscriptions.add(subscription);
             });
 
-            UtilsService.removeFromFromSessionStorage(STUDENT_DISCIPLINES_SELECTED);
+            resetState();
         };
 
         onMounted(() => {
@@ -234,6 +239,7 @@ export default defineComponent({
             maximumCredits,
             currentCredits,
             saveState,
+            resetState,
         };
     }
 });
