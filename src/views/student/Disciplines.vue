@@ -38,8 +38,7 @@
                         v-model="selectedDisciplines"
                         :value="discipline.id"
                         :binary="false"
-                        :disabled="isAlreadyTaken(discipline.id)"
-                        @change="saveState">
+                        :disabled="isAlreadyTaken(discipline.id)">
                     </Checkbox>
                     <Chip>
                         <router-link
@@ -73,14 +72,12 @@ export interface Semester {
     code: string;
 }
 
-const STUDENT_DISCIPLINES_SELECTED = 'studentDisciplinesSelected';
-
 export default defineComponent({
     name: 'AllDisciplines',
     setup() {
         const toast = useToast();
         const disciplines = ref<UsersApi.Student.Discipline[]>([]);
-        const selectedDisciplines = ref<number[]>(UtilsService.getFromSessionStorage(STUDENT_DISCIPLINES_SELECTED) || []);
+        const selectedDisciplines = ref<number[]>([]);
         const takenDisciplines = ref<UsersApi.Student.Discipline[]>([]);
         const student = ref<UsersApi.Student.Get | null>(null);
         const loading = ref(false);
@@ -151,10 +148,6 @@ export default defineComponent({
             subscriptions.add(subscription);
         };
 
-        const saveState = () => {
-            UtilsService.saveToSessionStorage(STUDENT_DISCIPLINES_SELECTED, selectedDisciplines.value);
-        }
-
         const selectDisciplines = () => {
             if (!student.value || !hasNewDisciplinesToTake.value) return;
 
@@ -201,8 +194,6 @@ export default defineComponent({
 
                 subscriptions.add(subscription);
             });
-
-            UtilsService.removeFromFromSessionStorage(STUDENT_DISCIPLINES_SELECTED);
         };
 
         onMounted(() => {
@@ -233,7 +224,6 @@ export default defineComponent({
             minimumCredits,
             maximumCredits,
             currentCredits,
-            saveState,
         };
     }
 });

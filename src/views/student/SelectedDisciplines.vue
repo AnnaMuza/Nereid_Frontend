@@ -36,7 +36,6 @@
                     <Checkbox
                         v-model="selectedDisciplines"
                         :value="discipline.id"
-                        @change="saveState"
                         :binary="false"/>
                     <Chip>
                         <router-link
@@ -67,13 +66,11 @@ import { AxiosErrorData } from "@/types/global.interface";
 import { useToast } from "primevue/usetoast";
 import UtilsService from "@/services/utils.service";
 
-const STUDENT_TAKEN_DISCIPLINES_SELECTED = 'studentTakenDisciplinesSelected';
-
 export default defineComponent({
     name: 'TakenDisciplines',
     setup() {
         const toast = useToast();
-        const selectedDisciplines = ref<number[]>(UtilsService.getFromSessionStorage(STUDENT_TAKEN_DISCIPLINES_SELECTED) || []);
+        const selectedDisciplines = ref<number[]>([]);
         const takenDisciplines = ref<UsersApi.Student.Discipline[]>([]);
         const student = ref<UsersApi.Student.Get | null>(null);
         const loading = ref(false);
@@ -118,10 +115,6 @@ export default defineComponent({
             subscriptions.add(subscription);
         };
 
-        const saveState = () => {
-            UtilsService.saveToSessionStorage(STUDENT_TAKEN_DISCIPLINES_SELECTED, selectedDisciplines.value);
-        }
-
         const deselectDisciplines = () => {
             if (!student.value || selectedDisciplines.value.length === 0) return;
 
@@ -159,8 +152,6 @@ export default defineComponent({
 
                 subscriptions.add(subscription);
             });
-
-            UtilsService.removeFromFromSessionStorage(STUDENT_TAKEN_DISCIPLINES_SELECTED);
         };
 
         onMounted(() => {
@@ -186,7 +177,6 @@ export default defineComponent({
             minimumCredits,
             maximumCredits,
             currentCredits,
-            saveState,
         };
     }
 });
