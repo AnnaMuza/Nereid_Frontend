@@ -1,4 +1,15 @@
 <template>
+    <Dialog
+        modal
+        :draggable="false"
+        class="w-75"
+        v-model:visible="disciplineDetailsVisible">
+        <DisciplineDetails :discipline-id="disciplineDetails?.id"/>
+        <template #header>
+            <CardHeader icon="book" :title="disciplineDetails?.name"/>
+        </template>
+    </Dialog>
+
     <Card class="card-h-100">
         <template #header>
             <CardHeader icon="list" title="Disciplines"/>
@@ -41,15 +52,11 @@
                         :disabled="isAlreadyTaken(discipline.id)">
                     </Checkbox>
                     <Chip>
-                        <router-link
-                            :to="{
-                                name: 'student-discipline',
-                                params: {
-                                    id: discipline.id
-                                }
-                            }">
-                            <div>{{ discipline.name }}</div>
-                        </router-link>
+                        <Button
+                            text
+                            class="p-0"
+                            @click="disciplineDetails = discipline; disciplineDetailsVisible = true"
+                            :label="discipline.name"/>
                     </Chip>
                 </div>
             </div>
@@ -66,6 +73,7 @@ import { useToast } from "primevue/usetoast";
 import { AxiosError } from "axios";
 import { AxiosErrorData } from "@/types/global.interface";
 import UtilsService from "@/services/utils.service";
+import DisciplineDetails from "@/views/student/Discipline.vue";
 
 export interface Semester {
     name: string;
@@ -74,11 +82,14 @@ export interface Semester {
 
 export default defineComponent({
     name: 'AllDisciplines',
+    components: {DisciplineDetails},
     setup() {
         const toast = useToast();
         const disciplines = ref<UsersApi.Student.Discipline[]>([]);
         const selectedDisciplines = ref<number[]>([]);
         const takenDisciplines = ref<UsersApi.Student.Discipline[]>([]);
+        const disciplineDetailsVisible = ref<boolean>(false);
+        const disciplineDetails = ref<UsersApi.Student.Discipline | null>(null);
         const student = ref<UsersApi.Student.Get | null>(null);
         const loading = ref(false);
         const error = ref<string | null>(null);
@@ -224,6 +235,8 @@ export default defineComponent({
             minimumCredits,
             maximumCredits,
             currentCredits,
+            disciplineDetails,
+            disciplineDetailsVisible,
         };
     }
 });

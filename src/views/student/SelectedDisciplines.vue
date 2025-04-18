@@ -1,4 +1,15 @@
 <template>
+    <Dialog
+        modal
+        :draggable="false"
+        class="w-75"
+        v-model:visible="disciplineDetailsVisible">
+        <DisciplineDetails :discipline-id="disciplineDetails?.id"/>
+        <template #header>
+            <CardHeader icon="book" :title="disciplineDetails?.name"/>
+        </template>
+    </Dialog>
+
     <Card class="card-h-100">
         <template #header>
             <CardHeader icon="check-circle" title="Selected Disciplines"/>
@@ -38,15 +49,11 @@
                         :value="discipline.id"
                         :binary="false"/>
                     <Chip>
-                        <router-link
-                            :to="{
-                                name: 'student-discipline',
-                                params: {
-                                    id: discipline.id
-                                }
-                            }">
-                            <div>{{ discipline.name }}</div>
-                        </router-link>
+                        <Button
+                            text
+                            class="p-0"
+                            @click="disciplineDetails = discipline; disciplineDetailsVisible = true"
+                            :label="discipline.name"/>
                     </Chip>
                 </div>
             </div>
@@ -65,9 +72,11 @@ import { AxiosError } from "axios";
 import { AxiosErrorData } from "@/types/global.interface";
 import { useToast } from "primevue/usetoast";
 import UtilsService from "@/services/utils.service";
+import DisciplineDetails from "@/views/student/Discipline.vue";
 
 export default defineComponent({
     name: 'TakenDisciplines',
+    components: {DisciplineDetails},
     setup() {
         const toast = useToast();
         const selectedDisciplines = ref<number[]>([]);
@@ -75,6 +84,8 @@ export default defineComponent({
         const student = ref<UsersApi.Student.Get | null>(null);
         const loading = ref(false);
         const error = ref<string | null>(null);
+        const disciplineDetailsVisible = ref<boolean>(false);
+        const disciplineDetails = ref<UsersApi.Student.Discipline | null>(null);
         const subscriptions = new Set<Subscription>();
         const semesters = ref<Semester[]>([
             { name: 'Semester 1', code: '1' },
@@ -177,6 +188,8 @@ export default defineComponent({
             minimumCredits,
             maximumCredits,
             currentCredits,
+            disciplineDetails,
+            disciplineDetailsVisible,
         };
     }
 });

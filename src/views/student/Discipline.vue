@@ -1,9 +1,5 @@
 <template>
     <Card>
-        <template #header>
-            <CardHeader icon="book" :title="disciplineForm.name"/>
-        </template>
-
         <template #content>
             <div class="d-flex flex-column gap-5">
                 <div class="d-flex gap-3">
@@ -41,19 +37,21 @@
 
             <Divider v-if="disciplineTeachers.length" class="py-4"/>
 
-            <div v-for="teacher in disciplineTeachers" :key="teacher.id" class="d-flex flex-column gap-2">
-                <div style="padding-left: 0.75rem" class="mb-2">Teachers</div>
-                <Chip style="width: fit-content">
-                    <router-link
-                        :to="{
-                                name: 'student-teacher',
-                                params: {
-                                    id: teacher.id
-                                }
-                            }">
-                        <div>{{ teacher.lastName }} {{ teacher.firstName }} {{ teacher.patronymic }}</div>
-                    </router-link>
-                </Chip>
+            <div class="d-flex flex-column gap-2">
+                <div style="padding-left: 0.75rem" class="mb-2">Teacher</div>
+                <div v-for="teacher in disciplineTeachers" :key="teacher.id">
+                    <Chip style="width: fit-content">
+                        <router-link
+                            :to="{
+                                    name: 'student-teacher',
+                                    params: {
+                                        id: teacher.id
+                                    }
+                                }">
+                            <div>{{ teacher.lastName }} {{ teacher.firstName }} {{ teacher.patronymic }}</div>
+                        </router-link>
+                    </Chip>
+                </div>
             </div>
         </template>
     </Card>
