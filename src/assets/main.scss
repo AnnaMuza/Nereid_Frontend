@@ -154,8 +154,23 @@ td[data-pc-section="rowexpansioncell"]:has(> .p-datatable) {
 }
 
 // Checkbox
-.p-checkbox-box {
-  padding: 0.2rem;
+.p-checkbox {
+  &.taken {
+    &.p-disabled {
+      color: var(--p-checkbox-icon-disabled-color);
+
+      ::before {
+        content: "\e909";
+        font-family: "primeicons";
+        font-size: small;
+        line-height: 1;
+      }
+    }
+  }
+
+  .p-checkbox-box {
+    padding: 0.2rem;
+  }
 }
 
 /* Global style settings */
@@ -227,6 +242,24 @@ a {
   background: transparent;
   color: var(--bs-secondary);
   font-size: larger;
+}
+
+.card-h-100 {
+  height: 100%;
+
+  .p-card-header {
+    height: 100px;
+  }
+
+  .p-card-body {
+    height: calc(100% - 100px);
+
+    .p-card-content {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+  }
 }
 
 .fi-anim-spin {

@@ -1,5 +1,6 @@
-class UtilsService {
+import { UsersApi } from "@/types/api";
 
+class UtilsService {
   public downloadCsv(content: string, filename: string = 'download.csv'): void {
     // Create a Blob with the CSV content
     const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
@@ -24,6 +25,23 @@ class UtilsService {
     // Clean up
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+  }
+
+  public sortDisciplines(disciplines: UsersApi.Student.Discipline[]): UsersApi.Student.Discipline[] {
+    return disciplines.sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  public getFromSessionStorage<T>(key: string): T | null {
+    const val = sessionStorage.getItem(key);
+    return val ? JSON.parse(val) : null;
+  }
+
+  public removeFromFromSessionStorage(key: string): void {
+    sessionStorage.removeItem(key);
+  }
+
+  public saveToSessionStorage(key: string, data: any): void {
+    sessionStorage.setItem(key, JSON.stringify(data));
   }
 }
 

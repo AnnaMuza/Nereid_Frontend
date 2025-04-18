@@ -1,37 +1,46 @@
 <template>
-    <Card>
+    <Card class="card-h-100">
         <template #header>
             <CardHeader icon="list" title="Disciplines"/>
         </template>
 
         <template #content>
-            <div class="d-flex gap-20">
-                <Select
-                    v-model="semester"
-                    :options="semesters"
-                    variant="filled"
-                    @change="fetchDisciplines(); fetchTakenDisciplines()"
-                    option-label="name"/>
-                <Chip>
-                    Minimum credits: {{ minimumCredits }}
-                </Chip>
-                <Chip>
-                    Maximum credits: {{ maximumCredits }}
-                </Chip>
-                <Chip>
-                    Current credits: {{ currentCredits }}
-                </Chip>
+            <div class="d-flex flex-column align-items-center">
+                <div class="d-flex gap-20">
+                    <Select
+                        v-model="semester"
+                        :options="semesters"
+                        variant="filled"
+                        @change="fetchDisciplines(); fetchTakenDisciplines()"
+                        option-label="name"/>
+                    <Chip>
+                        Minimum credits: {{ minimumCredits }}
+                    </Chip>
+                    <Chip>
+                        Maximum credits: {{ maximumCredits }}
+                    </Chip>
+                    <Chip>
+                        Current credits: {{ currentCredits }}
+                    </Chip>
+                </div>
+                <Button
+                    class="d-flex mt-4"
+                    label="Select Disciplines"
+                    @click="selectDisciplines"
+                    :disabled="!hasNewDisciplinesToTake"
+                />
             </div>
             <Divider class="my-4"/>
-            <div class="d-flex flex-column gap-4">
+            <div class="d-flex flex-column gap-4 overflow-y-scroll h-100">
                 <div v-for="discipline in disciplines" :key="discipline.id" class="d-flex gap-2 align-items-center">
                     <Checkbox
+                        class="taken"
                         v-model="selectedDisciplines"
                         :value="discipline.id"
                         :binary="false"
                         :disabled="isAlreadyTaken(discipline.id)"
-                        :checked="isAlreadyTaken(discipline.id)"
-                    />
+                        @change="saveState">
+                    </Checkbox>
                     <Chip>
                         <router-link
                             :to="{
@@ -45,13 +54,6 @@
                     </Chip>
                 </div>
             </div>
-            <Button
-                class="d-flex mt-4"
-                style="justify-self: center;"
-                label="Select Disciplines"
-                @click="selectDisciplines"
-                :disabled="!hasNewDisciplinesToTake"
-            />
         </template>
     </Card>
 </template>
@@ -64,18 +66,21 @@ import { Subscription } from 'rxjs';
 import { useToast } from "primevue/usetoast";
 import { AxiosError } from "axios";
 import { AxiosErrorData } from "@/types/global.interface";
+import UtilsService from "@/services/utils.service";
 
 export interface Semester {
     name: string;
     code: string;
 }
 
+const STUDENT_DISCIPLINES_SELECTED = 'studentDisciplinesSelected';
+
 export default defineComponent({
     name: 'AllDisciplines',
     setup() {
         const toast = useToast();
         const disciplines = ref<UsersApi.Student.Discipline[]>([]);
-        const selectedDisciplines = ref<number[]>([]);
+        const selectedDisciplines = ref<number[]>(UtilsService.getFromSessionStorage(STUDENT_DISCIPLINES_SELECTED) || []);
         const takenDisciplines = ref<UsersApi.Student.Discipline[]>([]);
         const student = ref<UsersApi.Student.Get | null>(null);
         const loading = ref(false);
@@ -95,12 +100,7 @@ export default defineComponent({
         };
 
         const hasNewDisciplinesToTake = computed(() => {
-            if (selectedDisciplines.value.length === 0) {
-                return false;
-            }
-
-            // Check if there's at least one selected discipline that isn't already taken
-            return selectedDisciplines.value.some(id => !isAlreadyTaken(id));
+            return selectedDisciplines.value.length > 0;
         });
 
         const fetchDisciplines = () => {
@@ -108,7 +108,7 @@ export default defineComponent({
 
             const subscription = StudentService.getAllDisciplines(semester.value.code).subscribe({
                 next: (response) => {
-                    disciplines.value = response.disciplines;
+                    disciplines.value = UtilsService.sortDisciplines(response.disciplines);
                     loading.value = false;
                 },
                 error: (err) => {
@@ -142,13 +142,6 @@ export default defineComponent({
                     minimumCredits.value = response.minimumCredits;
                     maximumCredits.value = response.maximumCredits;
                     currentCredits.value = response.currentCredits;
-
-                    // Pre-select taken disciplines in the UI
-                    takenDisciplines.value.forEach(discipline => {
-                        if (!selectedDisciplines.value.includes(discipline.id)) {
-                            selectedDisciplines.value.push(discipline.id);
-                        }
-                    });
                 },
                 error: (err) => {
                     console.error('Failed to load selected disciplines', err);
@@ -157,6 +150,10 @@ export default defineComponent({
 
             subscriptions.add(subscription);
         };
+
+        const saveState = () => {
+            UtilsService.saveToSessionStorage(STUDENT_DISCIPLINES_SELECTED, selectedDisciplines.value);
+        }
 
         const selectDisciplines = () => {
             if (!student.value || !hasNewDisciplinesToTake.value) return;
@@ -204,6 +201,8 @@ export default defineComponent({
 
                 subscriptions.add(subscription);
             });
+
+            UtilsService.removeFromFromSessionStorage(STUDENT_DISCIPLINES_SELECTED);
         };
 
         onMounted(() => {
@@ -234,6 +233,7 @@ export default defineComponent({
             minimumCredits,
             maximumCredits,
             currentCredits,
+            saveState,
         };
     }
 });

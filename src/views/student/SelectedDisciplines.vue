@@ -1,35 +1,43 @@
 <template>
-    <Card>
+    <Card class="card-h-100">
         <template #header>
             <CardHeader icon="check-circle" title="Selected Disciplines"/>
         </template>
 
         <template #content>
-            <div class="d-flex gap-20">
-                <Select
-                    v-model="semester"
-                    :options="semesters"
-                    variant="filled"
-                    @change="fetchTakenDisciplines"
-                    option-label="name"/>
-                <Chip>
-                    Minimum credits: {{ minimumCredits }}
-                </Chip>
-                <Chip>
-                    Maximum credits: {{ maximumCredits }}
-                </Chip>
-                <Chip>
-                    Current credits: {{ currentCredits }}
-                </Chip>
+            <div class="d-flex flex-column align-items-center">
+                <div class="d-flex gap-20">
+                    <Select
+                        v-model="semester"
+                        :options="semesters"
+                        variant="filled"
+                        @change="fetchTakenDisciplines"
+                        option-label="name"/>
+                    <Chip>
+                        Minimum credits: {{ minimumCredits }}
+                    </Chip>
+                    <Chip>
+                        Maximum credits: {{ maximumCredits }}
+                    </Chip>
+                    <Chip>
+                        Current credits: {{ currentCredits }}
+                    </Chip>
+                </div>
+                <Button
+                    class="d-flex mt-4"
+                    label="Release Disciplines"
+                    @click="deselectDisciplines"
+                    :disabled="selectedDisciplines.length === 0"
+                />
             </div>
             <Divider class="my-4"/>
-            <div class="d-flex flex-column gap-4">
+            <div class="d-flex flex-column gap-4 overflow-y-scroll h-100">
                 <div v-for="discipline in takenDisciplines" :key="discipline.id" class="d-flex gap-2 align-items-center">
                     <Checkbox
                         v-model="selectedDisciplines"
                         :value="discipline.id"
-                        :binary="false"
-                    />
+                        @change="saveState"
+                        :binary="false"/>
                     <Chip>
                         <router-link
                             :to="{
@@ -43,13 +51,6 @@
                     </Chip>
                 </div>
             </div>
-            <Button
-                class="d-flex mt-4"
-                style="justify-self: center;"
-                label="Release Disciplines"
-                @click="deselectDisciplines"
-                :disabled="selectedDisciplines.length === 0"
-            />
         </template>
     </Card>
 </template>
@@ -64,12 +65,15 @@ import studentService from "@/services/student.service";
 import { AxiosError } from "axios";
 import { AxiosErrorData } from "@/types/global.interface";
 import { useToast } from "primevue/usetoast";
+import UtilsService from "@/services/utils.service";
+
+const STUDENT_TAKEN_DISCIPLINES_SELECTED = 'studentTakenDisciplinesSelected';
 
 export default defineComponent({
     name: 'TakenDisciplines',
     setup() {
         const toast = useToast();
-        const selectedDisciplines = ref<number[]>([]);
+        const selectedDisciplines = ref<number[]>(UtilsService.getFromSessionStorage(STUDENT_TAKEN_DISCIPLINES_SELECTED) || []);
         const takenDisciplines = ref<UsersApi.Student.Discipline[]>([]);
         const student = ref<UsersApi.Student.Get | null>(null);
         const loading = ref(false);
@@ -101,7 +105,7 @@ export default defineComponent({
         const fetchTakenDisciplines = () => {
             const subscription = StudentService.getAllSelectedDisciplines(semester.value.code).subscribe({
                 next: (response) => {
-                    takenDisciplines.value = response.selectedDisciplines;
+                    takenDisciplines.value = UtilsService.sortDisciplines(response.selectedDisciplines);
                     minimumCredits.value = response.minimumCredits;
                     maximumCredits.value = response.maximumCredits;
                     currentCredits.value = response.currentCredits;
@@ -113,6 +117,10 @@ export default defineComponent({
 
             subscriptions.add(subscription);
         };
+
+        const saveState = () => {
+            UtilsService.saveToSessionStorage(STUDENT_TAKEN_DISCIPLINES_SELECTED, selectedDisciplines.value);
+        }
 
         const deselectDisciplines = () => {
             if (!student.value || selectedDisciplines.value.length === 0) return;
@@ -151,6 +159,8 @@ export default defineComponent({
 
                 subscriptions.add(subscription);
             });
+
+            UtilsService.removeFromFromSessionStorage(STUDENT_TAKEN_DISCIPLINES_SELECTED);
         };
 
         onMounted(() => {
@@ -176,6 +186,7 @@ export default defineComponent({
             minimumCredits,
             maximumCredits,
             currentCredits,
+            saveState,
         };
     }
 });
