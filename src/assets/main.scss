@@ -103,7 +103,7 @@ button {
 
 // DataTable
 .p-datatable:not(.default) {
-  margin: 0 calc(var(--p-card-body-padding) * -1);
+  margin: 0 calc(var(--p-card-body-padding) * -0.7);
   font-size: 0.9rem;
 
   .p-datatable-thead {
@@ -186,12 +186,14 @@ body {
     font-family: var(--bs-body-font-family); // Montserrat makes icons not square
   }
 
-  .p-inputtext,
-  .p-treeselect,
-  .p-textarea {
-    border: 2px solid var(--p-inputtext-border-color);
-    width: 100%;
-    padding-block: 0.7rem;
+  :not(.p-datatable-filter) {
+    .p-inputtext,
+    .p-treeselect,
+    .p-textarea {
+      border: 2px solid var(--p-inputtext-border-color);
+      width: 100%;
+      padding-block: 0.7rem;
+    }
   }
 }
 

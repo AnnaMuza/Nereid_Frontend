@@ -1,0 +1,504 @@
+<template>
+    <Card>
+        <template #header>
+            <CardHeader icon="users" title="Students" />
+        </template>
+
+        <template #content>
+            <div class="d-flex gap-3 mt-2">
+                <Button
+                    label="Add Student"
+                    @click="showAddStudentDialog"
+                    icon="pi pi-plus"
+                    severity="info"
+                    class="p-button-rounded"
+                />
+
+                <Button
+                    label="Edit Student"
+                    @click="editSelectedStudent"
+                    icon="pi pi-pencil"
+                    :disabled="!selectedStudents || selectedStudents.length !== 1"
+                    class="p-button-rounded"
+                />
+
+                <Button
+                    label="Mark Active"
+                    @click="markStudentsActive(true)"
+                    :disabled="!selectedStudents || selectedStudents.length === 0"
+                    icon="pi pi-check"
+                    severity="success"
+                    class="p-button-rounded"
+                />
+
+                <Button
+                    label="Mark Inactive"
+                    @click="markStudentsActive(false)"
+                    :disabled="!selectedStudents || selectedStudents.length === 0"
+                    icon="pi pi-times"
+                    severity="danger"
+                    class="p-button-rounded"
+                />
+            </div>
+
+            <Divider class="mt-4"/>
+
+            <DataTable
+                v-model:selection="selectedStudents"
+                :value="students"
+                v-model:filters="filters"
+                filterDisplay="row"
+                :paginator="true"
+                :rows="15"
+                dataKey="id"
+                :loading="loading"
+                stripedRows
+            >
+                <template #header>
+                    <div class="d-flex gap-3">
+                        <Button type="button" icon="pi pi-filter-slash" label="Clear" severity="secondary" @click="initFilters"/>
+                        <IconField>
+                            <InputIcon>
+                                <i class="pi pi-search" />
+                            </InputIcon>
+                            <InputText v-model="filters['global'].value" placeholder="Keyword Search" />
+                        </IconField>
+                    </div>
+                </template>
+                <template #empty>No students found.</template>
+                <template #loading>Loading students data. Please wait.</template>
+
+                <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
+
+                <Column field="firstName" header="First Name">
+                    <template #body="{ data }">
+                        {{ data.firstName }}
+                    </template>
+                    <template #filter="{ filterModel, filterCallback }">
+                        <InputText
+                            v-model="filterModel.value"
+                            type="text"
+                            @input="filterCallback()"
+                            class="p-column-filter w-100"
+                            placeholder="Search by first name"
+                        />
+                    </template>
+                </Column>
+
+                <Column field="lastName" header="Last Name">
+                    <template #body="{ data }">
+                        {{ data.lastName }}
+                    </template>
+                    <template #filter="{ filterModel, filterCallback }">
+                        <InputText
+                            v-model="filterModel.value"
+                            type="text"
+                            @input="filterCallback()"
+                            class="p-column-filter w-100"
+                            placeholder="Search by last name"
+                        />
+                    </template>
+                </Column>
+
+                <Column field="email" header="Email">
+                    <template #body="{ data }">
+                        {{ data.email }}
+                    </template>
+                    <template #filter="{ filterModel, filterCallback }">
+                        <InputText
+                            v-model="filterModel.value"
+                            type="text"
+                            @input="filterCallback()"
+                            class="p-column-filter w-100"
+                            placeholder="Search by email"
+                        />
+                    </template>
+                </Column>
+
+                <Column field="educationalProgram" header="Educational Program">
+                    <template #body="{ data }">
+                        {{ data.educationalProgram }}
+                    </template>
+                    <template #filter="{ filterModel, filterCallback }">
+                        <InputText
+                            v-model="filterModel.value"
+                            type="text"
+                            @input="filterCallback()"
+                            class="p-column-filter w-100"
+                            placeholder="Search by program"
+                        />
+                    </template>
+                </Column>
+
+                <Column field="year" header="Year">
+                    <template #body="{ data }">
+                        {{ data.year }}
+                    </template>
+                    <template #filter="{ filterModel, filterCallback }">
+                        <InputText
+                            v-model="filterModel.value"
+                            type="text"
+                            @input="filterCallback()"
+                            class="p-column-filter w-100"
+                            placeholder="Search by year"
+                        />
+                    </template>
+                </Column>
+
+                <Column field="isActive" header="Is Active" dataType="boolean">
+                    <template #body="{ data }">
+                        <Badge
+                            :value="data.isActive ? 'Active' : 'Inactive'"
+                            :severity="data.isActive ? 'success' : 'danger'"
+                        />
+                    </template>
+                    <template #filter="{ filterModel, filterCallback }">
+                        <Select
+                            v-model="filterModel.value"
+                            @change="filterCallback()"
+                            :options="statusOptions"
+                            variant="filled"
+                            optionLabel="label"
+                            optionValue="value"
+                            placeholder="Any Status"
+                            class="p-column-filter w-100"
+                        />
+                    </template>
+                </Column>
+            </DataTable>
+
+            <Dialog
+                v-model:visible="addStudentDialog"
+                header="Add Student"
+                :modal="true"
+                class="p-fluid"
+            >
+                <div class="p-field mb-3">
+                    <label for="firstName">First Name</label>
+                    <InputText id="firstName" v-model="newStudent.firstName" required />
+                </div>
+                <div class="p-field mb-3">
+                    <label for="lastName">Last Name</label>
+                    <InputText id="lastName" v-model="newStudent.lastName" required />
+                </div>
+                <div class="p-field mb-3">
+                    <label for="patronymic">Patronymic</label>
+                    <InputText id="patronymic" v-model="newStudent.patronymic" />
+                </div>
+                <div class="p-field mb-3">
+                    <label for="email">Email</label>
+                    <InputText id="email" v-model="newStudent.email" required type="email" />
+                </div>
+                <div class="p-field mb-3">
+                    <label for="group">Educational Program</label>
+                    <InputText id="group" v-model="newStudent.group" required />
+                </div>
+                <div class="p-field mb-3">
+                    <label for="year">Year</label>
+                    <InputText id="year" v-model="newStudent.year" required />
+                </div>
+                <template #footer>
+                    <Button label="Cancel" icon="pi pi-times" @click="closeAddStudentDialog" class="p-button-text" />
+                    <Button label="Save" icon="pi pi-check" @click="saveStudent" />
+                </template>
+            </Dialog>
+
+            <Dialog
+                v-model:visible="editStudentDialog"
+                header="Edit Student"
+                :modal="true"
+                class="p-fluid"
+            >
+                <div class="p-field mb-3">
+                    <label for="editFirstName">First Name</label>
+                    <InputText id="editFirstName" v-model="editedStudent.firstName" />
+                </div>
+                <div class="p-field mb-3">
+                    <label for="editLastName">Last Name</label>
+                    <InputText id="editLastName" v-model="editedStudent.lastName" />
+                </div>
+                <div class="p-field mb-3">
+                    <label for="editPatronymic">Patronymic</label>
+                    <InputText id="editPatronymic" v-model="editedStudent.patronymic" />
+                </div>
+                <div class="p-field mb-3">
+                    <label for="editEmail">Email</label>
+                    <InputText id="editEmail" v-model="editedStudent.email" type="email" />
+                </div>
+                <div class="p-field mb-3">
+                    <label for="editGroup">Educational Program</label>
+                    <InputText id="editGroup" v-model="editedStudent.group" />
+                </div>
+                <div class="p-field mb-3">
+                    <label for="editYear">Year</label>
+                    <InputText id="editYear" v-model="editedStudent.year" />
+                </div>
+                <div class="p-field mb-3">
+                    <label for="editIsActive">Status</label>
+                    <SelectButton
+                        id="editIsActive"
+                        v-model="editedStudent.isActive"
+                        :options="[{label: 'Active', value: true}, {label: 'Inactive', value: false}]"
+                        optionLabel="label"
+                    />
+                </div>
+                <template #footer>
+                    <Button label="Cancel" icon="pi pi-times" @click="closeEditStudentDialog" class="p-button-text" />
+                    <Button label="Save" icon="pi pi-check" @click="updateStudent" />
+                </template>
+            </Dialog>
+        </template>
+    </Card>
+</template>
+
+<style lang="scss" scoped>
+
+.p-column-filter {
+    width: 100%;
+}
+
+.p-datatable {
+    .p-datatable-filter {
+        .p-inputtext,
+        .p-treeselect,
+        .p-textarea {
+            padding-block: revert-layer;
+        }
+    }
+}
+
+</style>
+
+<script lang="ts">
+import { defineComponent, ref, onMounted, onUnmounted } from 'vue';
+import { Subscription } from 'rxjs';
+import AdminService from '@/services/admin.service';
+import { useToast } from 'primevue/usetoast';
+import { UsersApi } from "@/types/api";
+import { FilterMatchMode } from '@primevue/core/api';
+
+export default defineComponent({
+    name: 'StudentsTable',
+    setup() {
+        const toast = useToast();
+        const subscriptions = new Set<Subscription>();
+        const students = ref<UsersApi.Admin.Student[]>([]);
+        const selectedStudents = ref<UsersApi.Admin.Student[]>([]);
+        const addStudentDialog = ref(false);
+        const editStudentDialog = ref(false);
+        const filters = ref();
+        const loading = ref<boolean>(true);
+        const statusOptions = ref([
+            { label: 'Active', value: true },
+            { label: 'Inactive', value: false }
+        ]);
+
+        const initFilters = () => {
+            filters.value = {
+                global: {value: null, matchMode: FilterMatchMode.CONTAINS},
+                firstName: {value: null, matchMode: FilterMatchMode.STARTS_WITH},
+                lastName: {value: null, matchMode: FilterMatchMode.STARTS_WITH},
+                email: {value: null, matchMode: FilterMatchMode.CONTAINS},
+                educationalProgram: {value: null, matchMode: FilterMatchMode.CONTAINS},
+                year: {value: null, matchMode: FilterMatchMode.EQUALS},
+                isActive: {value: null, matchMode: FilterMatchMode.EQUALS}
+            };
+        };
+        initFilters();
+
+        const newStudent = ref<UsersApi.Admin.AddStudent>({
+            email: '',
+            firstName: '',
+            lastName: '',
+            patronymic: '',
+            group: '',
+            year: ''
+        });
+
+        const editedStudent = ref<UsersApi.Admin.EditStudent>({
+            email: '',
+            firstName: '',
+            lastName: '',
+            patronymic: '',
+            group: '',
+            year: '',
+            isActive: true
+        });
+
+        const loadStudents = () => {
+            const subscription = AdminService.getAllStudents().subscribe({
+                next: (response) => {
+                    students.value = response;
+                    selectedStudents.value = [];
+                    loading.value = false;
+                },
+                error: () => {
+                    toast.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'Failed to load students',
+                        life: 3000
+                    });
+                    loading.value = false;
+                }
+            });
+            subscriptions.add(subscription);
+        };
+
+        const showAddStudentDialog = () => {
+            newStudent.value = {
+                email: '',
+                firstName: '',
+                lastName: '',
+                patronymic: '',
+                group: '',
+                year: ''
+            };
+            addStudentDialog.value = true;
+        };
+
+        const closeAddStudentDialog = () => {
+            addStudentDialog.value = false;
+        };
+
+        const saveStudent = () => {
+            const subscription = AdminService.addStudent(newStudent.value).subscribe({
+                next: () => {
+                    toast.add({
+                        severity: 'success',
+                        summary: 'Success',
+                        detail: 'Student added successfully',
+                        life: 3000
+                    });
+                    closeAddStudentDialog();
+                    loadStudents();
+                },
+                error: () => {
+                    toast.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'Failed to add student',
+                        life: 3000
+                    });
+                }
+            });
+            subscriptions.add(subscription);
+        };
+
+        const editSelectedStudent = () => {
+            if (selectedStudents.value.length === 1) {
+                const student = selectedStudents.value[0];
+                editedStudent.value = {
+                    email: student.email,
+                    firstName: student.firstName,
+                    lastName: student.lastName,
+                    patronymic: student.patronymic,
+                    group: student.educationalProgram,
+                    year: student.year,
+                    isActive: student.isActive
+                };
+                editStudentDialog.value = true;
+            }
+        };
+
+        const closeEditStudentDialog = () => {
+            editStudentDialog.value = false;
+        };
+
+        const updateStudent = () => {
+            if (selectedStudents.value.length === 1) {
+                const studentId = selectedStudents.value[0].id;
+                // Note: This function is commented out in your service, so you'll need to implement it
+                // The following is how it would look if implemented
+                // const subscription = AdminService.editStudent(studentId, editedStudent.value).subscribe({
+                //     next: () => {
+                //         toast.add({
+                //             severity: 'success',
+                //             summary: 'Success',
+                //             detail: 'Student updated successfully',
+                //             life: 3000
+                //         });
+                //         closeEditStudentDialog();
+                //         loadStudents();
+                //     },
+                //     error: () => {
+                //         toast.add({
+                //             severity: 'error',
+                //             summary: 'Error',
+                //             detail: 'Failed to update student',
+                //             life: 3000
+                //         });
+                //     }
+                // });
+                // subscriptions.add(subscription);
+            }
+        };
+
+        const markStudentsActive = (isActive: boolean) => {
+            if (selectedStudents.value.length > 0) {
+                // This would normally be a batch operation, but based on your APIs we'll do it one by one
+                const promises = selectedStudents.value.map(student => {
+                    return new Promise<void>((resolve, reject) => {
+                        // Note: This function is commented out in your service, so you'll need to implement it
+                        // const subscription = AdminService.editStudent(student.id, { isActive }).subscribe({
+                        //     next: () => resolve(),
+                        //     error: () => reject()
+                        // });
+                        // subscriptions.add(subscription);
+                    });
+                });
+
+                Promise.all(promises)
+                    .then(() => {
+                        toast.add({
+                            severity: 'success',
+                            summary: 'Success',
+                            detail: `Successfully marked ${selectedStudents.value.length} student(s) as ${isActive ? 'active' : 'inactive'}`,
+                            life: 3000
+                        });
+                        loadStudents();
+                    })
+                    .catch(() => {
+                        toast.add({
+                            severity: 'error',
+                            summary: 'Error',
+                            detail: 'Failed to update some students',
+                            life: 3000
+                        });
+                        loadStudents();
+                    });
+            }
+        };
+
+        onMounted(() => {
+            loadStudents();
+        });
+
+        onUnmounted(() => {
+            // Clean up all subscriptions to prevent memory leaks
+            subscriptions.forEach(subscription => subscription.unsubscribe());
+            subscriptions.clear();
+        });
+
+        return {
+            students,
+            selectedStudents,
+            addStudentDialog,
+            editStudentDialog,
+            newStudent,
+            editedStudent,
+            filters,
+            showAddStudentDialog,
+            closeAddStudentDialog,
+            saveStudent,
+            editSelectedStudent,
+            closeEditStudentDialog,
+            updateStudent,
+            markStudentsActive,
+            initFilters,
+            loading,
+            statusOptions,
+        };
+    }
+});
+</script>

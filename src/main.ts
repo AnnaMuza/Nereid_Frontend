@@ -15,11 +15,13 @@ import PanelMenu from 'primevue/panelmenu';
 import Drawer from "primevue/drawer";
 import Card from "primevue/card";
 import Menu from 'primevue/menu';
+import Badge from 'primevue/badge';
 import Chip from 'primevue/chip';
 import Toolbar from "primevue/toolbar";
 import TieredMenu from 'primevue/tieredmenu';
 import FloatLabel from 'primevue/floatlabel';
 import DataView from 'primevue/dataview';
+import Row from 'primevue/row';
 import StyleClass from "primevue/styleclass";
 import Ripple from "primevue/ripple";
 import InputText from 'primevue/inputtext';
@@ -95,9 +97,11 @@ createApp(App)
     .component('TieredMenu', TieredMenu)
     .component('DataView', DataView)
     .component('Column', Column)
+    .component('Row', Row)
     .component('Button', Button)
     .component('SelectButton', SelectButton)
     .component('Select', Select)
+    .component('Badge', Badge)
     .component('DataTable', DataTable)
     .component('ToggleSwitch', ToggleSwitch)
     .component('InputText', InputText)

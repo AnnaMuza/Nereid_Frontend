@@ -17,6 +17,9 @@ const Signup = () => import('@/views/Signup.vue');
 const Disciplines = () => import('@/views/student/Disciplines.vue');
 const SelectedDisciplines = () => import('@/views/student/SelectedDisciplines.vue');
 const Teacher = () => import('@/views/student/Teacher.vue');
+const Students = () => import('@/views/admin/Students.vue');
+const Teachers = () => import('@/views/admin/Teachers.vue');
+const DisciplinesAdmin = () => import('@/views/admin/Disciplines.vue');
 
 // TODO 404 routes for groups of routes
 
@@ -117,6 +120,21 @@ const routes: RouteRecordRaw[] = [
                         path: 'managing',
                         component: Managing,
                         name: 'managing'
+                    },
+                    {
+                        path: 'students',
+                        component: Students,
+                        name: 'students'
+                    },
+                    {
+                        path: 'teachers',
+                        component: Teachers,
+                        name: 'teachers'
+                    },
+                    {
+                        path: 'disciplines',
+                        component: DisciplinesAdmin,
+                        name: 'disciplines-admin'
                     },
                 ]
             },

@@ -52,7 +52,7 @@ $spacers: map-merge($spacers, (
   --p-datatable-header-color: #{$body-color};
   --p-datatable-column-title-font-weight: inherit;
   --p-datatable-body-cell-padding: 1.3rem 0.5rem;
-  --p-datatable-header-cell-padding: var(--p-datatable-body-cell-padding);
+  --p-datatable-header-cell-padding: 0.8rem 0.5rem;
   --p-datatable-paginator-bottom-border-width: 0;
   --p-datatable-header-border-width: 0;
   --p-datatable-header-padding: 0.75rem var(--p-card-body-padding);

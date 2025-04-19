@@ -2,7 +2,7 @@ import { UsersApi } from "@/types/api";
 
 export namespace Admin {
     export interface Student extends UsersApi.User.Get {
-        group: string;
+        educationalProgram: string;
         year: string;
     }
 

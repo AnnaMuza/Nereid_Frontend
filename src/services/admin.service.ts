@@ -51,10 +51,10 @@ class AdminService extends ApiService {
   }
 
   // Student management
-  getAllStudents(): Observable<UsersApi.Admin.StudentsResponse> {
-    return this.get<UsersApi.Admin.StudentsResponse>(this.endpoints.getAllStudents).pipe(
+  getAllStudents(): Observable<UsersApi.Admin.Student[]> {
+    return this.get<UsersApi.Admin.Student[]>(this.endpoints.getAllStudents).pipe(
       map(response => {
-        this.students$.next(response.students);
+        this.students$.next(response);
         return response;
       })
     );

@@ -93,7 +93,7 @@
     }
 
     .signup {
-        font-size: 0.9rem;
+        font-size: 0.875rem;
         bottom: 1rem;
         align-self: start;
     }

@@ -148,6 +148,8 @@ $theme-colors: map-merge($theme-colors, (
   // DataTable
   .p-datatable:not(.default) {
     --p-datatable-row-color: var(--bs-dark);
+    --p-datatable-row-striped-background: var(--bs-back);
+    --p-checkbox-background: #e7e9ed;
 
     .p-datatable-tbody {
       > :not(.p-datatable-row-expansion) {
