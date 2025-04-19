@@ -47,11 +47,7 @@ class AdminService extends ApiService {
   // }
 
   editAdminProfile(data: UsersApi.Admin.EditAdmin): Observable<UsersApi.Admin.AdminResponse> {
-    return this.patch<UsersApi.Admin.EditAdmin, UsersApi.Admin.AdminResponse>(this.endpoints.editAdmin, data).pipe(
-      map(() => {
-        UserService.getMe();
-      })
-    );
+    return this.patch<UsersApi.Admin.EditAdmin, UsersApi.Admin.AdminResponse>(this.endpoints.editAdmin, data);
   }
 
   // Student management

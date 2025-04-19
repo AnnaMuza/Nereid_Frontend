@@ -38,12 +38,7 @@ class TeacherService extends ApiService {
   }
 
   editTeacherProfile(teacherId: number, data: UsersApi.Teacher.EditRequest): Observable<UsersApi.Teacher.EditResponse> {
-    return this.patch<UsersApi.Teacher.EditRequest, UsersApi.Teacher.EditResponse>(`${this.endpoints.editTeacher}/${teacherId}`, data).pipe(
-      map((response) => {
-        UserService.getMe();
-        return response;
-      })
-    );
+    return this.patch<UsersApi.Teacher.EditRequest, UsersApi.Teacher.EditResponse>(`${this.endpoints.editTeacher}/${teacherId}`, data);
   }
 
   addField(data: UsersApi.Teacher.AddFieldRequest): Observable<UsersApi.Teacher.AddFieldResponse> {

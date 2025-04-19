@@ -51,13 +51,12 @@ export namespace User {
 
     // Response types based on common API patterns
     export type SignUpResponse = {
-        message: string;
+        OTP_TTL: number;
     }
 
     export type CheckOtpResponse = {
         message: string;
         token: string;
-        user: Get;
     }
 
     export type SendOtpResponse = {

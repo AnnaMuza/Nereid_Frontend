@@ -47,6 +47,14 @@ export default class ApiService {
         );
     }
 
+    put<D extends any, T extends any>(url: string, data: D, config?: AxiosRequestConfig<T>) {
+        return this.wrap(
+          axiosInstance.put<D, AxiosResponse<T>>(this.getEndpoint(url), data, config)
+        ).pipe(
+          map(({data}) => data)
+        );
+    }
+
     delete<T extends any = any>(url: string, config?: AxiosRequestConfig<T>) {
         return this.wrap(
             axiosInstance.delete<T>(this.getEndpoint(url), config)

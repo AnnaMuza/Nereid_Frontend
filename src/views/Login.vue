@@ -3,6 +3,7 @@
         <div class="login-wrapper rounded-5 d-flex flex-column align-items-center bg-white p-5">
             <p class="fw-bold fs-2 text-dark">Welcome to Nereid</p>
             <Toast />
+
             <Form v-slot="$form" :initialValues="initialValues" :resolver="resolver" @submit="onFormSubmit" class="w-100">
                 <div class="flex flex-col gap-2">
                     <IconField>
@@ -25,8 +26,18 @@
                     <label for="rememberMe" class="ms-2">Remember Me</label>
                 </div>
 
-                <Button type="submit" class="w-100 rounded-3 mt-4 fw-bold" label="Login" size="large"/>
+                <Button type="submit" class="w-100 rounded-3 mt-3 fw-bold" label="Login" size="large"/>
             </Form>
+
+            <div class="signup d-flex position-absolute">
+                Need an account?&nbsp;
+                <router-link
+                    :to="{
+                        name: 'signup',
+                    }">
+                    Sign up
+                </router-link>
+            </div>
         </div>
     </div>
 </template>
@@ -56,6 +67,12 @@
             border-radius: var(--bs-border-radius-lg);
             padding-inline-start: calc((var(--p-form-field-padding-x) * 2) + var(--p-icon-size));
         }
+    }
+
+    .signup {
+        font-size: 0.9rem;
+        bottom: 1rem;
+        align-self: start;
     }
 }
 </style>
@@ -91,13 +108,13 @@ const resolver = ({ values }: FormResolverOptions) => {
     const errors: FormErrors = {};
 
     if (!values.email) {
-        errors.email = [{ message: 'Email is required.' }];
+        errors.email = [{ message: 'Email is required' }];
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
-        errors.email = [{ message: 'Please enter a valid email address.' }];
+        errors.email = [{ message: 'Please enter a valid email address' }];
     }
 
     if (!values.password) {
-        errors.password = [{ message: 'Password is required.' }];
+        errors.password = [{ message: 'Password is required' }];
     }
 
     return {

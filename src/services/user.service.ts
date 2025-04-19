@@ -52,6 +52,22 @@ class UserService extends ApiService {
         );
     }
 
+    signUp(data: UsersApi.User.SignUp) {
+        return this.post<UsersApi.User.SignUp, UsersApi.User.SignUpResponse>(this.endpoints.signUp, data);
+    }
+
+    sendOtp(data: UsersApi.User.SignUp) {
+        return this.post<UsersApi.User.SignUp, UsersApi.User.SignUpResponse>(this.endpoints.sendOtp, data);
+    }
+
+    checkOtp(data: UsersApi.User.CheckOtp) {
+        return this.post<UsersApi.User.CheckOtp, UsersApi.User.CheckOtpResponse>(this.endpoints.checkOtp, data);
+    }
+
+    changePassword(data: UsersApi.User.ChangePassword) {
+        return this.put<UsersApi.User.ChangePassword, UsersApi.User.ChangePasswordResponse>(this.endpoints.changePassword, data);
+    }
+
     logout() {
         this.user$.next(null);
         this.resetAuthToken();
@@ -84,7 +100,7 @@ class UserService extends ApiService {
         );
     }
 
-    private setAuthToken(token: string, remember: boolean = false) {
+    public setAuthToken(token: string, remember: boolean = false) {
         const nowTimestamp = new Date().getTime();
         //store Token 30 days with @rememberMe Or 2 hours
         const ttl = (remember ? (30 * 24 * 60 * 60) : (120 * 60)) * 1000;
