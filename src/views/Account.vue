@@ -129,7 +129,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onUnmounted, reactive, ref } from 'vue';
+import { defineComponent, onMounted, onUnmounted, reactive, ref } from 'vue';
 import UserService from '@/services/user.service';
 import AdminService from '@/services/admin.service';
 import PermissionService from "@/services/permission.service";
@@ -138,16 +138,7 @@ import TeacherService from "@/services/teacher.service";
 import { UsersApi } from '@/types/api';
 import { Subscription } from "rxjs";
 import StudentService from "@/services/student.service";
-
-interface Data {
-    firstName: string;
-    lastName: string;
-    patronymic: string;
-    email: string;
-    user: UsersApi.User.Get | null;
-    submitted: boolean;
-    PermissionService: typeof PermissionService;
-}
+import { useToast } from "primevue/usetoast";
 
 export default defineComponent({
     name: 'Account',
@@ -156,70 +147,14 @@ export default defineComponent({
             return RoleName
         }
     },
-    data(): Data {
-        return {
-            firstName: '',
-            lastName: '',
-            patronymic: '',
-            email: '',
-            user: null,
-            submitted: false,
-            PermissionService,
-        };
-    },
-    created() {
-        // Subscribe to user data changes
-        UserService.user$.subscribe((user) => {
-            this.email = user?.email ?? '';
-            this.firstName = user?.firstName ?? '';
-            this.lastName = user?.lastName ?? '';
-            this.patronymic = user?.patronymic ?? '';
-            this.user = user;
-
-            if (user?.roleId === Role.teacher) {
-                this.fetchTeacher();
-            } else if (user?.roleId === Role.student) {
-                this.fetchStudent();
-            }
-        });
-    },
-    methods: {
-        saveProfile() {
-            this.submitted = true;
-
-            // Simple validation
-            if (this.firstName && this.lastName && this.email) {
-                const userData = {
-                    firstName: this.firstName,
-                    lastName: this.lastName,
-                    patronymic: this.patronymic,
-                    email: this.email
-                };
-
-                (this.user?.roleId === Role.admin ? AdminService.editAdminProfile(userData) : TeacherService.editTeacherProfile(this.user?.id ?? -1, userData))
-                    // @ts-ignore
-                    .subscribe({
-                        next: () => {
-                            this.$toast.add({
-                                severity: 'success',
-                                summary: 'Success',
-                                detail: 'Profile updated successfully',
-                                life: 3000
-                            });
-                        },
-                        error: (error: any) => {
-                            this.$toast.add({
-                                severity: 'error',
-                                summary: 'Error',
-                                detail: 'Failed to update profile: ' + error.message,
-                                life: 3000
-                            });
-                        }
-                    });
-            }
-        },
-    },
     setup() {
+        const toast = useToast();
+        const firstName = ref<string>('');
+        const lastName = ref<string>('');
+        const patronymic = ref<string>('');
+        const email = ref<string>('');
+        const user = ref<UsersApi.User.Get | null>(null);
+        const submitted = ref<boolean>(false);
         const showAddField = ref(false);
         const loading = ref(false);
         const fields = ref<any[]>([]);
@@ -268,6 +203,42 @@ export default defineComponent({
             });
 
             subscriptions.add(subscription);
+        };
+
+        const saveProfile = () => {
+            submitted.value = true;
+
+            // Simple validation
+            if (firstName.value && lastName.value && email.value) {
+                const userData = {
+                    firstName: firstName.value,
+                    lastName: lastName.value,
+                    patronymic: patronymic.value,
+                    email: email.value,
+                };
+
+                (user.value?.roleId === Role.admin ? AdminService.editAdminProfile(userData) :
+                    TeacherService.editTeacherProfile(teacher.value?.id!, userData))
+                    // @ts-ignore
+                    .subscribe({
+                        next: () => {
+                            toast.add({
+                                severity: 'success',
+                                summary: 'Success',
+                                detail: 'Profile updated successfully',
+                                life: 3000
+                            });
+                        },
+                        error: (error: any) => {
+                            toast.add({
+                                severity: 'error',
+                                summary: 'Error',
+                                detail: 'Failed to update profile: ' + error.message,
+                                life: 3000
+                            });
+                        }
+                    });
+            }
         };
 
         const cancelAddField = () => {
@@ -343,6 +314,23 @@ export default defineComponent({
             });
         };
 
+        onMounted(() => {
+            // Subscribe to user data changes
+            UserService.user$.subscribe((user_) => {
+                email.value = user_?.email ?? '';
+                firstName.value = user_?.firstName ?? '';
+                lastName.value = user_?.lastName ?? '';
+                patronymic.value = user_?.patronymic ?? '';
+                user.value = user_;
+
+                if (user_?.roleId === Role.teacher) {
+                    fetchTeacher();
+                } else if (user_?.roleId === Role.student) {
+                    fetchStudent();
+                }
+            });
+        })
+
         onUnmounted(() => {
             // Clean up all subscriptions to prevent memory leaks
             subscriptions.forEach(subscription => subscription.unsubscribe());
@@ -350,6 +338,13 @@ export default defineComponent({
         });
 
         return {
+            firstName,
+            lastName,
+            patronymic,
+            email,
+            user,
+            submitted,
+            PermissionService,
             showAddField,
             newField,
             cancelAddField,
@@ -363,6 +358,7 @@ export default defineComponent({
             group,
             year,
             course,
+            saveProfile,
         };
     }
 });
