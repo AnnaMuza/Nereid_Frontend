@@ -1,11 +1,29 @@
 <template>
-    <Card>
+    <Dialog
+        modal
+        :draggable="false"
+        class="w-75"
+        v-model:visible="disciplineDetailsVisible">
+        <DisciplineDetails :discipline-id="disciplineDetails?.id"/>
+        <template #header>
+            <CardHeader icon="book" :title="disciplineDetails?.name"/>
+        </template>
+    </Dialog>
+
+    <Card class="card-h-100">
         <template #header>
             <CardHeader icon="check-circle" title="Taken Disciplines"/>
         </template>
 
         <template #content>
-            <div class="d-flex flex-column gap-4">
+            <Button
+                class="d-flex mb-4"
+                style="width: fit-content; align-self: center;"
+                label="Release Disciplines"
+                @click="releaseDisciplines"
+                :disabled="selectedDisciplines.length === 0"
+            />
+            <div class="d-flex flex-column gap-4 overflow-y-scroll h-100">
                 <div v-for="discipline in takenDisciplines" :key="discipline.id" class="d-flex gap-2 align-items-center">
                     <Checkbox
                         v-model="selectedDisciplines"
@@ -13,26 +31,15 @@
                         :binary="false"
                     />
                     <Chip>
-                        <router-link
-                            :to="{
-                                name: 'teacher-discipline',
-                                params: {
-                                    id: discipline.id
-                                }
-                            }">
-                            <div>{{ discipline.name }}</div>
-                        </router-link>
+                        <Button
+                            text
+                            class="p-0"
+                            @click="disciplineDetails = discipline; disciplineDetailsVisible = true"
+                            :label="discipline.name"/>
                         | Semester {{ discipline.semester }}
                     </Chip>
                 </div>
             </div>
-            <Button
-                class="d-flex mt-4"
-                style="justify-self: center;"
-                label="Release Disciplines"
-                @click="releaseDisciplines"
-                :disabled="selectedDisciplines.length === 0"
-            />
         </template>
     </Card>
 </template>
@@ -42,9 +49,11 @@ import { defineComponent, ref, onMounted, onUnmounted } from 'vue';
 import TeacherService from '@/services/teacher.service';
 import { UsersApi } from '@/types/api';
 import { Subscription } from 'rxjs';
+import DisciplineDetails from "@/views/teacher/Discipline.vue";
 
 export default defineComponent({
     name: 'TakenDisciplines',
+    components: {DisciplineDetails},
     setup() {
         const takenDisciplines = ref<UsersApi.Teacher.Discipline[]>([]);
         const selectedDisciplines = ref<number[]>([]);
@@ -52,6 +61,8 @@ export default defineComponent({
         const loading = ref(false);
         const error = ref<string | null>(null);
         const subscriptions = new Set<Subscription>();
+        const disciplineDetailsVisible = ref<boolean>(false);
+        const disciplineDetails = ref<UsersApi.Student.Discipline | null>(null);
 
         const fetchTeacher = () => {
             const subscription = TeacherService.getTeacher().subscribe({
@@ -139,7 +150,9 @@ export default defineComponent({
             teacher,
             loading,
             error,
-            releaseDisciplines
+            releaseDisciplines,
+            disciplineDetailsVisible,
+            disciplineDetails,
         };
     }
 });

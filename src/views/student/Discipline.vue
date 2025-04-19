@@ -63,6 +63,7 @@ import StudentService from '@/services/student.service';
 import { UsersApi } from '@/types/api';
 import { Subscription } from 'rxjs';
 import { useRoute } from 'vue-router';
+import { useToast } from "primevue/usetoast";
 
 export default defineComponent({
     name: 'DisciplineDetails',
@@ -75,7 +76,7 @@ export default defineComponent({
     setup(props) {
         const route = useRoute();
         const id = props.disciplineId || Number(route.params.id);
-
+        const toast = useToast();
         const discipline = ref<UsersApi.Student.Discipline | null>(null);
         const disciplineFields = ref<UsersApi.Student.Field[]>([]);
         const disciplineTeachers = ref<UsersApi.Student.GetDisciplineResponse['disciplineTeachers']>([]);
@@ -110,8 +111,12 @@ export default defineComponent({
                     loading.value = false;
                 },
                 error: (err) => {
-                    error.value = 'Failed to load discipline details';
-                    console.error(err);
+                    toast.add({
+                        severity: 'error',
+                        summary: 'Failed to load discipline details',
+                        detail: err.response?.data.message,
+                        life: 3000
+                    });
                     loading.value = false;
                 }
             });

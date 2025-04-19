@@ -7,7 +7,7 @@
                 <div class="flex flex-col gap-2">
                     <IconField>
                         <InputIcon class="fi fi-rr-user"/>
-                        <InputText name="email" type="email" placeholder="Nickname" variant="filled" size="large" class="rounded-3 border-0 w-100" fluid />
+                        <InputText name="email" type="email" placeholder="Email" variant="filled" size="large" class="rounded-3 border-0 w-100" fluid />
                     </IconField>
                     <Message v-if="$form.email?.invalid" severity="error" size="small" variant="simple">{{ $form.email.error?.message }}</Message>
                 </div>

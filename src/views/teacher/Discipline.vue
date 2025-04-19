@@ -1,9 +1,5 @@
 <template>
     <Card>
-        <template #header>
-            <CardHeader icon="book" :title="discipline?.name || 'Discipline Details'"/>
-        </template>
-
         <template #content>
             <div class="d-flex flex-column gap-5 mt-20">
                 <FloatLabel variant="over">
@@ -85,6 +81,7 @@ import TeacherService from '@/services/teacher.service';
 import { UsersApi } from '@/types/api';
 import { Subscription } from 'rxjs';
 import { useRoute } from 'vue-router';
+import { useToast } from "primevue/usetoast";
 
 export default defineComponent({
     name: 'DisciplineDetails',
@@ -97,7 +94,7 @@ export default defineComponent({
     setup(props) {
         const route = useRoute();
         const id = props.disciplineId || Number(route.params.id);
-
+        const toast = useToast();
         const discipline = ref<UsersApi.Teacher.Discipline | null>(null);
         const disciplineFields = ref<UsersApi.Teacher.Field[]>([]);
         const selectedFields = ref<number[]>([]);
@@ -135,8 +132,12 @@ export default defineComponent({
                     loading.value = false;
                 },
                 error: (err) => {
-                    error.value = 'Failed to load discipline details';
-                    console.error(err);
+                    toast.add({
+                        severity: 'error',
+                        summary: 'Failed to load discipline details',
+                        detail: err.response?.data.message,
+                        life: 3000
+                    });
                     loading.value = false;
                 }
             });
@@ -156,13 +157,24 @@ export default defineComponent({
                 credits: +disciplineForm.credits,
             }).subscribe({
                 next: () => {
+                    toast.add({
+                        severity: 'success',
+                        summary: 'Success',
+                        detail: 'Discipline details saved',
+                        life: 3000
+                    });
+
                     // Refresh discipline data
                     fetchDisciplineDetails();
                     loading.value = false;
                 },
                 error: (err) => {
-                    error.value = 'Failed to save discipline details';
-                    console.error(err);
+                    toast.add({
+                        severity: 'error',
+                        summary: 'Failed to save discipline details',
+                        detail: err.response?.data.message,
+                        life: 3000
+                    });
                     loading.value = false;
                 }
             });
@@ -201,8 +213,12 @@ export default defineComponent({
                     loading.value = false;
                 },
                 error: (err) => {
-                    error.value = 'Failed to add field';
-                    console.error(err);
+                    toast.add({
+                        severity: 'error',
+                        summary: 'Failed to add field',
+                        detail: err.response?.data.message,
+                        life: 3000
+                    });
                     loading.value = false;
                 }
             });
@@ -233,8 +249,12 @@ export default defineComponent({
                         }
                     },
                     error: (err) => {
-                        error.value = 'Failed to delete field';
-                        console.error(err);
+                        toast.add({
+                            severity: 'error',
+                            summary: 'Failed to delete field',
+                            detail: err.response?.data.message,
+                            life: 3000
+                        });
                         loading.value = false;
                     }
                 });
