@@ -21,9 +21,18 @@
                     <Message v-if="$form.password?.invalid" severity="error" size="small" variant="simple">{{ $form.password.error?.message }}</Message>
                 </div>
 
-                <div>
-                    <Checkbox inputId="rememberMe" name="rememberMe" value="true"/>
-                    <label for="rememberMe" class="ms-2">Remember Me</label>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <Checkbox inputId="rememberMe" name="rememberMe" value="true"/>
+                        <label for="rememberMe" class="ms-2">Remember Me</label>
+                    </div>
+                    <router-link
+                        class="small"
+                            :to="{
+                            name: 'signup',
+                        }">
+                        Forgot password?
+                    </router-link>
                 </div>
 
                 <Button type="submit" class="w-100 rounded-3 mt-3 fw-bold" label="Login" size="large"/>

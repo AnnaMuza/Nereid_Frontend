@@ -1,20 +1,19 @@
 <template>
     <div class="login-bg-image d-flex flex-column align-items-center justify-content-center w-100 h-100">
         <div class="login-wrapper rounded-5 d-flex flex-column align-items-center bg-white p-5">
-            <p class="fw-bold fs-2 text-dark">Welcome to Nereid</p>
             <Toast />
 
             <div v-if="step === SignupStep.email" class="email w-100">
                 <Form v-slot="$form" :initialValues="initialValues" :resolver="resolver" @submit="onFormSubmit" class="w-100">
                     <div class="flex flex-col gap-2">
+                        <Message class="pb-3" size="small" severity="secondary" variant="simple">We will send code to specified email</Message>
                         <IconField>
                             <InputIcon class="fi fi-rr-user"/>
                             <InputText name="email" type="email" placeholder="Email" variant="filled" size="large" class="rounded-3 border-0 w-100" fluid />
                         </IconField>
                         <Message v-if="$form.email?.invalid" severity="error" size="small" variant="simple">{{ $form.email.error?.message }}</Message>
-                        <Message class="pt-2" size="small" severity="secondary" variant="simple">We will send code to specified email</Message>
                     </div>
-                    <Button type="submit" class="w-100 rounded-3 mt-3 fw-bold" label="Sign up" size="large"/>
+                    <Button type="submit" class="w-100 rounded-3 mt-3 fw-bold" label="Send code" size="large"/>
                 </Form>
 
                 <div class="signup d-flex position-absolute">
@@ -31,8 +30,7 @@
             <div v-if="step === SignupStep.otp" class="otp w-100">
                 <Form v-slot="$form" :initialValues="initialValuesOTP" :resolver="resolverOTP" @submit="onFormSubmitOTP" class="w-100">
                     <div class="flex flex-col gap-2">
-                        <Message class="pt-2 pb-3" size="small" severity="secondary" variant="simple">Enter the code sent to <b>{{ emailInput }}</b></Message>
-<!--                        <InputOtp name="otp" style="width: 380px"/>-->
+                        <Message class="pb-3" size="small" severity="secondary" variant="simple">Enter the code sent to <b>{{ emailInput }}</b></Message>
                         <InputText name="otp" variant="filled" size="large" class="rounded-3 border-0 w-100" fluid />
                         <Message v-if="$form.otp?.invalid" severity="error" size="small" variant="simple">{{ $form.otp.error?.message }}</Message>
                     </div>
@@ -42,21 +40,24 @@
                 <div class="d-flex position-absolute">
                     <Button
                         text
-                        label="Resend code"/>
+                        class="small mt-2"
+                        :label="ttl ? `Wait ${formatTime(ttl)} to send new code` : 'Resend code'"
+                        :disabled="ttl !== null"
+                        @click="resendCode"/>
                 </div>
             </div>
 
             <div v-if="step === SignupStep.password" class="password w-100">
                 <Form v-slot="$form" :initialValues="initialValuesPassword" :resolver="resolverPassword" @submit="onFormSubmitPassword" class="w-100">
                     <div class="flex flex-col gap-2">
-                        <Message class="pt-2 pb-3" size="small" severity="secondary" variant="simple">Set up your password</Message>
+                        <Message class="pb-3" size="small" severity="secondary" variant="simple">Set up your password</Message>
                         <IconField>
                             <InputIcon class="fi fi-rr-lock z-3"/>
                             <Password name="password" placeholder="Password" variant="filled" size="large" :feedback="false" toggleMask class="border-0 w-100" fluid />
                         </IconField>
                         <Message v-if="$form.password?.invalid" severity="error" size="small" variant="simple">{{ $form.password.error?.message }}</Message>
                     </div>
-                    <Button type="submit" class="w-100 rounded-3 mt-3 fw-bold" label="Sign up" size="large"/>
+                    <Button type="submit" class="w-100 rounded-3 mt-3 fw-bold" label="Submit" size="large"/>
                 </Form>
             </div>
         </div>
@@ -100,11 +101,10 @@
 </style>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
+import { onUnmounted, reactive, ref } from 'vue';
 import { useToast } from 'primevue/usetoast';
 import { Form, FormResolverOptions, FormSubmitEvent } from '@primevue/forms';
 import UserService from '../services/user.service';
-import InputOtp from 'primevue/inputotp';
 import { router } from "@/router";
 
 // Email --------------------------
@@ -146,7 +146,9 @@ enum SignupStep {
 
 const toast = useToast();
 const step = ref<SignupStep>(SignupStep.email);
-const emailInput = ref<string>('annamuz@knu.ua');
+const emailInput = ref<string>('');
+const ttl = ref<number | null>(null);
+let countdownInterval: number | null = null;
 
 const initialValues = reactive<FormValues>({
     email: '',
@@ -166,7 +168,6 @@ const resolverOTP = ({ values }: FormResolverOptions) => {
     if (!values.otp) {
         errors.otp = [{ message: 'OTP is required' }];
     } else if (values.otp.length != 6) {
-        console.log(values)
         errors.otp = [{ message: 'Please enter a 6 symbols code' }];
     }
 
@@ -211,8 +212,8 @@ const onFormSubmit = ({ valid, values }: FormSubmitEvent): void => {
 
         UserService.signUp({ email }).subscribe({
             next: (data) => {
-                console.log(data);
                 step.value = SignupStep.otp;
+                startCountdown(data.OTP_TTL);
             },
             error: ({ response } = {}) => {
                 toast.add({
@@ -269,5 +270,55 @@ const onFormSubmitPassword = ({ valid, values }: FormSubmitEvent): void => {
         });
     }
 };
+
+const resendCode = () => {
+    UserService.signUp({ email: emailInput.value }).subscribe({
+        next: (data) => {
+            startCountdown(data.OTP_TTL);
+        },
+        error: ({ response } = {}) => {
+            toast.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: response?.data.message,
+                life: 5000
+            });
+        }
+    });
+};
+
+const formatTime = (seconds: number): string => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    const secondsStr = remainingSeconds.toString().padStart(2, '0');
+
+    return `${minutes}:${secondsStr}`;
+};
+
+const startCountdown = (seconds: number) => {
+    ttl.value = seconds;
+
+    // Clear any existing interval
+    if (countdownInterval) {
+        clearInterval(countdownInterval);
+    }
+
+    // Set up interval to update ttl every second
+    countdownInterval = setInterval(() => {
+        if (ttl.value !== null && ttl.value > 0) {
+            ttl.value--;
+        } else {
+            ttl.value = null;
+            clearInterval(countdownInterval);
+            countdownInterval = null;
+        }
+    }, 1000);
+};
+
+onUnmounted(() => {
+    if (countdownInterval) {
+        clearInterval(countdownInterval);
+    }
+});
 
 </script>
