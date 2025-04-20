@@ -29,18 +29,32 @@ export namespace Admin {
         firstName: string;
         lastName: string;
         patronymic: string;
-        group: string;
+        educationalProgram: string;
         year: string;
     }
 
     export interface EditStudent {
+        id: number;
         email?: string;
         firstName?: string;
         lastName?: string;
         patronymic?: string;
-        group?: string;
+        educationalProgram?: string;
+        course?: string;
         year?: string;
         isActive?: boolean;
+        canSelect?: boolean;
+        semester1MinCredits?: number;
+        semester1MaxCredits?: number;
+        semester1Credits?: number;
+        semester2MinCredits?: number;
+        semester2MaxCredits?: number;
+        semester2Credits?: number;
+    }
+
+    export interface EditStudents {
+        studentIds: number[];
+        isActive: boolean;
     }
 
     export interface AddTeacher {

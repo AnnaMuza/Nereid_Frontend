@@ -23,6 +23,7 @@ class AdminService extends ApiService {
     addDiscipline: '/admin/add-discipline',
     addTeacher: '/admin/add-teacher',
     editStudent: `/admin/edit-student`, // :id
+    editStudents: `/admin/edit-students`,
     editTeacher: `/admin/edit-teacher`, // :id
 
     lockDisciplineSelection: '/admin/lock-discipline-selection',
@@ -66,14 +67,16 @@ class AdminService extends ApiService {
     );
   }
 
-  // editStudent(id: number, data: UsersApi.Admin.EditStudent): Observable<UsersApi.Admin.GenericResponse> {
-  //   return this.patch<UsersApi.Admin.EditStudent, UsersApi.Admin.GenericResponse>(
-  //     this.endpoints.editStudent(id),
-  //     data
-  //   ).pipe(
-  //     tap(() => this.getAllStudents().subscribe())
-  //   );
-  // }
+  editStudent(data: UsersApi.Admin.EditStudent): Observable<UsersApi.Admin.GenericResponse> {
+    return this.patch<UsersApi.Admin.EditStudent, UsersApi.Admin.GenericResponse>(
+      `${this.endpoints.editStudent}/${data.id}`,
+      data
+    );
+  }
+
+  editStudents(data: UsersApi.Admin.EditStudents): Observable<UsersApi.Admin.GenericResponse> {
+    return this.patch<UsersApi.Admin.EditStudents, UsersApi.Admin.GenericResponse>(this.endpoints.editStudents, data);
+  }
 
   // Teacher management
   getAllTeachers(): Observable<UsersApi.Admin.TeachersResponse> {

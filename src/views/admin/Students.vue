@@ -1,11 +1,33 @@
 <template>
+    <Dialog
+        modal
+        :draggable="false"
+        class="w-75"
+        v-model:visible="editStudentDialog">
+        <StudentDialog :edit-data="editedStudent"/>
+        <template #header>
+            <CardHeader icon="user-edit" title="Edit student"/>
+        </template>
+    </Dialog>
+
+    <Dialog
+        modal
+        :draggable="false"
+        class="w-75"
+        v-model:visible="addStudentDialog">
+        <StudentDialog/>
+        <template #header>
+            <CardHeader icon="user-plus" title="Add student"/>
+        </template>
+    </Dialog>
+
     <Card>
         <template #header>
             <CardHeader icon="users" title="Students" />
         </template>
 
         <template #content>
-            <div class="d-flex gap-3 mt-2">
+            <div class="d-flex gap-3 mt-2 justify-content-center">
                 <Button
                     label="Add Student"
                     @click="showAddStudentDialog"
@@ -48,14 +70,16 @@
                 :value="students"
                 v-model:filters="filters"
                 filterDisplay="row"
-                :paginator="true"
+                paginator
+                removableSort
+                :rowsPerPageOptions="[5, 15, 20, 40, 50]"
                 :rows="15"
                 dataKey="id"
                 :loading="loading"
                 stripedRows
             >
                 <template #header>
-                    <div class="d-flex gap-3">
+                    <div class="d-flex gap-3 justify-content-end">
                         <Button type="button" icon="pi pi-filter-slash" label="Clear" severity="secondary" @click="initFilters"/>
                         <IconField>
                             <InputIcon>
@@ -65,12 +89,12 @@
                         </IconField>
                     </div>
                 </template>
-                <template #empty>No students found.</template>
-                <template #loading>Loading students data. Please wait.</template>
+                <template #empty>No students found</template>
+                <template #loading>Loading students data. Please wait</template>
 
-                <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
+                <Column selectionMode="multiple"></Column>
 
-                <Column field="firstName" header="First Name">
+                <Column field="firstName" header="First Name" sortable>
                     <template #body="{ data }">
                         {{ data.firstName }}
                     </template>
@@ -85,7 +109,7 @@
                     </template>
                 </Column>
 
-                <Column field="lastName" header="Last Name">
+                <Column field="lastName" header="Last Name" sortable>
                     <template #body="{ data }">
                         {{ data.lastName }}
                     </template>
@@ -160,93 +184,12 @@
                             variant="filled"
                             optionLabel="label"
                             optionValue="value"
-                            placeholder="Any Status"
+                            placeholder="Status"
                             class="p-column-filter w-100"
                         />
                     </template>
                 </Column>
             </DataTable>
-
-            <Dialog
-                v-model:visible="addStudentDialog"
-                header="Add Student"
-                :modal="true"
-                class="p-fluid"
-            >
-                <div class="p-field mb-3">
-                    <label for="firstName">First Name</label>
-                    <InputText id="firstName" v-model="newStudent.firstName" required />
-                </div>
-                <div class="p-field mb-3">
-                    <label for="lastName">Last Name</label>
-                    <InputText id="lastName" v-model="newStudent.lastName" required />
-                </div>
-                <div class="p-field mb-3">
-                    <label for="patronymic">Patronymic</label>
-                    <InputText id="patronymic" v-model="newStudent.patronymic" />
-                </div>
-                <div class="p-field mb-3">
-                    <label for="email">Email</label>
-                    <InputText id="email" v-model="newStudent.email" required type="email" />
-                </div>
-                <div class="p-field mb-3">
-                    <label for="group">Educational Program</label>
-                    <InputText id="group" v-model="newStudent.group" required />
-                </div>
-                <div class="p-field mb-3">
-                    <label for="year">Year</label>
-                    <InputText id="year" v-model="newStudent.year" required />
-                </div>
-                <template #footer>
-                    <Button label="Cancel" icon="pi pi-times" @click="closeAddStudentDialog" class="p-button-text" />
-                    <Button label="Save" icon="pi pi-check" @click="saveStudent" />
-                </template>
-            </Dialog>
-
-            <Dialog
-                v-model:visible="editStudentDialog"
-                header="Edit Student"
-                :modal="true"
-                class="p-fluid"
-            >
-                <div class="p-field mb-3">
-                    <label for="editFirstName">First Name</label>
-                    <InputText id="editFirstName" v-model="editedStudent.firstName" />
-                </div>
-                <div class="p-field mb-3">
-                    <label for="editLastName">Last Name</label>
-                    <InputText id="editLastName" v-model="editedStudent.lastName" />
-                </div>
-                <div class="p-field mb-3">
-                    <label for="editPatronymic">Patronymic</label>
-                    <InputText id="editPatronymic" v-model="editedStudent.patronymic" />
-                </div>
-                <div class="p-field mb-3">
-                    <label for="editEmail">Email</label>
-                    <InputText id="editEmail" v-model="editedStudent.email" type="email" />
-                </div>
-                <div class="p-field mb-3">
-                    <label for="editGroup">Educational Program</label>
-                    <InputText id="editGroup" v-model="editedStudent.group" />
-                </div>
-                <div class="p-field mb-3">
-                    <label for="editYear">Year</label>
-                    <InputText id="editYear" v-model="editedStudent.year" />
-                </div>
-                <div class="p-field mb-3">
-                    <label for="editIsActive">Status</label>
-                    <SelectButton
-                        id="editIsActive"
-                        v-model="editedStudent.isActive"
-                        :options="[{label: 'Active', value: true}, {label: 'Inactive', value: false}]"
-                        optionLabel="label"
-                    />
-                </div>
-                <template #footer>
-                    <Button label="Cancel" icon="pi pi-times" @click="closeEditStudentDialog" class="p-button-text" />
-                    <Button label="Save" icon="pi pi-check" @click="updateStudent" />
-                </template>
-            </Dialog>
         </template>
     </Card>
 </template>
@@ -259,9 +202,7 @@
 
 .p-datatable {
     .p-datatable-filter {
-        .p-inputtext,
-        .p-treeselect,
-        .p-textarea {
+        .p-inputtext {
             padding-block: revert-layer;
         }
     }
@@ -276,9 +217,11 @@ import AdminService from '@/services/admin.service';
 import { useToast } from 'primevue/usetoast';
 import { UsersApi } from "@/types/api";
 import { FilterMatchMode } from '@primevue/core/api';
+import StudentDialog from "@/views/admin/dialogs/StudentDialog.vue";
 
 export default defineComponent({
     name: 'StudentsTable',
+    components: { StudentDialog },
     setup() {
         const toast = useToast();
         const subscriptions = new Set<Subscription>();
@@ -306,21 +249,22 @@ export default defineComponent({
         };
         initFilters();
 
-        const newStudent = ref<UsersApi.Admin.AddStudent>({
+        const newStudent = ref<Omit<UsersApi.Admin.AddStudent, 'id'>>({
             email: '',
             firstName: '',
             lastName: '',
             patronymic: '',
-            group: '',
+            educationalProgram: '',
             year: ''
         });
 
         const editedStudent = ref<UsersApi.Admin.EditStudent>({
+            id: 0,
             email: '',
             firstName: '',
             lastName: '',
             patronymic: '',
-            group: '',
+            educationalProgram: '',
             year: '',
             isActive: true
         });
@@ -351,7 +295,7 @@ export default defineComponent({
                 firstName: '',
                 lastName: '',
                 patronymic: '',
-                group: '',
+                educationalProgram: '',
                 year: ''
             };
             addStudentDialog.value = true;
@@ -389,11 +333,12 @@ export default defineComponent({
             if (selectedStudents.value.length === 1) {
                 const student = selectedStudents.value[0];
                 editedStudent.value = {
+                    id: student.id,
                     email: student.email,
                     firstName: student.firstName,
                     lastName: student.lastName,
                     patronymic: student.patronymic,
-                    group: student.educationalProgram,
+                    educationalProgram: student.educationalProgram,
                     year: student.year,
                     isActive: student.isActive
                 };
@@ -407,67 +352,55 @@ export default defineComponent({
 
         const updateStudent = () => {
             if (selectedStudents.value.length === 1) {
-                const studentId = selectedStudents.value[0].id;
-                // Note: This function is commented out in your service, so you'll need to implement it
-                // The following is how it would look if implemented
-                // const subscription = AdminService.editStudent(studentId, editedStudent.value).subscribe({
-                //     next: () => {
-                //         toast.add({
-                //             severity: 'success',
-                //             summary: 'Success',
-                //             detail: 'Student updated successfully',
-                //             life: 3000
-                //         });
-                //         closeEditStudentDialog();
-                //         loadStudents();
-                //     },
-                //     error: () => {
-                //         toast.add({
-                //             severity: 'error',
-                //             summary: 'Error',
-                //             detail: 'Failed to update student',
-                //             life: 3000
-                //         });
-                //     }
-                // });
-                // subscriptions.add(subscription);
+                const subscription = AdminService.editStudent(editedStudent.value).subscribe({
+                    next: () => {
+                        toast.add({
+                            severity: 'success',
+                            summary: 'Success',
+                            detail: 'Student updated successfully',
+                            life: 3000
+                        });
+                        closeEditStudentDialog();
+                        loadStudents();
+                    },
+                    error: () => {
+                        toast.add({
+                            severity: 'error',
+                            summary: 'Error',
+                            detail: 'Failed to update student',
+                            life: 3000
+                        });
+                    }
+                });
+                subscriptions.add(subscription);
             }
         };
 
         const markStudentsActive = (isActive: boolean) => {
-            if (selectedStudents.value.length > 0) {
-                // This would normally be a batch operation, but based on your APIs we'll do it one by one
-                const promises = selectedStudents.value.map(student => {
-                    return new Promise<void>((resolve, reject) => {
-                        // Note: This function is commented out in your service, so you'll need to implement it
-                        // const subscription = AdminService.editStudent(student.id, { isActive }).subscribe({
-                        //     next: () => resolve(),
-                        //     error: () => reject()
-                        // });
-                        // subscriptions.add(subscription);
-                    });
-                });
+            if (selectedStudents.value.length < 1) { return; }
+            const studentIds = selectedStudents.value.map((student) => student.id);
 
-                Promise.all(promises)
-                    .then(() => {
-                        toast.add({
-                            severity: 'success',
-                            summary: 'Success',
-                            detail: `Successfully marked ${selectedStudents.value.length} student(s) as ${isActive ? 'active' : 'inactive'}`,
-                            life: 3000
-                        });
-                        loadStudents();
-                    })
-                    .catch(() => {
-                        toast.add({
-                            severity: 'error',
-                            summary: 'Error',
-                            detail: 'Failed to update some students',
-                            life: 3000
-                        });
-                        loadStudents();
+            const subscription = AdminService.editStudents({ studentIds, isActive }).subscribe({
+                next: () => {
+                    toast.add({
+                        severity: 'success',
+                        summary: 'Success',
+                        detail: `Successfully marked ${selectedStudents.value.length} student(s) as ${isActive ? 'active' : 'inactive'}`,
+                        life: 3000
                     });
-            }
+                    loadStudents();
+                },
+                error: () => {
+                    toast.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'Failed to update some students',
+                        life: 3000
+                    });
+                    loadStudents();
+                },
+            });
+            subscriptions.add(subscription);
         };
 
         onMounted(() => {
