@@ -8,22 +8,27 @@ import ToggleSwitch from 'primevue/toggleswitch';
 import Toast from "primevue/toast";
 import Button from "primevue/button";
 import SelectButton from 'primevue/selectbutton';
+import Select from 'primevue/select';
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import PanelMenu from 'primevue/panelmenu';
 import Drawer from "primevue/drawer";
 import Card from "primevue/card";
 import Menu from 'primevue/menu';
+import Badge from 'primevue/badge';
+import Chip from 'primevue/chip';
 import Toolbar from "primevue/toolbar";
 import TieredMenu from 'primevue/tieredmenu';
 import FloatLabel from 'primevue/floatlabel';
 import DataView from 'primevue/dataview';
+import Row from 'primevue/row';
 import StyleClass from "primevue/styleclass";
 import Ripple from "primevue/ripple";
 import InputText from 'primevue/inputtext';
 import Password from 'primevue/password';
 import Checkbox from "primevue/checkbox";
 import Message from "primevue/message";
+import Panel from "primevue/panel";
 import { CheckboxGroup } from "primevue";
 import IconField from "primevue/iconfield";
 import Textarea from 'primevue/textarea';
@@ -92,8 +97,11 @@ createApp(App)
     .component('TieredMenu', TieredMenu)
     .component('DataView', DataView)
     .component('Column', Column)
+    .component('Row', Row)
     .component('Button', Button)
     .component('SelectButton', SelectButton)
+    .component('Select', Select)
+    .component('Badge', Badge)
     .component('DataTable', DataTable)
     .component('ToggleSwitch', ToggleSwitch)
     .component('InputText', InputText)
@@ -101,12 +109,14 @@ createApp(App)
     .component('Checkbox', Checkbox)
     .component('Textarea', Textarea)
     .component('Message', Message)
+    .component('Chip', Chip)
     .component('CheckboxGroup', CheckboxGroup)
     .component('IconField', IconField)
     .component('Divider', Divider)
     .component('InputIcon', InputIcon)
     .component("Toast", Toast)
     .component("PanelMenu", PanelMenu)
+    .component("Panel", Panel)
     .component("Dialog", Dialog)
     .component("FloatLabel", FloatLabel)
     .component("CardHeader", CardHeader)

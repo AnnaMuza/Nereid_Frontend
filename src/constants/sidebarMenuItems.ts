@@ -48,9 +48,15 @@ export const sidebarMenuItems: MenuItem[] = [
     },
   // student
     {
-        label: 'My Disciplines',
-        icon: 'pi pi-bookmark',
-        route: '/student/my-disciplines',
+        label: 'Disciplines',
+        icon: 'pi pi-list',
+        route: '/student/disciplines',
+        permissions: [RoleName.student],
+    },
+    {
+        label: 'Selected Disciplines',
+        icon: 'pi pi-check-circle',
+        route: '/student/selected-disciplines',
         permissions: [RoleName.student],
     },
 ];

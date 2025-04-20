@@ -16,14 +16,20 @@ class AdminService extends ApiService {
     getAllStudents: '/admin/get-all-students',
     getAllDisciplines: '/admin/get-all-disciplines',
     releaseTeacherFromDiscipline: '/admin/release-teacher-from-discipline',
-    getDiscipline: (disciplineId: number | string) => `/admin/get-discipline/${disciplineId}`,
-    deleteDiscipline: (disciplineId: number | string) => `/admin/delete-discipline/${disciplineId}`,
+    getDiscipline: `/admin/get-discipline`, // :id
+    deleteDiscipline: `/admin/delete-discipline`, // :id
     getAllTeachers: '/admin/get-all-teachers',
     addStudent: '/admin/add-student',
     addDiscipline: '/admin/add-discipline',
     addTeacher: '/admin/add-teacher',
-    editStudent: (id: number | string) => `/admin/edit-student/${id}`,
-    editTeacher: (id: number | string) => `/admin/edit-teacher/${id}`
+    editStudent: `/admin/edit-student`, // :id
+    editStudents: `/admin/edit-students`,
+    editTeacher: `/admin/edit-teacher`, // :id
+
+    lockDisciplineSelection: '/admin/lock-discipline-selection',
+    unlockDisciplineSelection: '/admin/unlock-discipline-selection',
+    getStudentsForAllDisciplines: '/admin/get-students-for-all-disciplines',
+    recalculateStudentsCredits: '/admin/recalculate-students-credits',
   }
 
   // Health check
@@ -42,18 +48,14 @@ class AdminService extends ApiService {
   // }
 
   editAdminProfile(data: UsersApi.Admin.EditAdmin): Observable<UsersApi.Admin.AdminResponse> {
-    return this.patch<UsersApi.Admin.EditAdmin, UsersApi.Admin.AdminResponse>(this.endpoints.editAdmin, data).pipe(
-      map(() => {
-        UserService.getMe();
-      })
-    );
+    return this.patch<UsersApi.Admin.EditAdmin, UsersApi.Admin.AdminResponse>(this.endpoints.editAdmin, data);
   }
 
   // Student management
-  getAllStudents(): Observable<UsersApi.Admin.StudentsResponse> {
-    return this.get<UsersApi.Admin.StudentsResponse>(this.endpoints.getAllStudents).pipe(
+  getAllStudents(): Observable<UsersApi.Admin.Student[]> {
+    return this.get<UsersApi.Admin.Student[]>(this.endpoints.getAllStudents).pipe(
       map(response => {
-        this.students$.next(response.students);
+        this.students$.next(response);
         return response;
       })
     );
@@ -65,13 +67,15 @@ class AdminService extends ApiService {
     );
   }
 
-  editStudent(id: number, data: UsersApi.Admin.EditStudent): Observable<UsersApi.Admin.GenericResponse> {
+  editStudent(data: UsersApi.Admin.EditStudent): Observable<UsersApi.Admin.GenericResponse> {
     return this.patch<UsersApi.Admin.EditStudent, UsersApi.Admin.GenericResponse>(
-      this.endpoints.editStudent(id),
+      `${this.endpoints.editStudent}/${data.id}`,
       data
-    ).pipe(
-      tap(() => this.getAllStudents().subscribe())
     );
+  }
+
+  editStudents(data: UsersApi.Admin.EditStudents): Observable<UsersApi.Admin.GenericResponse> {
+    return this.patch<UsersApi.Admin.EditStudents, UsersApi.Admin.GenericResponse>(this.endpoints.editStudents, data);
   }
 
   // Teacher management
@@ -90,14 +94,14 @@ class AdminService extends ApiService {
     );
   }
 
-  editTeacher(id: number, data: UsersApi.Admin.EditTeacher): Observable<UsersApi.Admin.GenericResponse> {
-    return this.patch<UsersApi.Admin.EditTeacher, UsersApi.Admin.GenericResponse>(
-      this.endpoints.editTeacher(id),
-      data
-    ).pipe(
-      tap(() => this.getAllTeachers().subscribe())
-    );
-  }
+  // editTeacher(id: number, data: UsersApi.Admin.EditTeacher): Observable<UsersApi.Admin.GenericResponse> {
+  //   return this.patch<UsersApi.Admin.EditTeacher, UsersApi.Admin.GenericResponse>(
+  //     this.endpoints.editTeacher(id),
+  //     data
+  //   ).pipe(
+  //     tap(() => this.getAllTeachers().subscribe())
+  //   );
+  // }
 
   // Discipline management
   getAllDisciplines(): Observable<UsersApi.Admin.DisciplinesResponse> {
@@ -109,9 +113,9 @@ class AdminService extends ApiService {
     );
   }
 
-  getDiscipline(id: number): Observable<UsersApi.Admin.DisciplineResponse> {
-    return this.get<UsersApi.Admin.DisciplineResponse>(this.endpoints.getDiscipline(id));
-  }
+  // getDiscipline(id: number): Observable<UsersApi.Admin.DisciplineResponse> {
+  //   return this.get<UsersApi.Admin.DisciplineResponse>(this.endpoints.getDiscipline(id));
+  // }
 
   addDiscipline(data: UsersApi.Admin.AddDiscipline): Observable<UsersApi.Admin.GenericResponse> {
     return this.post<UsersApi.Admin.AddDiscipline, UsersApi.Admin.GenericResponse>(this.endpoints.addDiscipline, data).pipe(
@@ -119,11 +123,11 @@ class AdminService extends ApiService {
     );
   }
 
-  deleteDiscipline(id: number): Observable<UsersApi.Admin.GenericResponse> {
-    return this.delete<UsersApi.Admin.GenericResponse>(this.endpoints.deleteDiscipline(id)).pipe(
-      tap(() => this.getAllDisciplines().subscribe())
-    );
-  }
+  // deleteDiscipline(id: number): Observable<UsersApi.Admin.GenericResponse> {
+  //   return this.delete<UsersApi.Admin.GenericResponse>(this.endpoints.deleteDiscipline(id)).pipe(
+  //     tap(() => this.getAllDisciplines().subscribe())
+  //   );
+  // }
 
   // Role and discipline assignments
   releaseTeacherFromDiscipline(data: UsersApi.Admin.ReleaseTeacherFromDiscipline): Observable<UsersApi.Admin.GenericResponse> {
@@ -137,6 +141,18 @@ class AdminService extends ApiService {
         this.getAllDisciplines().subscribe();
       })
     );
+  }
+
+  lockDisciplineSelection(): Observable<string> {
+    return this.patch<any, string>(this.endpoints.lockDisciplineSelection, {});
+  }
+
+  unlockDisciplineSelection(): Observable<string> {
+    return this.patch<any, string>(this.endpoints.unlockDisciplineSelection, {});
+  }
+
+  getStudentsForAllDisciplines(semester: string): Observable<string> {
+    return this.get<string>(this.endpoints.getStudentsForAllDisciplines, { params: { semester } });
   }
 }
 

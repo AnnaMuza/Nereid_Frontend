@@ -12,7 +12,7 @@ class TeacherService extends ApiService {
 
     // Teacher endpoints
     getTeacher: '/teacher/get',
-    editTeacher: '/teacher/edit', // :id
+    editTeacher: '/teacher/edit', // :teacherId
     addField: '/teacher/add-field',
     deleteField: '/teacher/delete-field', // :fieldId
 
@@ -37,13 +37,8 @@ class TeacherService extends ApiService {
     );
   }
 
-  editTeacherProfile(id: number, data: UsersApi.Teacher.EditRequest): Observable<UsersApi.Teacher.EditResponse> {
-    return this.patch<UsersApi.Teacher.EditRequest, UsersApi.Teacher.EditResponse>(`${this.endpoints.editTeacher}/${id}`, data).pipe(
-      map((response) => {
-        UserService.getMe();
-        return response;
-      })
-    );
+  editTeacherProfile(teacherId: number, data: UsersApi.Teacher.EditRequest): Observable<UsersApi.Teacher.EditResponse> {
+    return this.patch<UsersApi.Teacher.EditRequest, UsersApi.Teacher.EditResponse>(`${this.endpoints.editTeacher}/${teacherId}`, data);
   }
 
   addField(data: UsersApi.Teacher.AddFieldRequest): Observable<UsersApi.Teacher.AddFieldResponse> {

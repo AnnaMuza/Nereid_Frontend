@@ -23,7 +23,7 @@ export default class ApiService {
         return from(method);
     }
 
-    get<T extends any = any>(url: string, config?: AxiosRequestConfig<T>) {
+    get<T extends any = any>(url: string, config?: any) {
         return this.wrap(
             axiosInstance.get<T>(this.getEndpoint(url), config)
         ).pipe(
@@ -42,6 +42,14 @@ export default class ApiService {
     patch<D extends any, T extends any>(url: string, data: D, config?: AxiosRequestConfig<T>) {
         return this.wrap(
           axiosInstance.patch<D, AxiosResponse<T>>(this.getEndpoint(url), data, config)
+        ).pipe(
+          map(({data}) => data)
+        );
+    }
+
+    put<D extends any, T extends any>(url: string, data: D, config?: AxiosRequestConfig<T>) {
+        return this.wrap(
+          axiosInstance.put<D, AxiosResponse<T>>(this.getEndpoint(url), data, config)
         ).pipe(
           map(({data}) => data)
         );

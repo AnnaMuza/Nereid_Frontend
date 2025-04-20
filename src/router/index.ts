@@ -13,7 +13,13 @@ const Managing = () => import('@/views/admin/Managing.vue');
 const Account = () => import('@/views/Account.vue');
 const AllDisciplines = () => import('@/views/teacher/AllDisciplines.vue');
 const TakenDisciplines = () => import('@/views/teacher/TakenDisciplines.vue');
-const Discipline = () => import('@/views/teacher/Discipline.vue');
+const Signup = () => import('@/views/Signup.vue');
+const Disciplines = () => import('@/views/student/Disciplines.vue');
+const SelectedDisciplines = () => import('@/views/student/SelectedDisciplines.vue');
+const Teacher = () => import('@/views/student/Teacher.vue');
+const Students = () => import('@/views/admin/Students.vue');
+const Teachers = () => import('@/views/admin/Teachers.vue');
+const DisciplinesAdmin = () => import('@/views/admin/Disciplines.vue');
 
 // TODO 404 routes for groups of routes
 
@@ -45,6 +51,28 @@ const routes: RouteRecordRaw[] = [
         beforeEnter: (to, from, next) => {
             AuthService.user$.pipe(
                 take(1)
+            ).subscribe((user) => {
+                if (user && AuthService.authToken) {
+                    const authorizedRoutes = routes.find(({ path }) => path === '/');
+                    if (authorizedRoutes) {
+                        const hasPermissionsRoute = recursiveSearchCanEnterRoute(authorizedRoutes);
+                        if (hasPermissionsRoute) {
+                            router.replace({ name: hasPermissionsRoute.name }).then(() => {});
+                        }
+                    }
+                } else {
+                    next();
+                }
+            });
+        }
+    },
+    {
+        path: '/signup',
+        component: Signup,
+        name: 'signup',
+        beforeEnter: (to, from, next) => {
+            AuthService.user$.pipe(
+              take(1)
             ).subscribe((user) => {
                 if (user && AuthService.authToken) {
                     const authorizedRoutes = routes.find(({ path }) => path === '/');
@@ -93,6 +121,21 @@ const routes: RouteRecordRaw[] = [
                         component: Managing,
                         name: 'managing'
                     },
+                    {
+                        path: 'students',
+                        component: Students,
+                        name: 'students'
+                    },
+                    {
+                        path: 'teachers',
+                        component: Teachers,
+                        name: 'teachers'
+                    },
+                    {
+                        path: 'disciplines',
+                        component: DisciplinesAdmin,
+                        name: 'disciplines-admin'
+                    },
                 ]
             },
             {
@@ -111,10 +154,28 @@ const routes: RouteRecordRaw[] = [
                         component: TakenDisciplines,
                         name: 'taken-disciplines'
                     },
+                ]
+            },
+            {
+                path: 'student',
+                meta: {
+                    permissions: [RoleName.student]
+                },
+                children: [
                     {
-                        path: 'discipline/:id',
-                        component: Discipline,
-                        name: 'teacher-discipline'
+                        path: 'disciplines',
+                        component: Disciplines,
+                        name: 'disciplines'
+                    },
+                    {
+                        path: 'selected-disciplines',
+                        component: SelectedDisciplines,
+                        name: 'selected-disciplines'
+                    },
+                    {
+                        path: 'teacher/:id',
+                        component: Teacher,
+                        name: 'student-teacher'
                     },
                 ]
             },
@@ -130,7 +191,7 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
     const loginRedirectQuery = to?.name && to.fullPath !== 'login' ? { redirectTo: to.fullPath.toString() } : {};
     if (!AuthService.authToken) {
-        if (to.name === 'login') {
+        if (to.name === 'login' || to.name === 'signup') {
             next();
         } else {
             next({

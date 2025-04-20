@@ -19,6 +19,10 @@ export type UnwrapRefsInObject<T> = {
     [K in keyof T]: UnwrapRef<Required<T>[K]>;
 }
 
+export interface AxiosErrorData {
+    message: string;
+}
+
 import 'vue-router'
 
 declare module 'vue-router' {
