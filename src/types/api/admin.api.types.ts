@@ -64,7 +64,7 @@ export namespace Admin {
     }
 
     export interface EditTeachers {
-        teachersIds: number[];
+        teacherIds: number[];
         isActive: boolean;
     }
 

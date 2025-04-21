@@ -259,9 +259,9 @@ export default defineComponent({
 
         const markTeachersActive = (isActive: boolean) => {
             if (selectedTeachers.value.length < 1) { return; }
-            const teachersIds = selectedTeachers.value.map((t) => t.id);
+            const teacherIds = selectedTeachers.value.map((t) => t.id);
 
-            const subscription = AdminService.editTeachers({ teachersIds, isActive }).subscribe({
+            const subscription = AdminService.editTeachers({ teacherIds, isActive }).subscribe({
                 next: () => {
                     toast.add({
                         severity: 'success',
