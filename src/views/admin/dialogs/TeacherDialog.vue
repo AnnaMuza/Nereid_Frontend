@@ -45,71 +45,20 @@
                     />
                     <small v-if="submitted && !email" class="p-error">Email is required.</small>
                 </FloatLabel>
-
-                <FloatLabel variant="over">
-                    <label for="group">Educational program*</label>
-                    <InputText
-                        id="group"
-                        v-model="educationalProgram"
-                        :class="{ 'p-invalid': submitted && !educationalProgram }"
-                        aria-describedby="group-help"/>
-                    <small v-if="submitted && !educationalProgram" class="p-error">Educational program is required.</small>
-                </FloatLabel>
-
-                <FloatLabel variant="over">
-                    <label class="z-3" for="course">Course*</label>
-                    <InputNumber
-                        id="course"
-                        fluid
-                        v-model="course"
-                        allow-empty
-                        :format="false"
-                        :class="{ 'p-invalid': submitted && !course }"
-                        aria-describedby="year-help"/>
-                    <small v-if="submitted && !course" class="p-error">Course is required.</small>
-                </FloatLabel>
-
-                <FloatLabel variant="over">
-                    <label class="z-3" for="year">Year*</label>
-                    <InputNumber
-                        id="year"
-                        fluid
-                        v-model="year"
-                        allow-empty
-                        :format="false"
-                        :class="{ 'p-invalid': submitted && !year }"
-                        aria-describedby="year-help"/>
-                    <small v-if="submitted && !year" class="p-error">Year is required.</small>
-                </FloatLabel>
-
-                <div class="d-flex gap-2">
-                    <Checkbox v-model="canSelect" binary/>
-                    <span>Can select</span>
-                </div>
-
-                <FloatLabel variant="over">
-                    <label class="z-3" for="Semester1MinCredits">Semester 1 minimum credits</label>
-                    <InputNumber
-                        id="Semester1MinCredits"
-                        fluid
-                        v-model="year"
-                        allow-empty
-                        :format="false"/>
-                </FloatLabel>
             </div>
 
             <Button
                 v-if="editMode"
                 class="d-flex mt-4"
                 style="justify-self: center;"
-                label="Edit student"
+                label="Edit teacher"
                 @click="editProfile"/>
 
             <Button
                 v-else
                 class="d-flex mt-4"
                 style="justify-self: center;"
-                label="Add student"
+                label="Add teacher"
                 @click="addProfile"/>
         </template>
     </Card>
@@ -127,10 +76,10 @@ import { useToast } from 'primevue/usetoast';
 import { UsersApi } from "@/types/api";
 
 export default defineComponent({
-    name: 'StudentDialog',
+    name: 'TeacherDialog',
     props: {
         editData: {
-            type: Object as PropType<UsersApi.Admin.EditStudent>,
+            type: Object as PropType<UsersApi.Admin.EditTeacher>,
             required: false,
         },
     },
@@ -145,10 +94,6 @@ export default defineComponent({
         const lastName = ref<string>('');
         const patronymic = ref<string>('');
         const email = ref<string>('');
-        const educationalProgram = ref<string>('');
-        const course = ref<number | undefined>();
-        const year = ref<number | undefined>();
-        const canSelect = ref<boolean>(false);
         let wasChanged = false;
 
         if (props.editData) {
@@ -157,28 +102,22 @@ export default defineComponent({
             lastName.value = props.editData.lastName || '';
             patronymic.value = props.editData.patronymic || '';
             email.value = props.editData.email || '';
-            educationalProgram.value = props.editData.educationalProgram || '';
-            course.value = props.editData.course ? Number(props.editData.course) : undefined;
-            year.value = props.editData.year ? Number(props.editData.year) : undefined;
         }
 
         const editProfile = () => {
             submitted.value = true;
 
             // Simple validation
-            if (firstName.value && lastName.value && email.value && educationalProgram.value && year.value && patronymic.value && course.value) {
+            if (firstName.value && lastName.value && email.value && patronymic.value) {
                 const userData = {
                     id: props.editData!.id,
                     firstName: firstName.value,
                     lastName: lastName.value,
                     patronymic: patronymic.value,
                     email: email.value,
-                    educationalProgram: educationalProgram.value,
-                    course: course.value.toString(),
-                    year: year.value.toString(),
                 };
 
-                const subscription = AdminService.editStudent(userData).subscribe({
+                const subscription = AdminService.editTeacher(userData).subscribe({
                     next: () => {
                         wasChanged = true;
                         toast.add({
@@ -206,31 +145,28 @@ export default defineComponent({
             submitted.value = true;
 
             // Simple validation
-            if (firstName.value && lastName.value && email.value && educationalProgram.value && year.value && patronymic.value && course.value) {
+            if (firstName.value && lastName.value && email.value && patronymic.value) {
                 const userData = {
                     firstName: firstName.value,
                     lastName: lastName.value,
                     patronymic: patronymic.value,
                     email: email.value,
-                    educationalProgram: educationalProgram.value,
-                    course: course.value.toString(),
-                    year: year.value.toString(),
                 };
 
-                const subscription = AdminService.addStudent(userData).subscribe({
+                const subscription = AdminService.addTeacher(userData).subscribe({
                     next: () => {
                         wasChanged = true;
                         toast.add({
                             severity: 'success',
                             summary: 'Success',
-                            detail: 'Student created successfully',
+                            detail: 'Teacher created successfully',
                             life: 3000
                         });
                     },
                     error: ({ response } = {}) => {
                         toast.add({
                             severity: 'error',
-                            summary: 'Failed to create student',
+                            summary: 'Failed to create teacher',
                             detail: response?.data.message,
                             life: 5000
                         });
@@ -255,14 +191,10 @@ export default defineComponent({
             lastName,
             patronymic,
             email,
-            educationalProgram,
-            year,
             submitted,
             editProfile,
             addProfile,
             editMode,
-            course,
-            canSelect,
         };
     }
 });

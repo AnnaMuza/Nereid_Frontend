@@ -206,7 +206,7 @@
                             optionLabel="label"
                             optionValue="value"
                             placeholder="Status"
-                            class="p-column-filter w-100"
+                            class="w-100"
                         />
                     </template>
                 </Column>
@@ -216,10 +216,6 @@
 </template>
 
 <style lang="scss" scoped>
-
-.p-column-filter {
-    width: 100%;
-}
 
 .p-datatable {
     .p-datatable-filter {

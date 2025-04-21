@@ -61,9 +61,7 @@ class AdminService extends ApiService {
   }
 
   addStudent(data: UsersApi.Admin.AddStudent): Observable<UsersApi.Admin.GenericResponse> {
-    return this.post<UsersApi.Admin.AddStudent, UsersApi.Admin.GenericResponse>(this.endpoints.addStudent, data).pipe(
-      tap(() => this.getAllStudents().subscribe())
-    );
+    return this.post<UsersApi.Admin.AddStudent, UsersApi.Admin.GenericResponse>(this.endpoints.addStudent, data);
   }
 
   editStudent(data: UsersApi.Admin.EditStudent): Observable<UsersApi.Admin.GenericResponse> {
@@ -78,29 +76,25 @@ class AdminService extends ApiService {
   }
 
   // Teacher management
-  getAllTeachers(): Observable<UsersApi.Admin.TeachersResponse> {
-    return this.get<UsersApi.Admin.TeachersResponse>(this.endpoints.getAllTeachers).pipe(
+  getAllTeachers(): Observable<UsersApi.Admin.Teacher[]> {
+    return this.get<UsersApi.Admin.Teacher[]>(this.endpoints.getAllTeachers).pipe(
       map(response => {
-        this.teachers$.next(response.teachers);
+        this.teachers$.next(response);
         return response;
       })
     );
   }
 
   addTeacher(data: UsersApi.Admin.AddTeacher): Observable<UsersApi.Admin.GenericResponse> {
-    return this.post<UsersApi.Admin.AddTeacher, UsersApi.Admin.GenericResponse>(this.endpoints.addTeacher, data).pipe(
-      tap(() => this.getAllTeachers().subscribe())
-    );
+    return this.post<UsersApi.Admin.AddTeacher, UsersApi.Admin.GenericResponse>(this.endpoints.addTeacher, data);
   }
 
-  // editTeacher(id: number, data: UsersApi.Admin.EditTeacher): Observable<UsersApi.Admin.GenericResponse> {
-  //   return this.patch<UsersApi.Admin.EditTeacher, UsersApi.Admin.GenericResponse>(
-  //     this.endpoints.editTeacher(id),
-  //     data
-  //   ).pipe(
-  //     tap(() => this.getAllTeachers().subscribe())
-  //   );
-  // }
+  editTeacher(data: UsersApi.Admin.EditTeacher): Observable<UsersApi.Admin.GenericResponse> {
+    return this.patch<UsersApi.Admin.EditTeacher, UsersApi.Admin.GenericResponse>(
+      `${this.endpoints.editTeacher}/${data.id}`,
+      data
+    );
+  }
 
   // Discipline management
   getAllDisciplines(): Observable<UsersApi.Admin.DisciplinesResponse> {
