@@ -1,139 +1,151 @@
 <template>
+    <Dialog
+        modal
+        :draggable="false"
+        class="w-75"
+        v-model:visible="disciplineDetailsVisible">
+        <DisciplineDialog :discipline-id="disciplineDetails?.id"/>
+        <template #header>
+            <CardHeader icon="book" :title="disciplineDetails?.name"/>
+        </template>
+    </Dialog>
 
-<Card>
-    <template #header>
-        <CardHeader icon="briefcase" title="Managing"/>
-    </template>
+    <Card class="card-h-100">
+        <template #header>
+            <CardHeader icon="book" title="Disciplines"/>
+        </template>
 
-    <template #content>
-        <div class="d-flex gap-5 mt-3">
-            <Button
-                label="Lock discipline selection"
-                size="large"
-                severity="danger"
-                @click="lockDisciplineSelection"/>
-            <Button
-                label="Unlock discipline selection"
-                severity="success"
-                @click="unlockDisciplineSelection"/>
-        </div>
-
-<!--        <div class="d-flex my-5 align-items-center gap-5">-->
-<!--            <span>Students who meet requirements</span>-->
-<!--            <Chip>4</Chip>-->
-<!--        </div>-->
-
-        <div class="d-flex flex-column my-5">
-            <span class="d-flex align-self-center">Reports</span>
-            <Divider/>
-            <div>
-                <Panel style="width: 320px">
-                    <template #header>
-                        <Select
-                            v-model="semester"
-                            :options="semesters"
-                            variant="filled"
-                            option-label="name"/>
-                    </template>
-                    <Button
-                        label="Download list of students for each discipline"
-                        size="large"
-                        @click="getStudentsForAllDisciplines"/>
-                </Panel>
+        <template #content>
+            <div class="d-flex justify-content-center gap-5">
+                <Button
+                    class="d-flex mb-4"
+                    style="width: fit-content; align-self: center;"
+                    label="Remove Disciplines"
+                    @click="releaseDisciplines"
+                    :disabled="selectedDisciplines.length === 0"
+                />
+                <Button
+                    class="d-flex mb-4"
+                    style="width: fit-content; align-self: center;"
+                    label="Add Discipline"
+                    @click="releaseDisciplines"
+                />
             </div>
-        </div>
-    </template>
-</Card>
 
+            <div class="d-flex flex-column gap-4 overflow-y-scroll h-100">
+                <div v-for="discipline in disciplines" :key="discipline.id" class="d-flex gap-2 align-items-center">
+                    <Checkbox
+                        v-model="selectedDisciplines"
+                        :value="discipline.id"
+                        :binary="false"
+                    />
+                    <Chip>
+                        <Button
+                            text
+                            class="p-0"
+                            @click="disciplineDetails = discipline; disciplineDetailsVisible = true"
+                            :label="discipline.name"/>
+                        | Semester {{ discipline.semester }}
+                    </Chip>
+                </div>
+            </div>
+        </template>
+    </Card>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, onMounted, onUnmounted } from 'vue';
+import AdminService from '@/services/admin.service';
+import { UsersApi } from '@/types/api';
 import { Subscription } from 'rxjs';
-import { Semester } from "@/views/student/Disciplines.vue";
-import AdminService from "@/services/admin.service";
-import { useToast } from 'primevue/usetoast';
-import UtilsService from "@/services/utils.service";
-import { AxiosError } from "axios";
-import { AxiosErrorData } from "@/types/global.interface";
+import DisciplineDialog from "@/views/admin/dialogs/DisciplineDialog.vue";
+import { useToast } from "primevue/usetoast";
 
 export default defineComponent({
-    name: 'Managing',
+    name: 'DisciplinesList',
+    components: { DisciplineDialog },
     setup() {
         const toast = useToast();
+        const disciplines = ref<UsersApi.Admin.Discipline[]>([]);
+        const selectedDisciplines = ref<number[]>([]);
+        const loading = ref(false);
+        const error = ref<string | null>(null);
         const subscriptions = new Set<Subscription>();
-        const semesters = ref<Semester[]>([
-            { name: 'Semester 1', code: '1' },
-            { name: 'Semester 2', code: '2' },
-        ]);
-        const semester = ref<Semester>(semesters.value[0]);
+        const disciplineDetailsVisible = ref<boolean>(false);
+        const disciplineDetails = ref<UsersApi.Admin.Discipline | null>(null);
 
-        const lockDisciplineSelection = () => {
-            const subscription = AdminService.lockDisciplineSelection().subscribe({
-                next: () => {
-                    toast.add({
-                        severity: 'success',
-                        summary: 'Success',
-                        detail: 'Locked discipline selection successfully',
-                        life: 5000
-                    });
-                },
-                error() {
-                    toast.add({
-                        severity: 'error',
-                        summary: 'Error',
-                        detail: 'Cannot lock discipline selection',
-                        life: 5000
-                    });
-                },
-            });
+        const fetchDisciplines = () => {
+            loading.value = true;
 
-            subscriptions.add(subscription);
-        };
-
-        const unlockDisciplineSelection = () => {
-            const subscription = AdminService.unlockDisciplineSelection().subscribe({
-                next: () => {
-                    toast.add({
-                        severity: 'success',
-                        summary: 'Success',
-                        detail: 'Unlocked discipline selection successfully',
-                        life: 5000
-                    });
-                },
-                error() {
-                    toast.add({
-                        severity: 'error',
-                        summary: 'Error',
-                        detail: 'Cannot unlock discipline selection',
-                        life: 5000
-                    });
-                },
-            });
-
-            subscriptions.add(subscription);
-        };
-
-        const getStudentsForAllDisciplines = () => {
-            const subscription = AdminService.getStudentsForAllDisciplines(semester.value.code).subscribe({
+            const subscription = AdminService.getAllDisciplines().subscribe({
                 next: (response) => {
-                    UtilsService.downloadCsv(response, 'report.csv');
+                    // @ts-ignore
+                    disciplines.value = response;
+                    loading.value = false;
                 },
-                error: (err: AxiosError<AxiosErrorData>) => {
+                error: (err) => {
                     toast.add({
                         severity: 'error',
                         summary: 'Error',
-                        detail: err.response?.data.message,
+                        detail: 'Failed to load students',
                         life: 3000
                     });
-                },
+                    loading.value = false;
+                }
             });
 
             subscriptions.add(subscription);
+        };
+
+        const releaseDisciplines = () => {
+            // if (!teacher.value || selectedDisciplines.value.length === 0) return;
+            //
+            // loading.value = true;
+            //
+            // // Track how many operations are completed
+            // let completedOps = 0;
+            // const totalOps = selectedDisciplines.value.length;
+            //
+            // selectedDisciplines.value.forEach(disciplineId => {
+            //     const subscription = TeacherService.releaseDiscipline({
+            //         teacherId: teacher.value!.id,
+            //         disciplineId: disciplineId
+            //     }).subscribe({
+            //         next: () => {
+            //             completedOps++;
+            //             // When all operations are done
+            //             if (completedOps === totalOps) {
+            //                 loading.value = false;
+            //                 selectedDisciplines.value = [];
+            //
+            //                 // Refresh the list of taken disciplines
+            //                 if (teacher.value) {
+            //                     fetchTakenDisciplines(teacher.value.id);
+            //                 }
+            //             }
+            //         },
+            //         error: (err) => {
+            //             error.value = 'Failed to release disciplines';
+            //             console.error(err);
+            //             loading.value = false;
+            //         }
+            // error: ({ response } = {}) => {
+            //     toast.add({
+            //         severity: 'error',
+            //         summary: 'Failed to load teacher data',
+            //         detail: response?.data.message,
+            //         life: 5000
+            //     });
+            //     loading.value = false;
+            // },
+            //     });
+            //
+            //     subscriptions.add(subscription);
+            // });
         };
 
         onMounted(() => {
-
+            fetchDisciplines();
         });
 
         onUnmounted(() => {
@@ -143,11 +155,13 @@ export default defineComponent({
         });
 
         return {
-            lockDisciplineSelection,
-            unlockDisciplineSelection,
-            getStudentsForAllDisciplines,
-            semesters,
-            semester,
+            disciplines,
+            selectedDisciplines,
+            loading,
+            error,
+            releaseDisciplines,
+            disciplineDetailsVisible,
+            disciplineDetails,
         };
     }
 });

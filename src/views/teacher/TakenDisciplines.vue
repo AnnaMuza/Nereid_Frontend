@@ -50,11 +50,13 @@ import TeacherService from '@/services/teacher.service';
 import { UsersApi } from '@/types/api';
 import { Subscription } from 'rxjs';
 import DisciplineDetails from "@/views/teacher/Discipline.vue";
+import { useToast } from "primevue/usetoast";
 
 export default defineComponent({
     name: 'TakenDisciplines',
     components: {DisciplineDetails},
     setup() {
+        const toast = useToast();
         const takenDisciplines = ref<UsersApi.Teacher.Discipline[]>([]);
         const selectedDisciplines = ref<number[]>([]);
         const teacher = ref<UsersApi.Teacher.Get['teacher'] | null>(null);
@@ -70,9 +72,14 @@ export default defineComponent({
                     teacher.value = response.teacher;
                     fetchTakenDisciplines(response.teacher.id);
                 },
-                error: (err) => {
-                    console.error('Failed to load teacher data', err);
-                }
+                error: ({ response } = {}) => {
+                    toast.add({
+                        severity: 'error',
+                        summary: 'Failed to load teacher data',
+                        detail: response?.data.message,
+                        life: 5000
+                    });
+                },
             });
 
             subscriptions.add(subscription);
@@ -86,11 +93,15 @@ export default defineComponent({
                     takenDisciplines.value = response;
                     loading.value = false;
                 },
-                error: (err) => {
-                    console.error('Failed to load taken disciplines', err);
-                    error.value = 'Failed to load taken disciplines';
+                error: ({ response } = {}) => {
+                    toast.add({
+                        severity: 'error',
+                        summary: 'Failed to load taken disciplines',
+                        detail: response?.data.message,
+                        life: 5000
+                    });
                     loading.value = false;
-                }
+                },
             });
 
             subscriptions.add(subscription);
@@ -123,11 +134,15 @@ export default defineComponent({
                             }
                         }
                     },
-                    error: (err) => {
-                        error.value = 'Failed to release disciplines';
-                        console.error(err);
+                    error: ({ response } = {}) => {
+                        toast.add({
+                            severity: 'error',
+                            summary: 'Failed to release disciplines',
+                            detail: response?.data.message,
+                            life: 5000
+                        });
                         loading.value = false;
-                    }
+                    },
                 });
 
                 subscriptions.add(subscription);

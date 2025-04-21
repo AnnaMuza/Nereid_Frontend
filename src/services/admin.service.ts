@@ -24,6 +24,7 @@ class AdminService extends ApiService {
     editStudent: `/admin/edit-student`, // :id
     editStudents: `/admin/edit-students`,
     editTeacher: `/admin/edit-teacher`, // :id
+    editTeachers: `/admin/edit-teachers`,
 
     lockDisciplineSelection: '/admin/lock-discipline-selection',
     unlockDisciplineSelection: '/admin/unlock-discipline-selection',
@@ -96,11 +97,15 @@ class AdminService extends ApiService {
     );
   }
 
+  editTeachers(data: UsersApi.Admin.EditTeachers): Observable<UsersApi.Admin.GenericResponse> {
+    return this.patch<UsersApi.Admin.EditTeachers, UsersApi.Admin.GenericResponse>(this.endpoints.editTeachers, data);
+  }
+
   // Discipline management
-  getAllDisciplines(): Observable<UsersApi.Admin.DisciplinesResponse> {
-    return this.get<UsersApi.Admin.DisciplinesResponse>(this.endpoints.getAllDisciplines).pipe(
+  getAllDisciplines(): Observable<UsersApi.Admin.Discipline[]> {
+    return this.get<UsersApi.Admin.Discipline[]>(this.endpoints.getAllDisciplines).pipe(
       map(response => {
-        this.disciplines$.next(response.disciplines);
+        this.disciplines$.next(response);
         return response;
       })
     );

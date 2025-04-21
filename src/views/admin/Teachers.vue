@@ -259,29 +259,29 @@ export default defineComponent({
 
         const markTeachersActive = (isActive: boolean) => {
             if (selectedTeachers.value.length < 1) { return; }
-            const studentIds = selectedTeachers.value.map((student) => student.id);
+            const teachersIds = selectedTeachers.value.map((t) => t.id);
 
-            // const subscription = AdminService.editStudents({ studentIds, isActive }).subscribe({
-            //     next: () => {
-            //         toast.add({
-            //             severity: 'success',
-            //             summary: 'Success',
-            //             detail: `Successfully marked ${selectedStudents.value.length} student(s) as ${isActive ? 'active' : 'inactive'}`,
-            //             life: 3000
-            //         });
-            //         loadStudents();
-            //     },
-            //     error: () => {
-            //         toast.add({
-            //             severity: 'error',
-            //             summary: 'Error',
-            //             detail: 'Failed to update some students',
-            //             life: 3000
-            //         });
-            //         loadStudents();
-            //     },
-            // });
-            // subscriptions.add(subscription);
+            const subscription = AdminService.editTeachers({ teachersIds, isActive }).subscribe({
+                next: () => {
+                    toast.add({
+                        severity: 'success',
+                        summary: 'Success',
+                        detail: `Successfully marked ${selectedTeachers.value.length} teacher(s) as ${isActive ? 'active' : 'inactive'}`,
+                        life: 3000
+                    });
+                    loadTeachers();
+                },
+                error: () => {
+                    toast.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'Failed to update some teachers',
+                        life: 3000
+                    });
+                    loadTeachers();
+                },
+            });
+            subscriptions.add(subscription);
         };
 
         onMounted(() => {

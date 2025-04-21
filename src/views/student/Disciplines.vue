@@ -119,11 +119,15 @@ export default defineComponent({
                     disciplines.value = UtilsService.sortDisciplines(response.disciplines);
                     loading.value = false;
                 },
-                error: (err) => {
-                    error.value = 'Failed to load disciplines';
-                    console.error(err);
+                error: ({ response } = {}) => {
+                    toast.add({
+                        severity: 'error',
+                        summary: 'Failed to load disciplines',
+                        detail: response?.data.message,
+                        life: 5000
+                    });
                     loading.value = false;
-                }
+                },
             });
 
             subscriptions.add(subscription);
@@ -135,9 +139,14 @@ export default defineComponent({
                     student.value = response;
                     fetchTakenDisciplines();
                 },
-                error: (err) => {
-                    console.error('Failed to load student data', err);
-                }
+                error: ({ response } = {}) => {
+                    toast.add({
+                        severity: 'error',
+                        summary: 'Failed to load student data',
+                        detail: response?.data.message,
+                        life: 5000
+                    });
+                },
             });
 
             subscriptions.add(subscription);
@@ -151,9 +160,14 @@ export default defineComponent({
                     maximumCredits.value = response.maximumCredits;
                     currentCredits.value = response.currentCredits;
                 },
-                error: (err) => {
-                    console.error('Failed to load selected disciplines', err);
-                }
+                error: ({ response } = {}) => {
+                    toast.add({
+                        severity: 'error',
+                        summary: 'Failed to load selected disciplines',
+                        detail: response?.data.message,
+                        life: 5000
+                    });
+                },
             });
 
             subscriptions.add(subscription);

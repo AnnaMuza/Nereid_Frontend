@@ -178,10 +178,15 @@ export default defineComponent({
                     fields.value.forEach(f => {f.selected = false});
                     loading.value = false;
                 },
-                error: (err) => {
-                    console.error('Failed to load teacher data', err);
+                error: ({ response } = {}) => {
+                    toast.add({
+                        severity: 'error',
+                        summary: 'Failed to load teacher data',
+                        detail: response?.data.message,
+                        life: 5000
+                    });
                     loading.value = false;
-                }
+                },
             });
 
             subscriptions.add(subscription);
@@ -196,10 +201,15 @@ export default defineComponent({
                     course.value = response.course;
                     loading.value = false;
                 },
-                error: (err) => {
-                    console.error('Failed to load student data', err);
+                error: ({ response } = {}) => {
+                    toast.add({
+                        severity: 'error',
+                        summary: 'Failed to load student data',
+                        detail: response?.data.message,
+                        life: 5000
+                    });
                     loading.value = false;
-                }
+                },
             });
 
             subscriptions.add(subscription);
@@ -271,11 +281,15 @@ export default defineComponent({
                     fetchTeacher();
                     loading.value = false;
                 },
-                error: (err) => {
-                    err.value = 'Failed to add field';
-                    console.error(err);
+                error: ({ response } = {}) => {
+                    toast.add({
+                        severity: 'error',
+                        summary: 'Failed to add field',
+                        detail: response?.data.message,
+                        life: 5000
+                    });
                     loading.value = false;
-                }
+                },
             });
 
             subscriptions.add(subscription);
@@ -303,11 +317,15 @@ export default defineComponent({
                             fetchTeacher();
                         }
                     },
-                    error: (err) => {
-                        err.value = 'Failed to delete field';
-                        console.error(err);
+                    error: ({ response } = {}) => {
+                        toast.add({
+                            severity: 'error',
+                            summary: 'Failed to delete field',
+                            detail: response?.data.message,
+                            life: 5000
+                        });
                         loading.value = false;
-                    }
+                    },
                 });
 
                 subscriptions.add(subscription);

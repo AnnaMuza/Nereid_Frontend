@@ -15,13 +15,10 @@ export namespace Admin {
     }
 
     export interface Teacher extends UsersApi.User.Get {
-        // Teacher specific fields if needed
+        userId: number;
     }
 
-    export interface Discipline {
-        id: number;
-        disciplineName: string;
-        // Other discipline properties
+    export interface Discipline extends UsersApi.Teacher.Discipline {
     }
 
     // Request interfaces
@@ -63,6 +60,11 @@ export namespace Admin {
 
     export interface EditStudents {
         studentIds: number[];
+        isActive: boolean;
+    }
+
+    export interface EditTeachers {
+        teachersIds: number[];
         isActive: boolean;
     }
 

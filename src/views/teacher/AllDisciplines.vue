@@ -52,11 +52,13 @@ import TeacherService from '@/services/teacher.service';
 import { UsersApi } from '@/types/api';
 import { Subscription } from 'rxjs';
 import DisciplineDetails from "@/views/teacher/Discipline.vue";
+import { useToast } from "primevue/usetoast";
 
 export default defineComponent({
     name: 'AllDisciplines',
     components: {DisciplineDetails},
     setup() {
+        const toast = useToast();
         const disciplines = ref<UsersApi.Teacher.Discipline[]>([]);
         const selectedDisciplines = ref<number[]>([]);
         const takenDisciplines = ref<UsersApi.Teacher.Discipline[]>([]);
@@ -84,8 +86,12 @@ export default defineComponent({
                     loading.value = false;
                 },
                 error: (err) => {
-                    error.value = 'Failed to load disciplines';
-                    console.error(err);
+                    toast.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'Failed to load disciplines',
+                        life: 3000
+                    });
                     loading.value = false;
                 }
             });
@@ -99,9 +105,14 @@ export default defineComponent({
                     teacher.value = response.teacher;
                     fetchTakenDisciplines(response.teacher.id);
                 },
-                error: (err) => {
-                    console.error('Failed to load teacher data', err);
-                }
+                error: ({ response } = {}) => {
+                    toast.add({
+                        severity: 'error',
+                        summary: 'Failed to load teacher data',
+                        detail: response?.data.message,
+                        life: 5000
+                    });
+                },
             });
 
             subscriptions.add(subscription);
@@ -112,9 +123,14 @@ export default defineComponent({
                 next: (response) => {
                     takenDisciplines.value = response;
                 },
-                error: (err) => {
-                    console.error('Failed to load taken disciplines', err);
-                }
+                error: ({ response } = {}) => {
+                    toast.add({
+                        severity: 'error',
+                        summary: 'Failed to load taken disciplines',
+                        detail: response?.data.message,
+                        life: 5000
+                    });
+                },
             });
 
             subscriptions.add(subscription);
@@ -157,11 +173,15 @@ export default defineComponent({
                             }
                         }
                     },
-                    error: (err) => {
-                        error.value = 'Failed to take disciplines';
-                        console.error(err);
+                    error: ({ response } = {}) => {
+                        toast.add({
+                            severity: 'error',
+                            summary: 'Failed to take disciplines',
+                            detail: response?.data.message,
+                            life: 5000
+                        });
                         loading.value = false;
-                    }
+                    },
                 });
 
                 subscriptions.add(subscription);
