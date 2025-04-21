@@ -29,7 +29,7 @@ import Password from 'primevue/password';
 import Checkbox from "primevue/checkbox";
 import Message from "primevue/message";
 import Panel from "primevue/panel";
-import { CheckboxGroup } from "primevue";
+import { CheckboxGroup, InputNumber } from "primevue";
 import IconField from "primevue/iconfield";
 import Textarea from 'primevue/textarea';
 import InputIcon from "primevue/inputicon";
@@ -37,7 +37,6 @@ import Dialog from "primevue/dialog";
 import Divider from "primevue/divider";
 import { CardHeader } from "@/components";
 import ConfirmationService from 'primevue/confirmationservice';
-import VueApexCharts from "vue3-apexcharts";
 import { definePreset } from '@primevue/themes';
 
 // Static
@@ -89,7 +88,6 @@ createApp(App)
     })
     .use(ToastService)
     .use(ConfirmationService)
-    .component('VueApexCharts', VueApexCharts)
     .component('Drawer', Drawer)
     .component('Card', Card)
     .component('Menu', Menu)
@@ -105,6 +103,7 @@ createApp(App)
     .component('DataTable', DataTable)
     .component('ToggleSwitch', ToggleSwitch)
     .component('InputText', InputText)
+    .component('InputNumber', InputNumber)
     .component('Password', Password)
     .component('Checkbox', Checkbox)
     .component('Textarea', Textarea)

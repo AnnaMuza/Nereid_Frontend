@@ -3,7 +3,15 @@ import { UsersApi } from "@/types/api";
 export namespace Admin {
     export interface Student extends UsersApi.User.Get {
         educationalProgram: string;
+        course: string;
         year: string;
+        canSelect: boolean;
+        semester1MinCredits: number;
+        semester1MaxCredits: number;
+        semester1Credits: number;
+        semester2MinCredits: number;
+        semester2MaxCredits: number;
+        semester2Credits: number;
     }
 
     export interface Teacher extends UsersApi.User.Get {
@@ -30,6 +38,7 @@ export namespace Admin {
         lastName: string;
         patronymic: string;
         educationalProgram: string;
+        course: string;
         year: string;
     }
 

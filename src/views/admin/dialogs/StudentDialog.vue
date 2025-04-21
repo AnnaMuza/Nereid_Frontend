@@ -51,15 +51,35 @@
                     <InputText
                         id="group"
                         v-model="educationalProgram"
+                        :class="{ 'p-invalid': submitted && !educationalProgram }"
                         aria-describedby="group-help"/>
+                    <small v-if="submitted && !educationalProgram" class="p-error">Educational program is required.</small>
                 </FloatLabel>
 
                 <FloatLabel variant="over">
-                    <label for="year">Year</label>
-                    <InputText
-                        id="year"
-                        v-model="year"
+                    <label class="z-3" for="course">Course</label>
+                    <InputNumber
+                        id="course"
+                        fluid
+                        v-model="course"
+                        allow-empty
+                        :format="false"
+                        :class="{ 'p-invalid': submitted && !course }"
                         aria-describedby="year-help"/>
+                    <small v-if="submitted && !course" class="p-error">Course is required.</small>
+                </FloatLabel>
+
+                <FloatLabel variant="over">
+                    <label class="z-3" for="year">Year</label>
+                    <InputNumber
+                        id="year"
+                        fluid
+                        v-model="year"
+                        allow-empty
+                        :format="false"
+                        :class="{ 'p-invalid': submitted && !year }"
+                        aria-describedby="year-help"/>
+                    <small v-if="submitted && !year" class="p-error">Year is required.</small>
                 </FloatLabel>
             </div>
 
@@ -99,7 +119,8 @@ export default defineComponent({
             required: false,
         },
     },
-    setup(props) {
+    emits: ['reload'],
+    setup(props, {emit}) {
         const subscriptions = new Set<Subscription>();
         const toast = useToast();
         const submitted = ref<boolean>(false);
@@ -110,8 +131,9 @@ export default defineComponent({
         const patronymic = ref<string>('');
         const email = ref<string>('');
         const educationalProgram = ref<string>('');
-        const year = ref<string>('');
-        // const course = ref<string>('');
+        const course = ref<number | undefined>();
+        const year = ref<number | undefined>();
+        let wasChanged = false;
 
         if (props.editData) {
             editMode.value = true;
@@ -120,14 +142,15 @@ export default defineComponent({
             patronymic.value = props.editData.patronymic || '';
             email.value = props.editData.email || '';
             educationalProgram.value = props.editData.educationalProgram || '';
-            year.value = props.editData.year || '';
+            course.value = props.editData.course ? Number(props.editData.course) : undefined;
+            year.value = props.editData.year ? Number(props.editData.year) : undefined;
         }
 
         const editProfile = () => {
             submitted.value = true;
 
             // Simple validation
-            if (firstName.value && lastName.value && email.value && educationalProgram.value && year.value && patronymic.value) {
+            if (firstName.value && lastName.value && email.value && educationalProgram.value && year.value && patronymic.value && course.value) {
                 const userData = {
                     id: props.editData!.id,
                     firstName: firstName.value,
@@ -135,11 +158,13 @@ export default defineComponent({
                     patronymic: patronymic.value,
                     email: email.value,
                     educationalProgram: educationalProgram.value,
-                    year: year.value,
+                    course: course.value.toString(),
+                    year: year.value.toString(),
                 };
 
                 const subscription = AdminService.editStudent(userData).subscribe({
                     next: () => {
+                        wasChanged = true;
                         toast.add({
                             severity: 'success',
                             summary: 'Success',
@@ -165,18 +190,20 @@ export default defineComponent({
             submitted.value = true;
 
             // Simple validation
-            if (firstName.value && lastName.value && email.value && educationalProgram.value && year.value && patronymic.value) {
+            if (firstName.value && lastName.value && email.value && educationalProgram.value && year.value && patronymic.value && course.value) {
                 const userData = {
                     firstName: firstName.value,
                     lastName: lastName.value,
                     patronymic: patronymic.value,
                     email: email.value,
                     educationalProgram: educationalProgram.value,
-                    year: year.value,
+                    course: course.value.toString(),
+                    year: year.value.toString(),
                 };
 
                 const subscription = AdminService.addStudent(userData).subscribe({
                     next: () => {
+                        wasChanged = true;
                         toast.add({
                             severity: 'success',
                             summary: 'Success',
@@ -199,6 +226,9 @@ export default defineComponent({
         };
 
         onUnmounted(() => {
+            if (wasChanged) {
+                emit('reload');
+            }
             // Clean up all subscriptions to prevent memory leaks
             subscriptions.forEach(subscription => subscription.unsubscribe());
             subscriptions.clear();
@@ -215,6 +245,7 @@ export default defineComponent({
             editProfile,
             addProfile,
             editMode,
+            course,
         };
     }
 });

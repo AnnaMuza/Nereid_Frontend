@@ -13,7 +13,7 @@
                         </IconField>
                         <Message v-if="$form.email?.invalid" severity="error" size="small" variant="simple">{{ $form.email.error?.message }}</Message>
                     </div>
-                    <Button type="submit" class="w-100 rounded-3 mt-3 fw-bold" label="Send code" size="large"/>
+                    <Button type="submit" class="w-100 rounded-3 mt-3 fw-bold" label="Send code" size="large" :disabled="disableSendCode"/>
                 </Form>
 
                 <div class="signup d-flex position-absolute">
@@ -148,6 +148,7 @@ const toast = useToast();
 const step = ref<SignupStep>(SignupStep.email);
 const emailInput = ref<string>('');
 const ttl = ref<number | null>(null);
+const disableSendCode = ref<boolean>(false);
 let countdownInterval: number | null = null;
 
 const initialValues = reactive<FormValues>({
@@ -209,6 +210,7 @@ const onFormSubmit = ({ valid, values }: FormSubmitEvent): void => {
     if (valid) {
         const { email } = values;
         emailInput.value = email;
+        disableSendCode.value = true;
 
         UserService.signUp({ email }).subscribe({
             next: (data) => {
@@ -216,6 +218,7 @@ const onFormSubmit = ({ valid, values }: FormSubmitEvent): void => {
                 startCountdown(data.OTP_TTL);
             },
             error: ({ response } = {}) => {
+                disableSendCode.value = false;
                 toast.add({
                     severity: 'error',
                     summary: 'Error',

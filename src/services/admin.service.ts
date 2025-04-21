@@ -2,7 +2,6 @@ import { BehaviorSubject, Observable, tap } from 'rxjs';
 import ApiService from '@/services/api.service';
 import { UsersApi } from '@/types/api';
 import { map } from "rxjs/operators";
-import UserService from "@/services/user.service";
 
 class AdminService extends ApiService {
   // public readonly admin$ = new BehaviorSubject<UsersApi.Admin.AdminResponse | null>(null);

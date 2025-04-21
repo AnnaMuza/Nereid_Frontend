@@ -4,7 +4,7 @@
         :draggable="false"
         class="w-75"
         v-model:visible="editStudentDialog">
-        <StudentDialog :edit-data="editedStudent"/>
+        <StudentDialog :edit-data="editedStudent" @reload="loadStudents"/>
         <template #header>
             <CardHeader icon="user-edit" title="Edit student"/>
         </template>
@@ -15,7 +15,7 @@
         :draggable="false"
         class="w-75"
         v-model:visible="addStudentDialog">
-        <StudentDialog/>
+        <StudentDialog @reload="loadStudents"/>
         <template #header>
             <CardHeader icon="user-plus" title="Add student"/>
         </template>
@@ -30,7 +30,7 @@
             <div class="d-flex gap-3 mt-2 justify-content-center">
                 <Button
                     label="Add Student"
-                    @click="showAddStudentDialog"
+                    @click="addStudentDialog = true"
                     icon="pi pi-plus"
                     severity="info"
                     class="p-button-rounded"
@@ -80,13 +80,13 @@
             >
                 <template #header>
                     <div class="d-flex gap-3 justify-content-end">
-                        <Button type="button" icon="pi pi-filter-slash" label="Clear" severity="secondary" @click="initFilters"/>
                         <IconField>
                             <InputIcon>
                                 <i class="pi pi-search" />
                             </InputIcon>
                             <InputText v-model="filters['global'].value" placeholder="Keyword Search" />
                         </IconField>
+                        <Button type="button" icon="pi pi-filter-slash" label="Clear all" severity="secondary" @click="initFilters"/>
                     </div>
                 </template>
                 <template #empty>No students found</template>
@@ -189,6 +189,27 @@
                         />
                     </template>
                 </Column>
+
+                <Column field="canSelect" header="Can Select" dataType="boolean">
+                    <template #body="{ data }">
+                        <Badge
+                            :value="data.canSelect ? 'Yes' : 'No'"
+                            :severity="data.canSelect ? 'info' : 'contrast'"
+                        />
+                    </template>
+                    <template #filter="{ filterModel, filterCallback }">
+                        <Select
+                            v-model="filterModel.value"
+                            @change="filterCallback()"
+                            :options="selectOptions"
+                            variant="filled"
+                            optionLabel="label"
+                            optionValue="value"
+                            placeholder="Status"
+                            class="p-column-filter w-100"
+                        />
+                    </template>
+                </Column>
             </DataTable>
         </template>
     </Card>
@@ -235,6 +256,10 @@ export default defineComponent({
             { label: 'Active', value: true },
             { label: 'Inactive', value: false }
         ]);
+        const selectOptions = ref([
+            { label: 'Yes', value: true },
+            { label: 'No', value: false }
+        ]);
 
         const initFilters = () => {
             filters.value = {
@@ -244,19 +269,11 @@ export default defineComponent({
                 email: {value: null, matchMode: FilterMatchMode.CONTAINS},
                 educationalProgram: {value: null, matchMode: FilterMatchMode.CONTAINS},
                 year: {value: null, matchMode: FilterMatchMode.EQUALS},
-                isActive: {value: null, matchMode: FilterMatchMode.EQUALS}
+                isActive: {value: null, matchMode: FilterMatchMode.EQUALS},
+                canSelect: {value: null, matchMode: FilterMatchMode.EQUALS},
             };
         };
         initFilters();
-
-        const newStudent = ref<Omit<UsersApi.Admin.AddStudent, 'id'>>({
-            email: '',
-            firstName: '',
-            lastName: '',
-            patronymic: '',
-            educationalProgram: '',
-            year: ''
-        });
 
         const editedStudent = ref<UsersApi.Admin.EditStudent>({
             id: 0,
@@ -265,6 +282,7 @@ export default defineComponent({
             lastName: '',
             patronymic: '',
             educationalProgram: '',
+            course: '',
             year: '',
             isActive: true
         });
@@ -289,46 +307,6 @@ export default defineComponent({
             subscriptions.add(subscription);
         };
 
-        const showAddStudentDialog = () => {
-            newStudent.value = {
-                email: '',
-                firstName: '',
-                lastName: '',
-                patronymic: '',
-                educationalProgram: '',
-                year: ''
-            };
-            addStudentDialog.value = true;
-        };
-
-        const closeAddStudentDialog = () => {
-            addStudentDialog.value = false;
-        };
-
-        const saveStudent = () => {
-            const subscription = AdminService.addStudent(newStudent.value).subscribe({
-                next: () => {
-                    toast.add({
-                        severity: 'success',
-                        summary: 'Success',
-                        detail: 'Student added successfully',
-                        life: 3000
-                    });
-                    closeAddStudentDialog();
-                    loadStudents();
-                },
-                error: () => {
-                    toast.add({
-                        severity: 'error',
-                        summary: 'Error',
-                        detail: 'Failed to add student',
-                        life: 3000
-                    });
-                }
-            });
-            subscriptions.add(subscription);
-        };
-
         const editSelectedStudent = () => {
             if (selectedStudents.value.length === 1) {
                 const student = selectedStudents.value[0];
@@ -339,40 +317,11 @@ export default defineComponent({
                     lastName: student.lastName,
                     patronymic: student.patronymic,
                     educationalProgram: student.educationalProgram,
+                    course: student.course,
                     year: student.year,
                     isActive: student.isActive
                 };
                 editStudentDialog.value = true;
-            }
-        };
-
-        const closeEditStudentDialog = () => {
-            editStudentDialog.value = false;
-        };
-
-        const updateStudent = () => {
-            if (selectedStudents.value.length === 1) {
-                const subscription = AdminService.editStudent(editedStudent.value).subscribe({
-                    next: () => {
-                        toast.add({
-                            severity: 'success',
-                            summary: 'Success',
-                            detail: 'Student updated successfully',
-                            life: 3000
-                        });
-                        closeEditStudentDialog();
-                        loadStudents();
-                    },
-                    error: () => {
-                        toast.add({
-                            severity: 'error',
-                            summary: 'Error',
-                            detail: 'Failed to update student',
-                            life: 3000
-                        });
-                    }
-                });
-                subscriptions.add(subscription);
             }
         };
 
@@ -418,19 +367,15 @@ export default defineComponent({
             selectedStudents,
             addStudentDialog,
             editStudentDialog,
-            newStudent,
             editedStudent,
             filters,
-            showAddStudentDialog,
-            closeAddStudentDialog,
-            saveStudent,
-            editSelectedStudent,
-            closeEditStudentDialog,
-            updateStudent,
             markStudentsActive,
             initFilters,
             loading,
             statusOptions,
+            loadStudents,
+            editSelectedStudent,
+            selectOptions,
         };
     }
 });
