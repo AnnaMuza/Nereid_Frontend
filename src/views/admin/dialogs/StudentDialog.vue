@@ -87,15 +87,15 @@
                     <span>Can select</span>
                 </div>
 
-                <FloatLabel variant="over">
-                    <label class="z-3" for="Semester1MinCredits">Semester 1 minimum credits</label>
-                    <InputNumber
-                        id="Semester1MinCredits"
-                        fluid
-                        v-model="year"
-                        allow-empty
-                        :format="false"/>
-                </FloatLabel>
+<!--                <FloatLabel variant="over">-->
+<!--                    <label class="z-3" for="Semester1MinCredits">Semester 1 minimum credits</label>-->
+<!--                    <InputNumber-->
+<!--                        id="Semester1MinCredits"-->
+<!--                        fluid-->
+<!--                        v-model="year"-->
+<!--                        allow-empty-->
+<!--                        :format="false"/>-->
+<!--                </FloatLabel>-->
             </div>
 
             <Button
