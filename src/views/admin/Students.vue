@@ -280,7 +280,7 @@ export default defineComponent({
             educationalProgram: '',
             course: '',
             year: '',
-            isActive: true
+            canSelect: false,
         });
 
         const loadStudents = () => {
@@ -315,7 +315,7 @@ export default defineComponent({
                     educationalProgram: student.educationalProgram,
                     course: student.course,
                     year: student.year,
-                    isActive: student.isActive
+                    canSelect: student.canSelect,
                 };
                 editStudentDialog.value = true;
             }

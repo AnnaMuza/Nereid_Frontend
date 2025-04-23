@@ -160,6 +160,7 @@ export default defineComponent({
             educationalProgram.value = props.editData.educationalProgram || '';
             course.value = props.editData.course ? Number(props.editData.course) : undefined;
             year.value = props.editData.year ? Number(props.editData.year) : undefined;
+            canSelect.value = props.editData.canSelect ?? false;
         }
 
         const editProfile = () => {
@@ -176,6 +177,7 @@ export default defineComponent({
                     educationalProgram: educationalProgram.value,
                     course: course.value.toString(),
                     year: year.value.toString(),
+                    canSelect: canSelect.value,
                 };
 
                 const subscription = AdminService.editStudent(userData).subscribe({
@@ -215,6 +217,7 @@ export default defineComponent({
                     educationalProgram: educationalProgram.value,
                     course: course.value.toString(),
                     year: year.value.toString(),
+                    canSelect: canSelect.value,
                 };
 
                 const subscription = AdminService.addStudent(userData).subscribe({

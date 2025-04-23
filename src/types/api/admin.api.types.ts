@@ -5,6 +5,7 @@ export namespace Admin {
         educationalProgram: string;
         course: string;
         year: string;
+        isActive: boolean;
         canSelect: boolean;
         semester1MinCredits: number;
         semester1MaxCredits: number;
@@ -41,15 +42,14 @@ export namespace Admin {
 
     export interface EditStudent {
         id: number;
-        email?: string;
-        firstName?: string;
-        lastName?: string;
-        patronymic?: string;
-        educationalProgram?: string;
-        course?: string;
-        year?: string;
-        isActive?: boolean;
-        canSelect?: boolean;
+        email: string;
+        firstName: string;
+        lastName: string;
+        patronymic: string;
+        educationalProgram: string;
+        course: string;
+        year: string;
+        canSelect: boolean;
         semester1MinCredits?: number;
         semester1MaxCredits?: number;
         semester1Credits?: number;
