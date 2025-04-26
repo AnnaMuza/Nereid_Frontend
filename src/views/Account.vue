@@ -170,50 +170,28 @@ export default defineComponent({
         const year = ref<string>('');
         const course = ref<string>('');
 
-        const fetchTeacher = () => {
-            const subscription = TeacherService.getTeacher().subscribe({
-                next: (response) => {
-                    teacher.value = response.teacher;
-                    fields.value = response.allTeacherFields;
-                    fields.value.forEach(f => {f.selected = false});
-                    loading.value = false;
-                },
-                error: ({ response } = {}) => {
-                    toast.add({
-                        severity: 'error',
-                        summary: 'Failed to load teacher data',
-                        detail: response?.data.message,
-                        life: 5000
-                    });
-                    loading.value = false;
-                },
-            });
+        UserService.user$.subscribe((user_) => {
+            email.value = user_?.email ?? '';
+            firstName.value = user_?.firstName ?? '';
+            lastName.value = user_?.lastName ?? '';
+            patronymic.value = user_?.patronymic ?? '';
+            user.value = user_;
+        });
 
-            subscriptions.add(subscription);
-        };
+        TeacherService.teacher$.subscribe((response) => {
+            teacher.value = response.teacher;
+            fields.value = response.allTeacherFields;
+            fields.value.forEach(f => {f.selected = false});
+            loading.value = false;
+        });
 
-        const fetchStudent = () => {
-            const subscription = StudentService.getStudent().subscribe({
-                next: (response) => {
-                    student.value = response;
-                    group.value = response.educationalProgram;
-                    year.value = response.year;
-                    course.value = response.course;
-                    loading.value = false;
-                },
-                error: ({ response } = {}) => {
-                    toast.add({
-                        severity: 'error',
-                        summary: 'Failed to load student data',
-                        detail: response?.data.message,
-                        life: 5000
-                    });
-                    loading.value = false;
-                },
-            });
-
-            subscriptions.add(subscription);
-        };
+        StudentService.student$.subscribe((response) => {
+            student.value = response;
+            group.value = response.educationalProgram;
+            year.value = response.year;
+            course.value = response.course;
+            loading.value = false;
+        });
 
         const saveProfile = () => {
             submitted.value = true;
@@ -238,6 +216,7 @@ export default defineComponent({
                                 detail: 'Profile updated successfully',
                                 life: 3000
                             });
+                            UserService.refreshMe().subscribe();
                         },
                         error: (error: any) => {
                             toast.add({
@@ -246,6 +225,7 @@ export default defineComponent({
                                 detail: 'Failed to update profile: ' + error.message,
                                 life: 3000
                             });
+                            UserService.refreshMe().subscribe();
                         }
                     });
             }
@@ -278,7 +258,7 @@ export default defineComponent({
                     newField.content = '';
 
                     // Refresh discipline fields
-                    fetchTeacher();
+                    TeacherService.getTeacher().subscribe();
                     loading.value = false;
                 },
                 error: ({ response } = {}) => {
@@ -314,7 +294,7 @@ export default defineComponent({
                             loading.value = false;
 
                             // Refresh discipline fields
-                            fetchTeacher();
+                            TeacherService.getTeacher().subscribe();
                         }
                     },
                     error: ({ response } = {}) => {
@@ -334,19 +314,7 @@ export default defineComponent({
 
         onMounted(() => {
             // Subscribe to user data changes
-            UserService.user$.subscribe((user_) => {
-                email.value = user_?.email ?? '';
-                firstName.value = user_?.firstName ?? '';
-                lastName.value = user_?.lastName ?? '';
-                patronymic.value = user_?.patronymic ?? '';
-                user.value = user_;
 
-                if (user_?.roleId === Role.teacher) {
-                    fetchTeacher();
-                } else if (user_?.roleId === Role.student) {
-                    fetchStudent();
-                }
-            });
         })
 
         onUnmounted(() => {
@@ -371,8 +339,6 @@ export default defineComponent({
             showAddFieldForm,
             deleteSelectedFields,
             selectedFields,
-            fetchTeacher,
-            fetchStudent,
             group,
             year,
             course,

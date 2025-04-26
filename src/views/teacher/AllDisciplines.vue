@@ -16,30 +16,34 @@
         </template>
 
         <template #content>
-            <Button
-                class="d-flex mb-4"
-                style="width: fit-content; align-self: center;"
-                label="Take Disciplines"
-                @click="takeDisciplines"
-                :disabled="!hasNewDisciplinesToTake"
-            />
-            <div class="d-flex flex-column gap-4 overflow-y-scroll h-100">
-                <div v-for="discipline in disciplines" :key="discipline.id" class="d-flex gap-2 align-items-center">
-                    <Checkbox
-                        class="taken"
-                        v-model="selectedDisciplines"
-                        :value="discipline.id"
-                        :binary="false"
-                        :disabled="isAlreadyTaken(discipline.id)"
-                    />
-                    <Chip>
+            <div class="d-flex gap-20 mb-4 justify-content-center">
+                <Select
+                    v-model="semester"
+                    :options="semesters"
+                    variant="filled"
+                    @change="selectedDisciplines = []"
+                    option-label="name"/>
+                <Button
+                    label="Take Disciplines"
+                    @click="takeDisciplines"
+                    :disabled="!hasNewDisciplinesToTake"
+                />
+            </div>
+            <div class="d-flex flex-column overflow-y-scroll h-100">
+                <div v-for="discipline in disciplines" :key="discipline.id">
+                    <div v-if="discipline.semester === semester.code" class="d-flex my-3 gap-2 align-items-center">
+                        <Checkbox
+                            class="taken"
+                            v-model="selectedDisciplines"
+                            :value="discipline.id"
+                            :binary="false"
+                            :disabled="isAlreadyTaken(discipline.id)"
+                        />
                         <Button
-                            text
-                            class="p-0"
+                            severity="info"
                             @click="disciplineDetails = discipline; disciplineDetailsVisible = true"
                             :label="discipline.name"/>
-                        | Semester {{ discipline.semester }}
-                    </Chip>
+                    </div>
                 </div>
             </div>
         </template>
@@ -53,6 +57,8 @@ import { UsersApi } from '@/types/api';
 import { Subscription } from 'rxjs';
 import DisciplineDetails from "@/views/teacher/Discipline.vue";
 import { useToast } from "primevue/usetoast";
+import { Semester } from "@/views/student/Disciplines.vue";
+import UtilsService from "@/services/utils.service";
 
 export default defineComponent({
     name: 'AllDisciplines',
@@ -68,55 +74,11 @@ export default defineComponent({
         const subscriptions = new Set<Subscription>();
         const disciplineDetailsVisible = ref<boolean>(false);
         const disciplineDetails = ref<UsersApi.Student.Discipline | null>(null);
-
-        const isAlreadyTaken = (disciplineId: number): boolean => {
-            return takenDisciplines.value.some(discipline => discipline.id === disciplineId);
-        };
-
-        const hasNewDisciplinesToTake = computed(() => {
-            return  selectedDisciplines.value.length > 0;
-        });
-
-        const fetchDisciplines = () => {
-            loading.value = true;
-
-            const subscription = TeacherService.getAllDisciplines().subscribe({
-                next: (response) => {
-                    disciplines.value = response;
-                    loading.value = false;
-                },
-                error: (err) => {
-                    toast.add({
-                        severity: 'error',
-                        summary: 'Error',
-                        detail: 'Failed to load disciplines',
-                        life: 3000
-                    });
-                    loading.value = false;
-                }
-            });
-
-            subscriptions.add(subscription);
-        };
-
-        const fetchTeacher = () => {
-            const subscription = TeacherService.getTeacher().subscribe({
-                next: (response) => {
-                    teacher.value = response.teacher;
-                    fetchTakenDisciplines(response.teacher.id);
-                },
-                error: ({ response } = {}) => {
-                    toast.add({
-                        severity: 'error',
-                        summary: 'Failed to load teacher data',
-                        detail: response?.data.message,
-                        life: 5000
-                    });
-                },
-            });
-
-            subscriptions.add(subscription);
-        };
+        const semesters = ref<Semester[]>([
+            { name: 'Semester 1', code: '1' },
+            { name: 'Semester 2', code: '2' },
+        ]);
+        const semester = ref<Semester>(semesters.value[0]);
 
         const fetchTakenDisciplines = (teacherId: number) => {
             const subscription = TeacherService.getAllTakenDisciplines(teacherId).subscribe({
@@ -131,6 +93,41 @@ export default defineComponent({
                         life: 5000
                     });
                 },
+            });
+
+            subscriptions.add(subscription);
+        };
+
+        TeacherService.teacher$.subscribe((response) => {
+            teacher.value = response.teacher;
+            fetchTakenDisciplines(response.teacher.id);
+        });
+
+        const isAlreadyTaken = (disciplineId: number): boolean => {
+            return takenDisciplines.value.some(discipline => discipline.id === disciplineId);
+        };
+
+        const hasNewDisciplinesToTake = computed(() => {
+            return  selectedDisciplines.value.length > 0;
+        });
+
+        const fetchDisciplines = () => {
+            loading.value = true;
+
+            const subscription = TeacherService.getAllDisciplines().subscribe({
+                next: (response) => {
+                    disciplines.value = UtilsService.sortDisciplines(response);
+                    loading.value = false;
+                },
+                error: ({ response } = {}) => {
+                    toast.add({
+                        severity: 'error',
+                        summary: 'Failed to load disciplines',
+                        detail: response?.data.message,
+                        life: 3000
+                    });
+                    loading.value = false;
+                }
             });
 
             subscriptions.add(subscription);
@@ -189,7 +186,6 @@ export default defineComponent({
         };
 
         onMounted(() => {
-            fetchTeacher();
             fetchDisciplines();
         });
 
@@ -211,6 +207,8 @@ export default defineComponent({
             hasNewDisciplinesToTake,
             disciplineDetailsVisible,
             disciplineDetails,
+            semesters,
+            semester,
         };
     }
 });

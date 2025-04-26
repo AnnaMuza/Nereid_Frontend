@@ -27,7 +27,7 @@ class UtilsService {
     URL.revokeObjectURL(url);
   }
 
-  public sortDisciplines(disciplines: UsersApi.Student.Discipline[]): UsersApi.Student.Discipline[] {
+  public sortDisciplines<T extends { name: string }>(disciplines: T[]): T[] {
     return disciplines.sort((a, b) => a.name.localeCompare(b.name));
   }
 

@@ -1,9 +1,9 @@
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { Observable, ReplaySubject, tap } from 'rxjs';
 import ApiService from '@/services/api.service';
 import { UsersApi } from '@/types/api';
 
 class StudentService extends ApiService {
-  public readonly student$ = new BehaviorSubject<UsersApi.Student.Get | null>(null);
+  public readonly student$ = new ReplaySubject<UsersApi.Student.Get>(1);
 
   private readonly endpoints = {
     health: '/student/healthy',

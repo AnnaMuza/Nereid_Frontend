@@ -103,6 +103,32 @@ export default defineComponent({
         const maximumCredits = ref<number | null>(null);
         const currentCredits = ref<number | null>(null);
 
+        const fetchTakenDisciplines = () => {
+            const subscription = StudentService.getAllSelectedDisciplines(semester.value.code).subscribe({
+                next: (response) => {
+                    takenDisciplines.value = response.selectedDisciplines;
+                    minimumCredits.value = response.minimumCredits;
+                    maximumCredits.value = response.maximumCredits;
+                    currentCredits.value = response.currentCredits;
+                },
+                error: ({ response } = {}) => {
+                    toast.add({
+                        severity: 'error',
+                        summary: 'Failed to load selected disciplines',
+                        detail: response?.data.message,
+                        life: 5000
+                    });
+                },
+            });
+
+            subscriptions.add(subscription);
+        };
+
+        StudentService.student$.subscribe((response) => {
+            student.value = response;
+            fetchTakenDisciplines();
+        });
+
         const isAlreadyTaken = (disciplineId: number): boolean => {
             return takenDisciplines.value.some(discipline => discipline.id === disciplineId);
         };
@@ -127,46 +153,6 @@ export default defineComponent({
                         life: 5000
                     });
                     loading.value = false;
-                },
-            });
-
-            subscriptions.add(subscription);
-        };
-
-        const fetchStudent = () => {
-            const subscription = StudentService.getStudent().subscribe({
-                next: (response) => {
-                    student.value = response;
-                    fetchTakenDisciplines();
-                },
-                error: ({ response } = {}) => {
-                    toast.add({
-                        severity: 'error',
-                        summary: 'Failed to load student data',
-                        detail: response?.data.message,
-                        life: 5000
-                    });
-                },
-            });
-
-            subscriptions.add(subscription);
-        };
-
-        const fetchTakenDisciplines = () => {
-            const subscription = StudentService.getAllSelectedDisciplines(semester.value.code).subscribe({
-                next: (response) => {
-                    takenDisciplines.value = response.selectedDisciplines;
-                    minimumCredits.value = response.minimumCredits;
-                    maximumCredits.value = response.maximumCredits;
-                    currentCredits.value = response.currentCredits;
-                },
-                error: ({ response } = {}) => {
-                    toast.add({
-                        severity: 'error',
-                        summary: 'Failed to load selected disciplines',
-                        detail: response?.data.message,
-                        life: 5000
-                    });
                 },
             });
 
@@ -213,7 +199,6 @@ export default defineComponent({
         };
 
         onMounted(() => {
-            fetchStudent();
             fetchDisciplines();
         });
 

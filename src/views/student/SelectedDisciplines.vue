@@ -96,25 +96,6 @@ export default defineComponent({
         const maximumCredits = ref<number | null>(null);
         const currentCredits = ref<number | null>(null);
 
-        const fetchStudent = () => {
-            const subscription = StudentService.getStudent().subscribe({
-                next: (response) => {
-                    student.value = response;
-                    fetchTakenDisciplines();
-                },
-                error: ({ response } = {}) => {
-                    toast.add({
-                        severity: 'error',
-                        summary: 'Failed to load student data',
-                        detail: response?.data.message,
-                        life: 5000
-                    });
-                },
-            });
-
-            subscriptions.add(subscription);
-        };
-
         const fetchTakenDisciplines = () => {
             const subscription = StudentService.getAllSelectedDisciplines(semester.value.code).subscribe({
                 next: (response) => {
@@ -135,6 +116,11 @@ export default defineComponent({
 
             subscriptions.add(subscription);
         };
+
+        StudentService.student$.subscribe((response) => {
+            student.value = response;
+            fetchTakenDisciplines();
+        });
 
         const deselectDisciplines = () => {
             if (!student.value || selectedDisciplines.value.length === 0) return;
@@ -163,10 +149,6 @@ export default defineComponent({
 
             subscriptions.add(subscription);
         };
-
-        onMounted(() => {
-            fetchStudent();
-        });
 
         onUnmounted(() => {
             // Clean up all subscriptions to prevent memory leaks

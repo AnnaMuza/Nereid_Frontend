@@ -16,28 +16,32 @@
         </template>
 
         <template #content>
-            <Button
-                class="d-flex mb-4"
-                style="width: fit-content; align-self: center;"
-                label="Release Disciplines"
-                @click="releaseDisciplines"
-                :disabled="selectedDisciplines.length === 0"
-            />
-            <div class="d-flex flex-column gap-4 overflow-y-scroll h-100">
-                <div v-for="discipline in takenDisciplines" :key="discipline.id" class="d-flex gap-2 align-items-center">
-                    <Checkbox
-                        v-model="selectedDisciplines"
-                        :value="discipline.id"
-                        :binary="false"
-                    />
-                    <Chip>
+            <div class="d-flex gap-20 mb-4 justify-content-center">
+                <Select
+                    v-model="semester"
+                    :options="semesters"
+                    variant="filled"
+                    @change="selectedDisciplines = []"
+                    option-label="name"/>
+                <Button
+                    label="Release Disciplines"
+                    @click="releaseDisciplines"
+                    :disabled="selectedDisciplines.length === 0"
+                />
+            </div>
+            <div class="d-flex flex-column overflow-y-scroll h-100">
+                <div v-for="discipline in takenDisciplines" :key="discipline.id">
+                    <div v-if="discipline.semester === semester.code" class="d-flex my-3 gap-2 align-items-center">
+                        <Checkbox
+                            v-model="selectedDisciplines"
+                            :value="discipline.id"
+                            :binary="false"
+                        />
                         <Button
-                            text
-                            class="p-0"
+                            severity="info"
                             @click="disciplineDetails = discipline; disciplineDetailsVisible = true"
                             :label="discipline.name"/>
-                        | Semester {{ discipline.semester }}
-                    </Chip>
+                    </div>
                 </div>
             </div>
         </template>
@@ -45,12 +49,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, onUnmounted } from 'vue';
+import { defineComponent, ref, onUnmounted } from 'vue';
 import TeacherService from '@/services/teacher.service';
 import { UsersApi } from '@/types/api';
 import { Subscription } from 'rxjs';
 import DisciplineDetails from "@/views/teacher/Discipline.vue";
 import { useToast } from "primevue/usetoast";
+import { Semester } from "@/views/student/Disciplines.vue";
+import UtilsService from "@/services/utils.service";
 
 export default defineComponent({
     name: 'TakenDisciplines',
@@ -65,32 +71,18 @@ export default defineComponent({
         const subscriptions = new Set<Subscription>();
         const disciplineDetailsVisible = ref<boolean>(false);
         const disciplineDetails = ref<UsersApi.Student.Discipline | null>(null);
-
-        const fetchTeacher = () => {
-            const subscription = TeacherService.getTeacher().subscribe({
-                next: (response) => {
-                    teacher.value = response.teacher;
-                    fetchTakenDisciplines(response.teacher.id);
-                },
-                error: ({ response } = {}) => {
-                    toast.add({
-                        severity: 'error',
-                        summary: 'Failed to load teacher data',
-                        detail: response?.data.message,
-                        life: 5000
-                    });
-                },
-            });
-
-            subscriptions.add(subscription);
-        };
+        const semesters = ref<Semester[]>([
+            { name: 'Semester 1', code: '1' },
+            { name: 'Semester 2', code: '2' },
+        ]);
+        const semester = ref<Semester>(semesters.value[0]);
 
         const fetchTakenDisciplines = (teacherId: number) => {
             loading.value = true;
 
             const subscription = TeacherService.getAllTakenDisciplines(teacherId).subscribe({
                 next: (response) => {
-                    takenDisciplines.value = response;
+                    takenDisciplines.value = UtilsService.sortDisciplines(response);
                     loading.value = false;
                 },
                 error: ({ response } = {}) => {
@@ -106,6 +98,11 @@ export default defineComponent({
 
             subscriptions.add(subscription);
         };
+
+        TeacherService.teacher$.subscribe((response) => {
+            teacher.value = response.teacher;
+            fetchTakenDisciplines(response.teacher.id);
+        });
 
         const releaseDisciplines = () => {
             if (!teacher.value || selectedDisciplines.value.length === 0) return;
@@ -149,10 +146,6 @@ export default defineComponent({
             });
         };
 
-        onMounted(() => {
-            fetchTeacher();
-        });
-
         onUnmounted(() => {
             // Clean up all subscriptions to prevent memory leaks
             subscriptions.forEach(subscription => subscription.unsubscribe());
@@ -168,6 +161,8 @@ export default defineComponent({
             releaseDisciplines,
             disciplineDetailsVisible,
             disciplineDetails,
+            semesters,
+            semester,
         };
     }
 });

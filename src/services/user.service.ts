@@ -1,6 +1,9 @@
 import { BehaviorSubject, concat, filter, map, of, switchMap, take } from 'rxjs';
 import ApiService from '@/services/api.service';
 import { UsersApi } from '@/types/api';
+import { Role } from "@/types/api/user.api.types";
+import TeacherService from "@/services/teacher.service";
+import StudentService from "@/services/student.service";
 
 class UserService extends ApiService {
 
@@ -73,6 +76,24 @@ class UserService extends ApiService {
         this.resetAuthToken();
     }
 
+    refreshMe() {
+        return this.get<{user: UsersApi.User.Get}>(this.endpoints.getUser)
+          .pipe(
+            map(({user}) => {
+                if (!user) {
+                    throw new Error('User is empty');
+                }
+                this.user$.next(user);
+                if (user.roleId === Role.teacher) {
+                    TeacherService.getTeacher().subscribe();
+                } else if (user.roleId === Role.student) {
+                    StudentService.getStudent().subscribe();
+                }
+                return user;
+            })
+          );
+    }
+
     getMe() {
         return concat(
             this.user$.pipe(
@@ -87,6 +108,11 @@ class UserService extends ApiService {
                                 throw new Error('User is empty');
                             }
                             this.user$.next(user);
+                            if (user.roleId === Role.teacher) {
+                                TeacherService.getTeacher().subscribe();
+                            } else if (user.roleId === Role.student) {
+                                StudentService.getStudent().subscribe();
+                            }
                             return user;
                         })
                     );
