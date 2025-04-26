@@ -91,7 +91,8 @@ export default defineComponent({
             required: false
         }
     },
-    setup(props) {
+    emits: ['reload'],
+    setup(props, {emit}) {
         const route = useRoute();
         const id = props.disciplineId || Number(route.params.id);
         const toast = useToast();
@@ -102,6 +103,7 @@ export default defineComponent({
         const error = ref<string | null>(null);
         const subscriptions = new Set<Subscription>();
         const showAddField = ref(false);
+        let wasChanged = false;
 
         const disciplineForm = reactive({
             name: '',
@@ -157,6 +159,7 @@ export default defineComponent({
                 credits: +disciplineForm.credits,
             }).subscribe({
                 next: () => {
+                    wasChanged = true;
                     toast.add({
                         severity: 'success',
                         summary: 'Success',
@@ -268,6 +271,9 @@ export default defineComponent({
         });
 
         onUnmounted(() => {
+            if (wasChanged) {
+                emit('reload');
+            }
             // Clean up all subscriptions to prevent memory leaks
             subscriptions.forEach(subscription => subscription.unsubscribe());
             subscriptions.clear();

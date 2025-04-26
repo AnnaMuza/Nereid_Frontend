@@ -3,17 +3,6 @@
         <template #content>
             <div class="d-flex flex-column gap-5 mt-20">
                 <FloatLabel variant="over">
-                    <label for="firstName">First Name*</label>
-                    <InputText
-                        id="firstName"
-                        v-model="firstName"
-                        aria-describedby="firstName-help"
-                        :class="{ 'p-invalid': submitted && !firstName }"
-                    />
-                    <small v-if="submitted && !firstName" class="p-error">First Name is required.</small>
-                </FloatLabel>
-
-                <FloatLabel variant="over">
                     <label for="lastName">Last Name*</label>
                     <InputText
                         id="lastName"
@@ -22,6 +11,17 @@
                         :class="{ 'p-invalid': submitted && !lastName }"
                     />
                     <small v-if="submitted && !lastName" class="p-error">Last Name is required.</small>
+                </FloatLabel>
+
+                <FloatLabel variant="over">
+                    <label for="firstName">First Name*</label>
+                    <InputText
+                        id="firstName"
+                        v-model="firstName"
+                        aria-describedby="firstName-help"
+                        :class="{ 'p-invalid': submitted && !firstName }"
+                    />
+                    <small v-if="submitted && !firstName" class="p-error">First Name is required.</small>
                 </FloatLabel>
 
                 <FloatLabel variant="over">
@@ -86,16 +86,6 @@
                     <Checkbox v-model="canSelect" binary/>
                     <span>Can select</span>
                 </div>
-
-<!--                <FloatLabel variant="over">-->
-<!--                    <label class="z-3" for="Semester1MinCredits">Semester 1 minimum credits</label>-->
-<!--                    <InputNumber-->
-<!--                        id="Semester1MinCredits"-->
-<!--                        fluid-->
-<!--                        v-model="year"-->
-<!--                        allow-empty-->
-<!--                        :format="false"/>-->
-<!--                </FloatLabel>-->
             </div>
 
             <Button

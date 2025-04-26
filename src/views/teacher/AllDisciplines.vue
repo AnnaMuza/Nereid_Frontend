@@ -4,7 +4,7 @@
         :draggable="false"
         class="w-75"
         v-model:visible="disciplineDetailsVisible">
-        <DisciplineDetails :discipline-id="disciplineDetails?.id"/>
+        <DisciplineDetails :discipline-id="disciplineDetails?.id" @reload="fetchDisciplines"/>
         <template #header>
             <CardHeader icon="book" :title="disciplineDetails?.name"/>
         </template>
@@ -209,6 +209,7 @@ export default defineComponent({
             disciplineDetails,
             semesters,
             semester,
+            fetchDisciplines,
         };
     }
 });

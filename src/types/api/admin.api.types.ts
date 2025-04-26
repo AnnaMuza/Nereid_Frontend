@@ -84,8 +84,13 @@ export namespace Admin {
         isActive?: boolean;
     }
 
+    export interface EditDisciplines {
+        disciplineIds: number[];
+        isActive: boolean;
+    }
+
     export interface AddDiscipline {
-        disciplineName: string;
+
     }
 
     export interface ReleaseTeacherFromDiscipline {

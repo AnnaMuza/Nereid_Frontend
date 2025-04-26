@@ -3,149 +3,287 @@
         modal
         :draggable="false"
         class="w-75"
-        v-model:visible="disciplineDetailsVisible">
-        <DisciplineDialog :discipline-id="disciplineDetails?.id"/>
+        v-model:visible="editDisciplineDialog">
+        <DisciplineDialog @reload="loadDisciplines"/>
         <template #header>
-            <CardHeader icon="book" :title="disciplineDetails?.name"/>
+            <CardHeader icon="file-edit" title="Edit discipline"/>
         </template>
     </Dialog>
 
-    <Card class="card-h-100">
+    <Dialog
+        modal
+        :draggable="false"
+        class="w-75"
+        v-model:visible="addDisciplineDialog">
+        <DisciplineDialog @reload="loadDisciplines"/>
         <template #header>
-            <CardHeader icon="book" title="Disciplines"/>
+            <CardHeader icon="file-plus" title="Add discipline"/>
+        </template>
+    </Dialog>
+
+    <Card>
+        <template #header>
+            <CardHeader icon="book" title="Disciplines" />
         </template>
 
         <template #content>
-            <div class="d-flex justify-content-center gap-5">
+            <div class="d-flex gap-3 mt-2 justify-content-center">
                 <Button
-                    class="d-flex mb-4"
-                    style="width: fit-content; align-self: center;"
-                    label="Remove Disciplines"
-                    @click="releaseDisciplines"
-                    :disabled="selectedDisciplines.length === 0"
-                />
-                <Button
-                    class="d-flex mb-4"
-                    style="width: fit-content; align-self: center;"
                     label="Add Discipline"
-                    @click="releaseDisciplines"
+                    @click="addDisciplineDialog = true"
+                    icon="pi pi-plus"
+                    severity="info"
+                    class="p-button-rounded"
+                />
+
+                <Button
+                    label="Edit Discipline"
+                    @click="editSelectedDiscipline"
+                    icon="pi pi-pencil"
+                    :disabled="!selectedDisciplines || selectedDisciplines.length !== 1"
+                    class="p-button-rounded"
+                />
+
+                <Button
+                    label="Mark Active"
+                    @click="markDisciplinesActive(true)"
+                    :disabled="!selectedDisciplines || selectedDisciplines.length === 0"
+                    icon="pi pi-check"
+                    severity="success"
+                    class="p-button-rounded"
+                />
+
+                <Button
+                    label="Mark Inactive"
+                    @click="markDisciplinesActive(false)"
+                    :disabled="!selectedDisciplines || selectedDisciplines.length === 0"
+                    icon="pi pi-times"
+                    severity="danger"
+                    class="p-button-rounded"
                 />
             </div>
 
-            <div class="d-flex flex-column gap-4 overflow-y-scroll h-100">
-                <div v-for="discipline in disciplines" :key="discipline.id" class="d-flex gap-2 align-items-center">
-                    <Checkbox
-                        v-model="selectedDisciplines"
-                        :value="discipline.id"
-                        :binary="false"
-                    />
-                    <Chip>
-                        <Button
-                            text
-                            class="p-0"
-                            @click="disciplineDetails = discipline; disciplineDetailsVisible = true"
-                            :label="discipline.name"/>
-                        | Semester {{ discipline.semester }}
-                    </Chip>
-                </div>
-            </div>
+            <Divider class="mt-4"/>
+
+            <DataTable
+                v-model:selection="selectedDisciplines"
+                :value="disciplines"
+                v-model:filters="filters"
+                filterDisplay="row"
+                paginator
+                removableSort
+                :rowsPerPageOptions="[5, 15, 20, 40, 50]"
+                :rows="15"
+                dataKey="id"
+                :loading="loading"
+                stripedRows
+            >
+                <template #header>
+                    <div class="d-flex gap-3 justify-content-end">
+                        <IconField>
+                            <InputIcon>
+                                <i class="pi pi-search" />
+                            </InputIcon>
+                            <InputText v-model="filters['global'].value" placeholder="Keyword Search" />
+                        </IconField>
+                        <Button type="button" icon="pi pi-filter-slash" label="Clear all" severity="secondary" @click="initFilters"/>
+                    </div>
+                </template>
+                <template #empty>No students found</template>
+                <template #loading>Loading students data. Please wait</template>
+
+                <Column selectionMode="multiple"></Column>
+
+                <Column field="name" header="Name" sortable>
+                    <template #body="{ data }">
+                        {{ data.name }}
+                    </template>
+                    <template #filter="{ filterModel, filterCallback }">
+                        <InputText
+                            v-model="filterModel.value"
+                            type="text"
+                            @input="filterCallback()"
+                            class="p-column-filter w-100"
+                            placeholder="Search by name"
+                        />
+                    </template>
+                </Column>
+
+                <Column field="credits" header="Credits" sortable>
+                    <template #body="{ data }">
+                        {{ data.credits }}
+                    </template>
+                    <template #filter="{ filterModel, filterCallback }">
+                        <InputText
+                            v-model="filterModel.value"
+                            type="text"
+                            @input="filterCallback()"
+                            class="p-column-filter w-100"
+                            placeholder="Search by credits"
+                        />
+                    </template>
+                </Column>
+
+                <Column field="semester" header="Semester">
+                    <template #body="{ data }">
+                        {{ data.semester }}
+                    </template>
+                    <template #filter="{ filterModel, filterCallback }">
+                        <Select
+                            v-model="filterModel.value"
+                            @change="filterCallback()"
+                            :options="semesterOptions"
+                            variant="filled"
+                            optionLabel="label"
+                            optionValue="value"
+                            placeholder="Semester"
+                            class="w-100"
+                        />
+                    </template>
+                </Column>
+
+                <Column field="isActive" header="Is Active" dataType="boolean">
+                    <template #body="{ data }">
+                        <Badge
+                            :value="data.isActive ? 'Active' : 'Inactive'"
+                            :severity="data.isActive ? 'success' : 'danger'"
+                        />
+                    </template>
+                    <template #filter="{ filterModel, filterCallback }">
+                        <Select
+                            v-model="filterModel.value"
+                            @change="filterCallback()"
+                            :options="statusOptions"
+                            variant="filled"
+                            optionLabel="label"
+                            optionValue="value"
+                            placeholder="Status"
+                            class="w-100"
+                        />
+                    </template>
+                </Column>
+            </DataTable>
         </template>
     </Card>
 </template>
 
+<style lang="scss" scoped>
+
+.p-datatable {
+    .p-datatable-filter {
+        .p-inputtext {
+            padding-block: revert-layer;
+        }
+    }
+}
+
+</style>
+
 <script lang="ts">
 import { defineComponent, ref, onMounted, onUnmounted } from 'vue';
-import AdminService from '@/services/admin.service';
-import { UsersApi } from '@/types/api';
 import { Subscription } from 'rxjs';
+import AdminService from '@/services/admin.service';
+import { useToast } from 'primevue/usetoast';
+import { UsersApi } from "@/types/api";
+import { FilterMatchMode } from '@primevue/core/api';
 import DisciplineDialog from "@/views/admin/dialogs/DisciplineDialog.vue";
-import { useToast } from "primevue/usetoast";
 
 export default defineComponent({
-    name: 'DisciplinesList',
+    name: 'DisciplinesTable',
     components: { DisciplineDialog },
     setup() {
         const toast = useToast();
         const disciplines = ref<UsersApi.Admin.Discipline[]>([]);
-        const selectedDisciplines = ref<number[]>([]);
-        const loading = ref(false);
-        const error = ref<string | null>(null);
+        const selectedDisciplines = ref<UsersApi.Admin.Discipline[]>([]);
         const subscriptions = new Set<Subscription>();
-        const disciplineDetailsVisible = ref<boolean>(false);
-        const disciplineDetails = ref<UsersApi.Admin.Discipline | null>(null);
+        const addDisciplineDialog = ref(false);
+        const editDisciplineDialog = ref(false);
+        const filters = ref();
+        const loading = ref<boolean>(true);
+        const statusOptions = ref([
+            { label: 'Active', value: true },
+            { label: 'Inactive', value: false }
+        ]);
+        const semesterOptions = ref([
+            { label: '1', value: '1' },
+            { label: '2', value: '2' }
+        ]);
 
-        const fetchDisciplines = () => {
-            loading.value = true;
+        const initFilters = () => {
+            filters.value = {
+                global: {value: null, matchMode: FilterMatchMode.CONTAINS},
+                name: {value: null, matchMode: FilterMatchMode.STARTS_WITH},
+                credits: {value: null, matchMode: FilterMatchMode.EQUALS},
+                semester: {value: null, matchMode: FilterMatchMode.EQUALS},
+                isActive: {value: null, matchMode: FilterMatchMode.EQUALS},
+            };
+        };
+        initFilters();
 
+        const loadDisciplines = () => {
             const subscription = AdminService.getAllDisciplines().subscribe({
                 next: (response) => {
-                    // @ts-ignore
                     disciplines.value = response;
+                    selectedDisciplines.value = [];
                     loading.value = false;
                 },
-                error: (err) => {
+                error: () => {
                     toast.add({
                         severity: 'error',
                         summary: 'Error',
-                        detail: 'Failed to load students',
+                        detail: 'Failed to load disciplines',
                         life: 3000
                     });
                     loading.value = false;
                 }
             });
-
             subscriptions.add(subscription);
         };
 
-        const releaseDisciplines = () => {
-            // if (!teacher.value || selectedDisciplines.value.length === 0) return;
-            //
-            // loading.value = true;
-            //
-            // // Track how many operations are completed
-            // let completedOps = 0;
-            // const totalOps = selectedDisciplines.value.length;
-            //
-            // selectedDisciplines.value.forEach(disciplineId => {
-            //     const subscription = TeacherService.releaseDiscipline({
-            //         teacherId: teacher.value!.id,
-            //         disciplineId: disciplineId
-            //     }).subscribe({
-            //         next: () => {
-            //             completedOps++;
-            //             // When all operations are done
-            //             if (completedOps === totalOps) {
-            //                 loading.value = false;
-            //                 selectedDisciplines.value = [];
-            //
-            //                 // Refresh the list of taken disciplines
-            //                 if (teacher.value) {
-            //                     fetchTakenDisciplines(teacher.value.id);
-            //                 }
-            //             }
-            //         },
-            //         error: (err) => {
-            //             error.value = 'Failed to release disciplines';
-            //             console.error(err);
-            //             loading.value = false;
-            //         }
-            // error: ({ response } = {}) => {
-            //     toast.add({
-            //         severity: 'error',
-            //         summary: 'Failed to load teacher data',
-            //         detail: response?.data.message,
-            //         life: 5000
-            //     });
-            //     loading.value = false;
-            // },
-            //     });
-            //
-            //     subscriptions.add(subscription);
-            // });
+        const editSelectedDiscipline = () => {
+            // if (selectedDisciplines.value.length === 1) {
+            //     const teacher = selectedDisciplines.value[0];
+            //     editedDiscipline.value = {
+            //         id: teacher.id,
+            //         email: teacher.email,
+            //         firstName: teacher.firstName,
+            //         lastName: teacher.lastName,
+            //         patronymic: teacher.patronymic,
+            //         isActive: teacher.isActive,
+            //     };
+            //     editDisciplineDialog.value = true;
+            // }
+        };
+
+        const markDisciplinesActive = (isActive: boolean) => {
+            if (selectedDisciplines.value.length < 1) { return; }
+            const disciplineIds = selectedDisciplines.value.map((d) => d.id);
+
+            const subscription = AdminService.editDisciplines({ disciplineIds, isActive }).subscribe({
+                next: () => {
+                    toast.add({
+                        severity: 'success',
+                        summary: 'Success',
+                        detail: `Successfully marked ${selectedDisciplines.value.length} discipline(s) as ${isActive ? 'active' : 'inactive'}`,
+                        life: 3000
+                    });
+                    loadDisciplines();
+                },
+                error: () => {
+                    toast.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'Failed to update some disciplines',
+                        life: 3000
+                    });
+                    loadDisciplines();
+                },
+            });
+            subscriptions.add(subscription);
         };
 
         onMounted(() => {
-            fetchDisciplines();
+            loadDisciplines();
         });
 
         onUnmounted(() => {
@@ -157,11 +295,16 @@ export default defineComponent({
         return {
             disciplines,
             selectedDisciplines,
+            addDisciplineDialog,
+            editDisciplineDialog,
+            filters,
+            markDisciplinesActive,
+            initFilters,
             loading,
-            error,
-            releaseDisciplines,
-            disciplineDetailsVisible,
-            disciplineDetails,
+            statusOptions,
+            loadDisciplines,
+            editSelectedDiscipline,
+            semesterOptions,
         };
     }
 });

@@ -20,6 +20,7 @@ class AdminService extends ApiService {
     getAllTeachers: '/admin/get-all-teachers',
     addStudent: '/admin/add-student',
     addDiscipline: '/admin/add-discipline',
+    editDisciplines: '/admin/edit-disciplines',
     addTeacher: '/admin/add-teacher',
     editStudent: `/admin/edit-student`, // :id
     editStudents: `/admin/edit-students`,
@@ -109,6 +110,10 @@ class AdminService extends ApiService {
         return response;
       })
     );
+  }
+
+  editDisciplines(data: UsersApi.Admin.EditDisciplines): Observable<UsersApi.Admin.GenericResponse> {
+    return this.patch<UsersApi.Admin.EditDisciplines, UsersApi.Admin.GenericResponse>(this.endpoints.editDisciplines, data);
   }
 
   // getDiscipline(id: number): Observable<UsersApi.Admin.DisciplineResponse> {
