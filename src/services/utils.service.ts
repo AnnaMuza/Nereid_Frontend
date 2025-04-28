@@ -1,5 +1,3 @@
-import { UsersApi } from "@/types/api";
-
 class UtilsService {
   public downloadCsv(content: string, filename: string = 'download.csv'): void {
     // Create a Blob with the CSV content
@@ -31,17 +29,24 @@ class UtilsService {
     return disciplines.sort((a, b) => a.name.localeCompare(b.name));
   }
 
-  public getFromSessionStorage<T>(key: string): T | null {
-    const val = sessionStorage.getItem(key);
-    return val ? JSON.parse(val) : null;
-  }
+  public readCSVFile(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
 
-  public removeFromFromSessionStorage(key: string): void {
-    sessionStorage.removeItem(key);
-  }
+      reader.onload = (event) => {
+        if (event.target && typeof event.target.result === 'string') {
+          resolve(event.target.result);
+        } else {
+          reject(new Error('Failed to read CSV file'));
+        }
+      };
 
-  public saveToSessionStorage(key: string, data: any): void {
-    sessionStorage.setItem(key, JSON.stringify(data));
+      reader.onerror = () => {
+        reject(new Error('Error reading CSV file'));
+      };
+
+      reader.readAsText(file);
+    });
   }
 }
 

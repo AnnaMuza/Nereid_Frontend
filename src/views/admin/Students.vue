@@ -21,6 +21,57 @@
         </template>
     </Dialog>
 
+    <Dialog
+        modal
+        :draggable="false"
+        class="w-50"
+        v-model:visible="uploadCsvDialog">
+        <template #header>
+            <CardHeader icon="file-import" title="Upload Students CSV"/>
+        </template>
+        <div class="p-fluid">
+            <div class="d-flex flex-column gap-2">
+                <div>
+                    <Button
+                        :label="csvFile ? csvFile.name : 'Choose File'"
+                        icon="pi pi-file"
+                        @click="$refs.fileInput.click()"
+                        class="w-full text-left justify-content-start"
+                    />
+                    <input
+                        ref="fileInput"
+                        type="file"
+                        accept=".csv"
+                        @change="handleFileSelect"
+                        style="display: none"
+                    />
+                </div>
+                <small v-if="csvFile" class="text-success">File selected: {{ csvFile.name }}</small>
+                <small v-else>Please select a CSV file with student data</small>
+            </div>
+
+            <div v-if="csvUploadError" class="my-3">
+                <Message severity="error">{{ csvUploadError }}</Message>
+            </div>
+
+            <div class="d-flex gap-3 mt-4">
+                <Button
+                    label="Cancel"
+                    severity="secondary"
+                    icon="pi pi-times"
+                    @click="cancelCsvUpload"
+                />
+                <Button
+                    label="Upload"
+                    icon="pi pi-upload"
+                    :disabled="!csvFile || csvUploading"
+                    :loading="csvUploading"
+                    @click="uploadStudentsCSV"
+                />
+            </div>
+        </div>
+    </Dialog>
+
     <Card>
         <template #header>
             <CardHeader icon="users" title="Students" />
@@ -215,7 +266,6 @@
 </template>
 
 <style lang="scss" scoped>
-
 .p-datatable {
     .p-datatable-filter {
         .p-inputtext {
@@ -223,7 +273,6 @@
         }
     }
 }
-
 </style>
 
 <script lang="ts">
@@ -248,6 +297,11 @@ export default defineComponent({
         const selectedStudents = ref<UsersApi.Admin.Student[]>([]);
         const addStudentDialog = ref(false);
         const editStudentDialog = ref(false);
+        const uploadCsvDialog = ref(false);
+        const csvFile = ref<File | null>(null);
+        const csvUploading = ref(false);
+        const csvUploadError = ref('');
+        const fileInput = ref(null);
         const filters = ref();
         const loading = ref<boolean>(true);
         const statusOptions = ref([
@@ -264,7 +318,7 @@ export default defineComponent({
                 label: 'Upload CSV with students',
                 icon: 'pi pi-file-plus',
                 command: () => {
-                    // add implementation here
+                    uploadCsvDialog.value = true;
                 }
             },
             {
@@ -385,6 +439,76 @@ export default defineComponent({
             subscriptions.add(subscription);
         };
 
+        const handleFileSelect = (event: Event) => {
+            const target = event.target as HTMLInputElement;
+            if (target.files && target.files.length > 0) {
+                const file = target.files[0];
+                if (file.type === 'text/csv' || file.name.endsWith('.csv')) {
+                    csvFile.value = file;
+                    csvUploadError.value = '';
+                } else {
+                    csvUploadError.value = 'Please select a valid CSV file';
+                    csvFile.value = null;
+                }
+            }
+        };
+
+        const cancelCsvUpload = () => {
+            csvFile.value = null;
+            csvUploadError.value = '';
+            uploadCsvDialog.value = false;
+            if (fileInput.value) {
+                (fileInput.value as HTMLInputElement).value = '';
+            }
+        };
+
+        const uploadStudentsCSV = async () => {
+            if (!csvFile.value) {
+                csvUploadError.value = 'Please select a CSV file to upload';
+                return;
+            }
+
+            try {
+                csvUploading.value = true;
+                const csvText = await UtilsService.readCSVFile(csvFile.value);
+                console.log([csvText])
+
+                const subscription = AdminService.addStudentsWithCsv({ csvText }).subscribe({
+                    next: () => {
+                        toast.add({
+                            severity: 'success',
+                            summary: 'Success',
+                            detail: 'Students uploaded successfully',
+                            life: 3000
+                        });
+                        cancelCsvUpload();
+                        loadStudents();
+                        csvUploading.value = false;
+                    },
+                    error: (err: AxiosError<AxiosErrorData>) => {
+                        csvUploadError.value = err.response?.data.message || 'Failed to upload students';
+                        toast.add({
+                            severity: 'error',
+                            summary: 'Error',
+                            detail: csvUploadError.value,
+                            life: 3000
+                        });
+                        csvUploading.value = false;
+                    }
+                });
+                subscriptions.add(subscription);
+            } catch (error) {
+                csvUploadError.value = 'Error reading CSV file';
+                toast.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Error reading CSV file',
+                    life: 3000
+                });
+                csvUploading.value = false;
+            }
+        };
+
         onMounted(() => {
             loadStudents();
         });
@@ -411,6 +535,14 @@ export default defineComponent({
             selectOptions,
             getStudentsCsvTemplate,
             items,
+            uploadCsvDialog,
+            csvFile,
+            csvUploading,
+            csvUploadError,
+            fileInput,
+            handleFileSelect,
+            cancelCsvUpload,
+            uploadStudentsCSV
         };
     }
 });
