@@ -1,14 +1,14 @@
 <template>
-<!--    <Dialog-->
-<!--        modal-->
-<!--        :draggable="false"-->
-<!--        class="w-75"-->
-<!--        v-model:visible="editDisciplineDialog">-->
-<!--        <DisciplineDialog @reload="loadDisciplines"/>-->
-<!--        <template #header>-->
-<!--            <CardHeader icon="file-edit" title="Edit discipline"/>-->
-<!--        </template>-->
-<!--    </Dialog>-->
+    <Dialog
+        modal
+        :draggable="false"
+        class="w-75"
+        v-model:visible="editDisciplineDialog">
+        <EditDisciplineDialog :discipline-id="editedDiscipline?.id"/>
+        <template #header>
+            <CardHeader icon="file-edit" :title="editedDiscipline?.name"/>
+        </template>
+    </Dialog>
 
     <Dialog
         modal
@@ -187,10 +187,14 @@ import { useToast } from 'primevue/usetoast';
 import { UsersApi } from "@/types/api";
 import { FilterMatchMode } from '@primevue/core/api';
 import AddDisciplineDialog from "@/views/admin/dialogs/Discipline/AddDialog.vue";
+import EditDisciplineDialog from "@/views/admin/dialogs/Discipline/EditDialog.vue";
 
 export default defineComponent({
     name: 'DisciplinesTable',
-    components: { AddDisciplineDialog },
+    components: {
+        AddDisciplineDialog,
+        EditDisciplineDialog,
+    },
     setup() {
         const toast = useToast();
         const disciplines = ref<UsersApi.Admin.Discipline[]>([]);
@@ -198,6 +202,7 @@ export default defineComponent({
         const subscriptions = new Set<Subscription>();
         const addDisciplineDialog = ref(false);
         const editDisciplineDialog = ref(false);
+        const editedDiscipline = ref<UsersApi.Admin.Discipline | null>(null);
         const filters = ref();
         const loading = ref<boolean>(true);
         const statusOptions = ref([
@@ -241,18 +246,11 @@ export default defineComponent({
         };
 
         const editSelectedDiscipline = () => {
-            // if (selectedDisciplines.value.length === 1) {
-            //     const teacher = selectedDisciplines.value[0];
-            //     editedDiscipline.value = {
-            //         id: teacher.id,
-            //         email: teacher.email,
-            //         firstName: teacher.firstName,
-            //         lastName: teacher.lastName,
-            //         patronymic: teacher.patronymic,
-            //         isActive: teacher.isActive,
-            //     };
-            //     editDisciplineDialog.value = true;
-            // }
+            if (selectedDisciplines.value.length === 1) {
+                const d = selectedDisciplines.value[0];
+                editedDiscipline.value = { ...d };
+                editDisciplineDialog.value = true;
+            }
         };
 
         const markDisciplinesActive = (isActive: boolean) => {
@@ -305,6 +303,7 @@ export default defineComponent({
             loadDisciplines,
             editSelectedDiscipline,
             semesterOptions,
+            editedDiscipline,
         };
     }
 });

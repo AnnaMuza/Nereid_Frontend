@@ -124,9 +124,7 @@ export namespace Admin {
         disciplines: Discipline[];
     }
 
-    export type DisciplineResponse = {
-        message: string;
-        discipline: Discipline;
+    export interface DisciplineResponse extends UsersApi.Teacher.GetDisciplineResponse {
     }
 
     export type GenericResponse = {

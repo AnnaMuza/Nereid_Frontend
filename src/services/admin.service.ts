@@ -121,9 +121,9 @@ class AdminService extends ApiService {
     return this.patch<UsersApi.Admin.EditDisciplines, UsersApi.Admin.GenericResponse>(this.endpoints.editDisciplines, data);
   }
 
-  // getDiscipline(id: number): Observable<UsersApi.Admin.DisciplineResponse> {
-  //   return this.get<UsersApi.Admin.DisciplineResponse>(this.endpoints.getDiscipline(id));
-  // }
+  getDiscipline(id: number): Observable<UsersApi.Admin.DisciplineResponse> {
+    return this.get<UsersApi.Admin.DisciplineResponse>(`${this.endpoints.getDiscipline}/${id}`);
+  }
 
   addDiscipline(data: UsersApi.Admin.AddDiscipline): Observable<UsersApi.Admin.GenericResponse> {
     return this.post<UsersApi.Admin.AddDiscipline, UsersApi.Admin.GenericResponse>(this.endpoints.addDiscipline, data);
@@ -137,16 +137,7 @@ class AdminService extends ApiService {
 
   // Role and discipline assignments
   releaseTeacherFromDiscipline(data: UsersApi.Admin.ReleaseTeacherFromDiscipline): Observable<UsersApi.Admin.GenericResponse> {
-    return this.patch<UsersApi.Admin.ReleaseTeacherFromDiscipline, UsersApi.Admin.GenericResponse>(
-      this.endpoints.releaseTeacherFromDiscipline,
-      data
-    ).pipe(
-      tap(() => {
-        // Refresh both teachers and disciplines after this operation
-        this.getAllTeachers().subscribe();
-        this.getAllDisciplines().subscribe();
-      })
-    );
+    return this.patch<UsersApi.Admin.ReleaseTeacherFromDiscipline, UsersApi.Admin.GenericResponse>(this.endpoints.releaseTeacherFromDiscipline, data);
   }
 
   lockDisciplineSelection(): Observable<string> {

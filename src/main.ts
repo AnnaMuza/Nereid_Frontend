@@ -20,6 +20,7 @@ import Chip from 'primevue/chip';
 import Toolbar from "primevue/toolbar";
 import TieredMenu from 'primevue/tieredmenu';
 import FloatLabel from 'primevue/floatlabel';
+import ConfirmDialog from 'primevue/confirmdialog';
 import DataView from 'primevue/dataview';
 import Row from 'primevue/row';
 import StyleClass from "primevue/styleclass";
@@ -115,6 +116,7 @@ createApp(App)
     .component('InputIcon', InputIcon)
     .component("Toast", Toast)
     .component("PanelMenu", PanelMenu)
+    .component("ConfirmDialog", ConfirmDialog)
     .component("Panel", Panel)
     .component("Dialog", Dialog)
     .component("FloatLabel", FloatLabel)
