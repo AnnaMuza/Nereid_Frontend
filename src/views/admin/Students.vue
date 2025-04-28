@@ -15,7 +15,7 @@
         :draggable="false"
         class="w-75"
         v-model:visible="addStudentDialog">
-        <StudentDialog @reload="loadStudents"/>
+        <StudentDialog @reload="loadStudents(); addStudentDialog = false"/>
         <template #header>
             <CardHeader icon="user-plus" title="Add student"/>
         </template>

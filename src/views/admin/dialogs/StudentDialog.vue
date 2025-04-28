@@ -212,7 +212,7 @@ export default defineComponent({
 
                 const subscription = AdminService.addStudent(userData).subscribe({
                     next: () => {
-                        wasChanged = true;
+                        emit('reload');
                         toast.add({
                             severity: 'success',
                             summary: 'Success',

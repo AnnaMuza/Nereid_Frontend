@@ -1,6 +1,6 @@
 {
     "name": "nereid_frontend",
-    "version": "0.2.0",
+    "version": "1.0.0",
     "scripts": {
         "serve": "vue-cli-service serve --mode local --port 5137",
         "build": "vue-cli-service build --mode development",

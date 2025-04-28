@@ -1,4 +1,6 @@
 <template>
+    <ConfirmDialog></ConfirmDialog>
+
     <Dialog
         modal
         :draggable="false"
@@ -15,7 +17,7 @@
         :draggable="false"
         class="w-50"
         v-model:visible="addDisciplineDialog">
-        <AddDisciplineDialog @reload="loadDisciplines"/>
+        <AddDisciplineDialog @reload="loadDisciplines(); addDisciplineDialog = false"/>
         <template #header>
             <CardHeader icon="file-plus" title="Add discipline"/>
         </template>
@@ -43,6 +45,17 @@
                     :disabled="!selectedDisciplines || selectedDisciplines.length !== 1"
                     class="p-button-rounded"
                 />
+
+                <Button
+                    label="Delete Disciplines"
+                    @click="confirmDelete"
+                    icon="pi pi-trash"
+                    severity="danger"
+                    :disabled="!selectedDisciplines || selectedDisciplines.length === 0"
+                    class="p-button-rounded"
+                />
+
+                <Divider layout="vertical"/>
 
                 <Button
                     label="Mark Active"
@@ -188,6 +201,8 @@ import { UsersApi } from "@/types/api";
 import { FilterMatchMode } from '@primevue/core/api';
 import AddDisciplineDialog from "@/views/admin/dialogs/Discipline/AddDialog.vue";
 import EditDisciplineDialog from "@/views/admin/dialogs/Discipline/EditDialog.vue";
+import { useConfirm } from "primevue/useconfirm";
+import TeacherService from "@/services/teacher.service";
 
 export default defineComponent({
     name: 'DisciplinesTable',
@@ -204,6 +219,7 @@ export default defineComponent({
         const editDisciplineDialog = ref(false);
         const editedDiscipline = ref<UsersApi.Admin.Discipline | null>(null);
         const filters = ref();
+        const confirm = useConfirm();
         const loading = ref<boolean>(true);
         const statusOptions = ref([
             { label: 'Active', value: true },
@@ -224,6 +240,26 @@ export default defineComponent({
             };
         };
         initFilters();
+
+        const confirmDelete = () => {
+            confirm.require({
+                message: `Are you sure you want to delete selected disciplines?`,
+                header: 'Confirmation',
+                icon: 'pi pi-exclamation-triangle',
+                rejectProps: {
+                    label: 'Cancel',
+                    severity: 'secondary',
+                },
+                acceptProps: {
+                    label: 'Delete',
+                    severity: 'danger',
+                },
+                accept: () => {
+                    deleteSelectedDisciplines();
+                },
+                reject: () => {}
+            });
+        };
 
         const loadDisciplines = () => {
             const subscription = AdminService.getAllDisciplines().subscribe({
@@ -251,6 +287,40 @@ export default defineComponent({
                 editedDiscipline.value = { ...d };
                 editDisciplineDialog.value = true;
             }
+        };
+
+        const deleteSelectedDisciplines = () => {
+            if (selectedDisciplines.value.length === 0) return;
+
+            loading.value = true;
+
+            // Track how many operations are completed
+            let completedOps = 0;
+            const totalOps = selectedDisciplines.value.length;
+
+            selectedDisciplines.value.forEach(d => {
+                const subscription = AdminService.deleteDiscipline(d.id).subscribe({
+                    next: () => {
+                        completedOps++;
+                        if (completedOps === totalOps) {
+                            selectedDisciplines.value = [];
+                            loading.value = false;
+                            loadDisciplines();
+                        }
+                    },
+                    error: ({ response } = {}) => {
+                        toast.add({
+                            severity: 'error',
+                            summary: 'Failed to delete discipline',
+                            detail: response?.data.message,
+                            life: 5000
+                        });
+                        loading.value = false;
+                    },
+                });
+
+                subscriptions.add(subscription);
+            });
         };
 
         const markDisciplinesActive = (isActive: boolean) => {
@@ -304,6 +374,7 @@ export default defineComponent({
             editSelectedDiscipline,
             semesterOptions,
             editedDiscipline,
+            confirmDelete,
         };
     }
 });

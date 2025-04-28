@@ -15,7 +15,7 @@
         :draggable="false"
         class="w-75"
         v-model:visible="addTeacherDialog">
-        <TeacherDialog @reload="loadTeachers"/>
+        <TeacherDialog @reload="loadTeachers(); addTeacherDialog = false"/>
         <template #header>
             <CardHeader icon="user-plus" title="Add teacher"/>
         </template>

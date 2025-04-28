@@ -155,7 +155,7 @@ export default defineComponent({
 
                 const subscription = AdminService.addTeacher(userData).subscribe({
                     next: () => {
-                        wasChanged = true;
+                        emit('reload');
                         toast.add({
                             severity: 'success',
                             summary: 'Success',

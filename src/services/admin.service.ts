@@ -139,11 +139,9 @@ class AdminService extends ApiService {
     return this.post<UsersApi.Admin.AddDiscipline, UsersApi.Admin.GenericResponse>(this.endpoints.addDiscipline, data);
   }
 
-  // deleteDiscipline(id: number): Observable<UsersApi.Admin.GenericResponse> {
-  //   return this.delete<UsersApi.Admin.GenericResponse>(this.endpoints.deleteDiscipline(id)).pipe(
-  //     tap(() => this.getAllDisciplines().subscribe())
-  //   );
-  // }
+  deleteDiscipline(id: number): Observable<UsersApi.Admin.GenericResponse> {
+    return this.delete<UsersApi.Admin.GenericResponse>(`${this.endpoints.deleteDiscipline}/${id}`);
+  }
 
   // Role and discipline assignments
   releaseTeacherFromDiscipline(data: UsersApi.Admin.ReleaseTeacherFromDiscipline): Observable<UsersApi.Admin.GenericResponse> {

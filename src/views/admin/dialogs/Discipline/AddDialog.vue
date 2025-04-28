@@ -74,7 +74,6 @@ export default defineComponent({
         const name = ref<string>('');
         const credits = ref<number | null>(null);
         const semester = ref<UsersApi.Admin.Semester | null>(null);
-        let wasChanged = false;
 
         const addDiscipline = () => {
             submitted.value = true;
@@ -89,7 +88,7 @@ export default defineComponent({
 
                 const subscription = AdminService.addDiscipline(userData).subscribe({
                     next: () => {
-                        wasChanged = true;
+                        emit('reload');
                         toast.add({
                             severity: 'success',
                             summary: 'Success',
@@ -112,9 +111,6 @@ export default defineComponent({
         };
 
         onUnmounted(() => {
-            if (wasChanged) {
-                emit('reload');
-            }
             // Clean up all subscriptions to prevent memory leaks
             subscriptions.forEach(subscription => subscription.unsubscribe());
             subscriptions.clear();
