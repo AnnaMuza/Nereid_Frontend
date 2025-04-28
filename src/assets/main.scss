@@ -264,6 +264,30 @@ a {
   }
 }
 
+.p-tieredmenu {
+  &:not(.sidebar) {
+    --p-tieredmenu-item-icon-color: #{$main};
+    --p-tieredmenu-item-icon-focus-color: #{$main};
+
+    .p-tieredmenu-root-list {
+      margin: 0;
+      padding: 0.5rem;
+
+      .p-tieredmenu-item-link {
+        color: #{$main};
+
+        &:hover {
+          color: #{$secondary};
+
+          .p-tieredmenu-item-icon {
+            color: #{$secondary};
+          }
+        }
+      }
+    }
+  }
+}
+
 .fi-anim-spin {
   animation: spin-animation 3s infinite;
   animation-timing-function: linear;

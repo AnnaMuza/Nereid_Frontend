@@ -266,6 +266,7 @@
 </template>
 
 <style lang="scss" scoped>
+
 .p-datatable {
     .p-datatable-filter {
         .p-inputtext {
@@ -273,6 +274,7 @@
         }
     }
 }
+
 </style>
 
 <script lang="ts">

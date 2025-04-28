@@ -11,7 +11,7 @@
         </template>
 
         <template #content>
-            <TieredMenu :model="menuItems" breakpoint="10000px">
+            <TieredMenu class="sidebar" :model="menuItems" breakpoint="10000px">
                 <template #item="{ item, props, hasSubmenu }">
                     <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom>
                         <a v-ripple
