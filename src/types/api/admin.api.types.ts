@@ -84,6 +84,10 @@ export namespace Admin {
         isActive?: boolean;
     }
 
+    export interface DisciplineSelectionState {
+        isSelectionLocked: boolean;
+    }
+
     export interface EditDisciplines {
         disciplineIds: number[];
         isActive: boolean;

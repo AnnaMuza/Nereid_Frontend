@@ -11,10 +11,12 @@
                 label="Lock discipline selection"
                 size="large"
                 severity="danger"
+                :disabled="isSelectionLocked !== false"
                 @click="lockDisciplineSelection"/>
             <Button
                 label="Unlock discipline selection"
                 severity="success"
+                :disabled="isSelectionLocked !== true"
                 @click="unlockDisciplineSelection"/>
         </div>
 
@@ -67,10 +69,12 @@ export default defineComponent({
             { name: 'Semester 2', code: '2' },
         ]);
         const semester = ref<Semester>(semesters.value[0]);
+        const isSelectionLocked = ref<boolean | null>(null);
 
         const lockDisciplineSelection = () => {
             const subscription = AdminService.lockDisciplineSelection().subscribe({
                 next: () => {
+                    getDisciplineSelectionState();
                     toast.add({
                         severity: 'success',
                         summary: 'Success',
@@ -94,6 +98,7 @@ export default defineComponent({
         const unlockDisciplineSelection = () => {
             const subscription = AdminService.unlockDisciplineSelection().subscribe({
                 next: () => {
+                    getDisciplineSelectionState();
                     toast.add({
                         severity: 'success',
                         summary: 'Success',
@@ -132,8 +137,26 @@ export default defineComponent({
             subscriptions.add(subscription);
         };
 
-        onMounted(() => {
+        const getDisciplineSelectionState = () => {
+            const subscription = AdminService.getDisciplineSelectionState().subscribe({
+                next: (response) => {
+                    isSelectionLocked.value = response.isSelectionLocked;
+                },
+                error: ({ response } = {}) => {
+                    toast.add({
+                        severity: 'error',
+                        summary: 'Error getting discipline selection state',
+                        detail: response?.data.message,
+                        life: 5000
+                    });
+                },
+            });
 
+            subscriptions.add(subscription);
+        };
+
+        onMounted(() => {
+            getDisciplineSelectionState();
         });
 
         onUnmounted(() => {
@@ -148,6 +171,7 @@ export default defineComponent({
             getStudentsForAllDisciplines,
             semesters,
             semester,
+            isSelectionLocked,
         };
     }
 });

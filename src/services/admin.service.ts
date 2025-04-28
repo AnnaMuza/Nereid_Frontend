@@ -21,6 +21,7 @@ class AdminService extends ApiService {
     addStudent: '/admin/add-student',
     addDiscipline: '/admin/add-discipline',
     editDisciplines: '/admin/edit-disciplines',
+    getDisciplineSelectionState: '/admin/get-discipline-selection-state',
     addTeacher: '/admin/add-teacher',
     editStudent: `/admin/edit-student`, // :id
     editStudents: `/admin/edit-students`,
@@ -110,6 +111,10 @@ class AdminService extends ApiService {
         return response;
       })
     );
+  }
+
+  getDisciplineSelectionState(): Observable<UsersApi.Admin.DisciplineSelectionState> {
+    return this.get<UsersApi.Admin.DisciplineSelectionState>(this.endpoints.getDisciplineSelectionState);
   }
 
   editDisciplines(data: UsersApi.Admin.EditDisciplines): Observable<UsersApi.Admin.GenericResponse> {
