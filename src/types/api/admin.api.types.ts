@@ -93,8 +93,12 @@ export namespace Admin {
         isActive: boolean;
     }
 
-    export interface AddDiscipline {
+    export type Semester = '1' | '2';
 
+    export interface AddDiscipline {
+        name: string;
+        semester: Semester;
+        credits: number;
     }
 
     export interface ReleaseTeacherFromDiscipline {

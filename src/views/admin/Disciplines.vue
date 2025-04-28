@@ -1,21 +1,21 @@
 <template>
-    <Dialog
-        modal
-        :draggable="false"
-        class="w-75"
-        v-model:visible="editDisciplineDialog">
-        <DisciplineDialog @reload="loadDisciplines"/>
-        <template #header>
-            <CardHeader icon="file-edit" title="Edit discipline"/>
-        </template>
-    </Dialog>
+<!--    <Dialog-->
+<!--        modal-->
+<!--        :draggable="false"-->
+<!--        class="w-75"-->
+<!--        v-model:visible="editDisciplineDialog">-->
+<!--        <DisciplineDialog @reload="loadDisciplines"/>-->
+<!--        <template #header>-->
+<!--            <CardHeader icon="file-edit" title="Edit discipline"/>-->
+<!--        </template>-->
+<!--    </Dialog>-->
 
     <Dialog
         modal
         :draggable="false"
-        class="w-75"
+        class="w-50"
         v-model:visible="addDisciplineDialog">
-        <DisciplineDialog @reload="loadDisciplines"/>
+        <AddDisciplineDialog @reload="loadDisciplines"/>
         <template #header>
             <CardHeader icon="file-plus" title="Add discipline"/>
         </template>
@@ -186,11 +186,11 @@ import AdminService from '@/services/admin.service';
 import { useToast } from 'primevue/usetoast';
 import { UsersApi } from "@/types/api";
 import { FilterMatchMode } from '@primevue/core/api';
-import DisciplineDialog from "@/views/admin/dialogs/DisciplineDialog.vue";
+import AddDisciplineDialog from "@/views/admin/dialogs/Discipline/AddDialog.vue";
 
 export default defineComponent({
     name: 'DisciplinesTable',
-    components: { DisciplineDialog },
+    components: { AddDisciplineDialog },
     setup() {
         const toast = useToast();
         const disciplines = ref<UsersApi.Admin.Discipline[]>([]);
