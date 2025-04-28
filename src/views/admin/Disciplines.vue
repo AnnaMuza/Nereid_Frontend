@@ -102,8 +102,8 @@
                         <Button type="button" icon="pi pi-filter-slash" label="Clear all" severity="secondary" @click="initFilters"/>
                     </div>
                 </template>
-                <template #empty>No students found</template>
-                <template #loading>Loading students data. Please wait</template>
+                <template #empty>No disciplines found</template>
+                <template #loading>Loading disciplines data. Please wait</template>
 
                 <Column selectionMode="multiple"></Column>
 

@@ -59,7 +59,7 @@
             @click="saveProfile"/>
 
         <div v-if="PermissionService.userCan([RoleName.teacher])">
-            <Divider class="my-5"/>
+            <Divider class="my-4"/>
             <div class="d-flex flex-column">
                 <div class="d-flex flex-column gap-3">
                     <div v-for="field in fields" :key="field.id" class="d-flex align-items-center gap-3">

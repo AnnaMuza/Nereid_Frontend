@@ -473,7 +473,6 @@ export default defineComponent({
             try {
                 csvUploading.value = true;
                 const csvText = await UtilsService.readCSVFile(csvFile.value);
-                console.log([csvText])
 
                 const subscription = AdminService.addStudentsWithCsv({ csvText }).subscribe({
                     next: () => {

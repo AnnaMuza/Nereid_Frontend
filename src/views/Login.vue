@@ -48,10 +48,31 @@
                 </router-link>
             </div>
         </div>
+
+        <div class="devs d-flex flex-column align-items-center gap-1">
+            Developed by
+            <div class="d-flex gap-2">
+                <a href="https://github.com/OleksiiKH0240" target="_blank">OleksiiKH0240</a>
+                <a href="https://github.com/AnnaMuza" target="_blank">AnnaMuza</a>
+            </div>
+        </div>
     </div>
 </template>
 
 <style lang="scss" scoped>
+
+.devs {
+    position: absolute;
+    bottom: 0.7rem;
+    right: 0.9rem;
+    font-size: 0.9rem;
+    color: #c4d8f6;
+
+    a {
+        color: #c4d8f6;
+    }
+}
+
 .login-bg-image {
     background-image: url(@/assets/images/login-bg.jpg);
     background-position: left;
