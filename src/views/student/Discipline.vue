@@ -16,7 +16,7 @@
                     <label for="disciplineDescription">Short Description</label>
                     <Textarea
                         v-model="disciplineForm.description"
-                        rows="3"
+                        rows="10"
                         variant="filled"
                         id="disciplineDescription"
                     />
@@ -35,7 +35,7 @@
                 </div>
             </div>
 
-            <Divider v-if="disciplineTeachers.length" class="py-4"/>
+            <Divider v-if="disciplineTeachers.length" class="py-3"/>
 
             <div v-if="disciplineTeachers.length" class="d-flex flex-column gap-2">
                 <div style="padding-left: 0.75rem" class="mb-2">Teacher</div>

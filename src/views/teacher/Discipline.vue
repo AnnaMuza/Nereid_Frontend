@@ -21,7 +21,7 @@
                     <label for="disciplineDescription">Short Description</label>
                     <Textarea
                         v-model="disciplineForm.description"
-                        rows="3"
+                        rows="10"
                         variant="filled"
                         id="disciplineDescription"
                     />
@@ -32,7 +32,7 @@
                     label="Save"
                     @click="saveDiscipline" />
 
-            <Divider class="my-4"/>
+            <Divider class="my-3"/>
 
             <!-- Discipline fields section -->
             <div class="d-flex flex-column">
