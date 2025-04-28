@@ -131,6 +131,10 @@ export namespace Admin {
         message: string;
     }
 
+    export type GenericCSV = {
+        csvText: string;
+    }
+
     export type HealthyResponse = {
         status: string;
     }

@@ -28,13 +28,12 @@
 
         <template #content>
             <div class="d-flex gap-3 mt-2 justify-content-center">
-                <Button
-                    label="Add Student"
-                    @click="addStudentDialog = true"
-                    icon="pi pi-plus"
-                    severity="info"
-                    class="p-button-rounded"
-                />
+                <SplitButton label="Add Student"
+                             @click="addStudentDialog = true"
+                             icon="pi pi-plus"
+                             severity="info"
+                             rounded
+                             :model="items"/>
 
                 <Button
                     label="Edit Student"
@@ -235,6 +234,9 @@ import { useToast } from 'primevue/usetoast';
 import { UsersApi } from "@/types/api";
 import { FilterMatchMode } from '@primevue/core/api';
 import StudentDialog from "@/views/admin/dialogs/StudentDialog.vue";
+import UtilsService from "@/services/utils.service";
+import { AxiosError } from "axios";
+import { AxiosErrorData } from "@/types/global.interface";
 
 export default defineComponent({
     name: 'StudentsTable',
@@ -255,6 +257,23 @@ export default defineComponent({
         const selectOptions = ref([
             { label: 'Yes', value: true },
             { label: 'No', value: false }
+        ]);
+
+        const items = ref([
+            {
+                label: 'Upload CSV with students',
+                icon: 'pi pi-file-plus',
+                command: () => {
+                    // add implementation here
+                }
+            },
+            {
+                label: 'Download template',
+                icon: 'pi pi-table',
+                command: () => {
+                    getStudentsCsvTemplate();
+                }
+            },
         ]);
 
         const initFilters = () => {
@@ -348,6 +367,24 @@ export default defineComponent({
             subscriptions.add(subscription);
         };
 
+        const getStudentsCsvTemplate = () => {
+            const subscription = AdminService.getStudentsCsvTemplate().subscribe({
+                next: ({ csvText }) => {
+                    UtilsService.downloadCsv(csvText, 'students_template.csv');
+                },
+                error: (err: AxiosError<AxiosErrorData>) => {
+                    toast.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: err.response?.data.message,
+                        life: 3000
+                    });
+                },
+            });
+
+            subscriptions.add(subscription);
+        };
+
         onMounted(() => {
             loadStudents();
         });
@@ -372,6 +409,8 @@ export default defineComponent({
             loadStudents,
             editSelectedStudent,
             selectOptions,
+            getStudentsCsvTemplate,
+            items,
         };
     }
 });

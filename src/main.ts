@@ -23,8 +23,10 @@ import FloatLabel from 'primevue/floatlabel';
 import ConfirmDialog from 'primevue/confirmdialog';
 import DataView from 'primevue/dataview';
 import Row from 'primevue/row';
+import SpeedDial from 'primevue/speeddial';
 import StyleClass from "primevue/styleclass";
 import Ripple from "primevue/ripple";
+import SplitButton from 'primevue/splitbutton';
 import InputText from 'primevue/inputtext';
 import Password from 'primevue/password';
 import Checkbox from "primevue/checkbox";
@@ -103,8 +105,10 @@ createApp(App)
     .component('Badge', Badge)
     .component('DataTable', DataTable)
     .component('ToggleSwitch', ToggleSwitch)
+    .component('SplitButton', SplitButton)
     .component('InputText', InputText)
     .component('InputNumber', InputNumber)
+    .component('SpeedDial', SpeedDial)
     .component('Password', Password)
     .component('Checkbox', Checkbox)
     .component('Textarea', Textarea)

@@ -19,6 +19,8 @@ class AdminService extends ApiService {
     deleteDiscipline: `/admin/delete-discipline`, // :id
     getAllTeachers: '/admin/get-all-teachers',
     addStudent: '/admin/add-student',
+    addStudentsWithCsv: '/admin/add-students-with-csv',
+    getStudentsCsvTemplate: '/admin/get-students-csv-template',
     addDiscipline: '/admin/add-discipline',
     editDisciplines: '/admin/edit-disciplines',
     getDisciplineSelectionState: '/admin/get-discipline-selection-state',
@@ -76,6 +78,14 @@ class AdminService extends ApiService {
 
   editStudents(data: UsersApi.Admin.EditStudents): Observable<UsersApi.Admin.GenericResponse> {
     return this.patch<UsersApi.Admin.EditStudents, UsersApi.Admin.GenericResponse>(this.endpoints.editStudents, data);
+  }
+
+  getStudentsCsvTemplate(): Observable<UsersApi.Admin.GenericCSV> {
+    return this.get<UsersApi.Admin.GenericCSV>(this.endpoints.getStudentsCsvTemplate);
+  }
+
+  addStudentsWithCsv(data: UsersApi.Admin.GenericCSV): Observable<UsersApi.Admin.GenericResponse> {
+    return this.post<UsersApi.Admin.GenericCSV, UsersApi.Admin.GenericResponse>(this.endpoints.addStudentsWithCsv, data);
   }
 
   // Teacher management
