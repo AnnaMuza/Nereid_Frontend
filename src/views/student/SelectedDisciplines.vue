@@ -96,20 +96,6 @@ export default defineComponent({
         const maximumCredits = ref<number | null>(null);
         const currentCredits = ref<number | null>(null);
 
-        const fetchStudent = () => {
-            const subscription = StudentService.getStudent().subscribe({
-                next: (response) => {
-                    student.value = response;
-                    fetchTakenDisciplines();
-                },
-                error: (err) => {
-                    console.error('Failed to load student data', err);
-                }
-            });
-
-            subscriptions.add(subscription);
-        };
-
         const fetchTakenDisciplines = () => {
             const subscription = StudentService.getAllSelectedDisciplines(semester.value.code).subscribe({
                 next: (response) => {
@@ -118,13 +104,23 @@ export default defineComponent({
                     maximumCredits.value = response.maximumCredits;
                     currentCredits.value = response.currentCredits;
                 },
-                error: (err) => {
-                    console.error('Failed to load selected disciplines', err);
-                }
+                error: ({ response } = {}) => {
+                    toast.add({
+                        severity: 'error',
+                        summary: 'Failed to load selected disciplines',
+                        detail: response?.data.message,
+                        life: 5000
+                    });
+                },
             });
 
             subscriptions.add(subscription);
         };
+
+        StudentService.student$.subscribe((response) => {
+            student.value = response;
+            fetchTakenDisciplines();
+        });
 
         const deselectDisciplines = () => {
             if (!student.value || selectedDisciplines.value.length === 0) return;
@@ -153,10 +149,6 @@ export default defineComponent({
 
             subscriptions.add(subscription);
         };
-
-        onMounted(() => {
-            fetchStudent();
-        });
 
         onUnmounted(() => {
             // Clean up all subscriptions to prevent memory leaks

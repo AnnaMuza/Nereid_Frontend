@@ -20,6 +20,7 @@ export namespace Teacher {
     credits: number;
     semester: string;
     description: string | null;
+    isActive: boolean | null;
   }
 
   export interface EditRequest {

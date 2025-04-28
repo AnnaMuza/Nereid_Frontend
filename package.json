@@ -1,27 +1,22 @@
 {
     "name": "nereid_frontend",
-    "version": "0.2.0",
+    "version": "1.0.0",
     "scripts": {
         "serve": "vue-cli-service serve --mode local --port 5137",
         "build": "vue-cli-service build --mode development",
         "build-prod": "vue-cli-service build --mode production"
     },
     "dependencies": {
-        "@popperjs/core": "^2.11.6",
         "@primevue/themes": "^4.2.5",
         "primeicons": "^7.0.0",
         "@primeuix/styles": "^1.0.0",
         "axios": "^1.8.2",
         "bootstrap": "^5.3.3",
-        "moment": "^2.29.4",
         "primevue": "^4.2.5",
         "@primevue/forms": "^4.3.1",
-        "quill": "^2.0.3",
         "rxjs": "^7.8.0",
         "vue": "^3.2.47",
-        "vue-router": "^4.1.6",
-        "vue3-apexcharts": "^1.4.1",
-        "vuedraggable": "^4.1.0"
+        "vue-router": "^4.1.6"
     },
     "devDependencies": {
         "@typescript-eslint/eslint-plugin": "^5.50.0",

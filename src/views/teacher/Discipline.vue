@@ -32,7 +32,7 @@
                     label="Save"
                     @click="saveDiscipline" />
 
-            <Divider class="my-5"/>
+            <Divider class="my-4"/>
 
             <!-- Discipline fields section -->
             <div class="d-flex flex-column">
@@ -41,14 +41,14 @@
                         <Checkbox v-model="selectedFields" :value="field.id"/>
                         <div class="flex-grow-1">
                             <small style="padding-left: 0.75rem">{{ field.name }}</small>
-                            <Message class="mt-1">{{ field.content }}</Message>
+                            <Message v-if="field.content" class="mt-1">{{ field.content }}</Message>
                         </div>
                     </div>
                 </div>
 
                 <!-- Add new field form -->
-                <div v-if="showAddField" class="d-flex flex-column my-4">
-                    <div class="d-flex flex-row gap-4">
+                <div v-if="showAddField" class="d-flex flex-column">
+                    <div class="d-flex flex-row gap-4 mt-4">
                         <InputText v-model="newField.name" placeholder="Field name"/>
                         <InputText v-model="newField.content" placeholder="Field content"/>
                     </div>
@@ -91,7 +91,8 @@ export default defineComponent({
             required: false
         }
     },
-    setup(props) {
+    emits: ['reload'],
+    setup(props, {emit}) {
         const route = useRoute();
         const id = props.disciplineId || Number(route.params.id);
         const toast = useToast();
@@ -102,6 +103,7 @@ export default defineComponent({
         const error = ref<string | null>(null);
         const subscriptions = new Set<Subscription>();
         const showAddField = ref(false);
+        let wasChanged = false;
 
         const disciplineForm = reactive({
             name: '',
@@ -157,6 +159,7 @@ export default defineComponent({
                 credits: +disciplineForm.credits,
             }).subscribe({
                 next: () => {
+                    wasChanged = true;
                     toast.add({
                         severity: 'success',
                         summary: 'Success',
@@ -268,6 +271,9 @@ export default defineComponent({
         });
 
         onUnmounted(() => {
+            if (wasChanged) {
+                emit('reload');
+            }
             // Clean up all subscriptions to prevent memory leaks
             subscriptions.forEach(subscription => subscription.unsubscribe());
             subscriptions.clear();

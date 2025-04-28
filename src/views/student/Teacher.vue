@@ -62,6 +62,7 @@ import { defineComponent, onMounted, onUnmounted, reactive, ref } from 'vue';
 import { Subscription } from "rxjs";
 import StudentService from "@/services/student.service";
 import { useRoute } from "vue-router";
+import { useToast } from "primevue/usetoast";
 
 export default defineComponent({
     name: 'Teacher',
@@ -72,6 +73,7 @@ export default defineComponent({
         }
     },
     setup(props) {
+        const toast = useToast();
         const route = useRoute();
         const id = props.disciplineId || Number(route.params.id);
         const loading = ref(false);
@@ -95,10 +97,15 @@ export default defineComponent({
                     fields.value = response.teacherFields;
                     loading.value = false;
                 },
-                error: (err) => {
-                    console.error('Failed to load teacher data', err);
+                error: ({ response } = {}) => {
+                    toast.add({
+                        severity: 'error',
+                        summary: 'Failed to load teacher data',
+                        detail: response?.data.message,
+                        life: 5000
+                    });
                     loading.value = false;
-                }
+                },
             });
 
             subscriptions.add(subscription);

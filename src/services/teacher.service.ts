@@ -1,11 +1,9 @@
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { Observable, ReplaySubject, tap } from 'rxjs';
 import ApiService from '@/services/api.service';
 import { UsersApi } from '@/types/api';
-import { map } from "rxjs/operators";
-import UserService from "@/services/user.service";
 
 class TeacherService extends ApiService {
-  public readonly teacher$ = new BehaviorSubject<UsersApi.Teacher.Get['teacher'] | null>(null);
+  public readonly teacher$ = new ReplaySubject<UsersApi.Teacher.Get>(1);
 
   private readonly endpoints = {
     health: '/teacher/healthy',
@@ -32,7 +30,7 @@ class TeacherService extends ApiService {
   getTeacher(): Observable<UsersApi.Teacher.Get> {
     return this.get<UsersApi.Teacher.Get>(this.endpoints.getTeacher).pipe(
       tap(response => {
-        this.teacher$.next(response.teacher);
+        this.teacher$.next(response);
       })
     );
   }

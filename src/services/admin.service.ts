@@ -2,7 +2,6 @@ import { BehaviorSubject, Observable, tap } from 'rxjs';
 import ApiService from '@/services/api.service';
 import { UsersApi } from '@/types/api';
 import { map } from "rxjs/operators";
-import UserService from "@/services/user.service";
 
 class AdminService extends ApiService {
   // public readonly admin$ = new BehaviorSubject<UsersApi.Admin.AdminResponse | null>(null);
@@ -20,11 +19,16 @@ class AdminService extends ApiService {
     deleteDiscipline: `/admin/delete-discipline`, // :id
     getAllTeachers: '/admin/get-all-teachers',
     addStudent: '/admin/add-student',
+    addStudentsWithCsv: '/admin/add-students-with-csv',
+    getStudentsCsvTemplate: '/admin/get-students-csv-template',
     addDiscipline: '/admin/add-discipline',
+    editDisciplines: '/admin/edit-disciplines',
+    getDisciplineSelectionState: '/admin/get-discipline-selection-state',
     addTeacher: '/admin/add-teacher',
     editStudent: `/admin/edit-student`, // :id
     editStudents: `/admin/edit-students`,
     editTeacher: `/admin/edit-teacher`, // :id
+    editTeachers: `/admin/edit-teachers`,
 
     lockDisciplineSelection: '/admin/lock-discipline-selection',
     unlockDisciplineSelection: '/admin/unlock-discipline-selection',
@@ -62,9 +66,7 @@ class AdminService extends ApiService {
   }
 
   addStudent(data: UsersApi.Admin.AddStudent): Observable<UsersApi.Admin.GenericResponse> {
-    return this.post<UsersApi.Admin.AddStudent, UsersApi.Admin.GenericResponse>(this.endpoints.addStudent, data).pipe(
-      tap(() => this.getAllStudents().subscribe())
-    );
+    return this.post<UsersApi.Admin.AddStudent, UsersApi.Admin.GenericResponse>(this.endpoints.addStudent, data);
   }
 
   editStudent(data: UsersApi.Admin.EditStudent): Observable<UsersApi.Admin.GenericResponse> {
@@ -78,69 +80,72 @@ class AdminService extends ApiService {
     return this.patch<UsersApi.Admin.EditStudents, UsersApi.Admin.GenericResponse>(this.endpoints.editStudents, data);
   }
 
+  getStudentsCsvTemplate(): Observable<UsersApi.Admin.GenericCSV> {
+    return this.get<UsersApi.Admin.GenericCSV>(this.endpoints.getStudentsCsvTemplate);
+  }
+
+  addStudentsWithCsv(data: UsersApi.Admin.GenericCSV): Observable<UsersApi.Admin.GenericResponse> {
+    return this.post<UsersApi.Admin.GenericCSV, UsersApi.Admin.GenericResponse>(this.endpoints.addStudentsWithCsv, data);
+  }
+
   // Teacher management
-  getAllTeachers(): Observable<UsersApi.Admin.TeachersResponse> {
-    return this.get<UsersApi.Admin.TeachersResponse>(this.endpoints.getAllTeachers).pipe(
+  getAllTeachers(): Observable<UsersApi.Admin.Teacher[]> {
+    return this.get<UsersApi.Admin.Teacher[]>(this.endpoints.getAllTeachers).pipe(
       map(response => {
-        this.teachers$.next(response.teachers);
+        this.teachers$.next(response);
         return response;
       })
     );
   }
 
   addTeacher(data: UsersApi.Admin.AddTeacher): Observable<UsersApi.Admin.GenericResponse> {
-    return this.post<UsersApi.Admin.AddTeacher, UsersApi.Admin.GenericResponse>(this.endpoints.addTeacher, data).pipe(
-      tap(() => this.getAllTeachers().subscribe())
+    return this.post<UsersApi.Admin.AddTeacher, UsersApi.Admin.GenericResponse>(this.endpoints.addTeacher, data);
+  }
+
+  editTeacher(data: UsersApi.Admin.EditTeacher): Observable<UsersApi.Admin.GenericResponse> {
+    return this.patch<UsersApi.Admin.EditTeacher, UsersApi.Admin.GenericResponse>(
+      `${this.endpoints.editTeacher}/${data.id}`,
+      data
     );
   }
 
-  // editTeacher(id: number, data: UsersApi.Admin.EditTeacher): Observable<UsersApi.Admin.GenericResponse> {
-  //   return this.patch<UsersApi.Admin.EditTeacher, UsersApi.Admin.GenericResponse>(
-  //     this.endpoints.editTeacher(id),
-  //     data
-  //   ).pipe(
-  //     tap(() => this.getAllTeachers().subscribe())
-  //   );
-  // }
+  editTeachers(data: UsersApi.Admin.EditTeachers): Observable<UsersApi.Admin.GenericResponse> {
+    return this.patch<UsersApi.Admin.EditTeachers, UsersApi.Admin.GenericResponse>(this.endpoints.editTeachers, data);
+  }
 
   // Discipline management
-  getAllDisciplines(): Observable<UsersApi.Admin.DisciplinesResponse> {
-    return this.get<UsersApi.Admin.DisciplinesResponse>(this.endpoints.getAllDisciplines).pipe(
+  getAllDisciplines(): Observable<UsersApi.Admin.Discipline[]> {
+    return this.get<UsersApi.Admin.Discipline[]>(this.endpoints.getAllDisciplines).pipe(
       map(response => {
-        this.disciplines$.next(response.disciplines);
+        this.disciplines$.next(response);
         return response;
       })
     );
   }
 
-  // getDiscipline(id: number): Observable<UsersApi.Admin.DisciplineResponse> {
-  //   return this.get<UsersApi.Admin.DisciplineResponse>(this.endpoints.getDiscipline(id));
-  // }
-
-  addDiscipline(data: UsersApi.Admin.AddDiscipline): Observable<UsersApi.Admin.GenericResponse> {
-    return this.post<UsersApi.Admin.AddDiscipline, UsersApi.Admin.GenericResponse>(this.endpoints.addDiscipline, data).pipe(
-      tap(() => this.getAllDisciplines().subscribe())
-    );
+  getDisciplineSelectionState(): Observable<UsersApi.Admin.DisciplineSelectionState> {
+    return this.get<UsersApi.Admin.DisciplineSelectionState>(this.endpoints.getDisciplineSelectionState);
   }
 
-  // deleteDiscipline(id: number): Observable<UsersApi.Admin.GenericResponse> {
-  //   return this.delete<UsersApi.Admin.GenericResponse>(this.endpoints.deleteDiscipline(id)).pipe(
-  //     tap(() => this.getAllDisciplines().subscribe())
-  //   );
-  // }
+  editDisciplines(data: UsersApi.Admin.EditDisciplines): Observable<UsersApi.Admin.GenericResponse> {
+    return this.patch<UsersApi.Admin.EditDisciplines, UsersApi.Admin.GenericResponse>(this.endpoints.editDisciplines, data);
+  }
+
+  getDiscipline(id: number): Observable<UsersApi.Admin.DisciplineResponse> {
+    return this.get<UsersApi.Admin.DisciplineResponse>(`${this.endpoints.getDiscipline}/${id}`);
+  }
+
+  addDiscipline(data: UsersApi.Admin.AddDiscipline): Observable<UsersApi.Admin.GenericResponse> {
+    return this.post<UsersApi.Admin.AddDiscipline, UsersApi.Admin.GenericResponse>(this.endpoints.addDiscipline, data);
+  }
+
+  deleteDiscipline(id: number): Observable<UsersApi.Admin.GenericResponse> {
+    return this.delete<UsersApi.Admin.GenericResponse>(`${this.endpoints.deleteDiscipline}/${id}`);
+  }
 
   // Role and discipline assignments
   releaseTeacherFromDiscipline(data: UsersApi.Admin.ReleaseTeacherFromDiscipline): Observable<UsersApi.Admin.GenericResponse> {
-    return this.patch<UsersApi.Admin.ReleaseTeacherFromDiscipline, UsersApi.Admin.GenericResponse>(
-      this.endpoints.releaseTeacherFromDiscipline,
-      data
-    ).pipe(
-      tap(() => {
-        // Refresh both teachers and disciplines after this operation
-        this.getAllTeachers().subscribe();
-        this.getAllDisciplines().subscribe();
-      })
-    );
+    return this.patch<UsersApi.Admin.ReleaseTeacherFromDiscipline, UsersApi.Admin.GenericResponse>(this.endpoints.releaseTeacherFromDiscipline, data);
   }
 
   lockDisciplineSelection(): Observable<string> {

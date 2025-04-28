@@ -3,17 +3,23 @@ import { UsersApi } from "@/types/api";
 export namespace Admin {
     export interface Student extends UsersApi.User.Get {
         educationalProgram: string;
+        course: string;
         year: string;
+        isActive: boolean;
+        canSelect: boolean;
+        semester1MinCredits: number;
+        semester1MaxCredits: number;
+        semester1Credits: number;
+        semester2MinCredits: number;
+        semester2MaxCredits: number;
+        semester2Credits: number;
     }
 
     export interface Teacher extends UsersApi.User.Get {
-        // Teacher specific fields if needed
+        userId: number;
     }
 
-    export interface Discipline {
-        id: number;
-        disciplineName: string;
-        // Other discipline properties
+    export interface Discipline extends UsersApi.Teacher.Discipline {
     }
 
     // Request interfaces
@@ -30,20 +36,20 @@ export namespace Admin {
         lastName: string;
         patronymic: string;
         educationalProgram: string;
+        course: string;
         year: string;
     }
 
     export interface EditStudent {
         id: number;
-        email?: string;
-        firstName?: string;
-        lastName?: string;
-        patronymic?: string;
-        educationalProgram?: string;
-        course?: string;
-        year?: string;
-        isActive?: boolean;
-        canSelect?: boolean;
+        email: string;
+        firstName: string;
+        lastName: string;
+        patronymic: string;
+        educationalProgram: string;
+        course: string;
+        year: string;
+        canSelect: boolean;
         semester1MinCredits?: number;
         semester1MaxCredits?: number;
         semester1Credits?: number;
@@ -57,6 +63,11 @@ export namespace Admin {
         isActive: boolean;
     }
 
+    export interface EditTeachers {
+        teacherIds: number[];
+        isActive: boolean;
+    }
+
     export interface AddTeacher {
         email: string;
         firstName: string;
@@ -65,6 +76,7 @@ export namespace Admin {
     }
 
     export interface EditTeacher {
+        id: number;
         email?: string;
         firstName?: string;
         lastName?: string;
@@ -72,8 +84,21 @@ export namespace Admin {
         isActive?: boolean;
     }
 
+    export interface DisciplineSelectionState {
+        isSelectionLocked: boolean;
+    }
+
+    export interface EditDisciplines {
+        disciplineIds: number[];
+        isActive: boolean;
+    }
+
+    export type Semester = '1' | '2';
+
     export interface AddDiscipline {
-        disciplineName: string;
+        name: string;
+        semester: Semester;
+        credits: number;
     }
 
     export interface ReleaseTeacherFromDiscipline {
@@ -99,13 +124,15 @@ export namespace Admin {
         disciplines: Discipline[];
     }
 
-    export type DisciplineResponse = {
-        message: string;
-        discipline: Discipline;
+    export interface DisciplineResponse extends UsersApi.Teacher.GetDisciplineResponse {
     }
 
     export type GenericResponse = {
         message: string;
+    }
+
+    export type GenericCSV = {
+        csvText: string;
     }
 
     export type HealthyResponse = {
