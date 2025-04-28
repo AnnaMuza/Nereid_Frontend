@@ -49,7 +49,6 @@ class UserService extends ApiService {
             map((data) => {
                 const { token, user } = data;
                 this.setAuthToken(token, rememberMe);
-                this.user$.next(user);
                 return user || null;
             })
         );
