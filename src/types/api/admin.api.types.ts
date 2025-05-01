@@ -60,7 +60,17 @@ export namespace Admin {
 
     export interface EditStudents {
         studentIds: number[];
-        isActive: boolean;
+        isActive?: boolean;
+        educationalProgram?: string;
+        course?: string;
+        year?: string;
+        canSelect?: boolean;
+        semester1MinCredits?: number;
+        semester1MaxCredits?: number;
+        semester1Credits?: number;
+        semester2MinCredits?: number;
+        semester2MaxCredits?: number;
+        semester2Credits?: number;
     }
 
     export interface EditTeachers {
