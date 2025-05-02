@@ -39,9 +39,9 @@
                 />
 
                 <Button
-                    label="Edit Discipline"
+                    label="View Discipline"
                     @click="editSelectedDiscipline"
-                    icon="pi pi-pencil"
+                    icon="pi pi-arrow-up-right"
                     :disabled="!selectedDisciplines || selectedDisciplines.length !== 1"
                     class="p-button-rounded"
                 />

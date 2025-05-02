@@ -45,6 +45,18 @@
                     />
                     <small v-if="submitted && !email" class="p-error">Email is required.</small>
                 </FloatLabel>
+
+<!--                <div v-if="editMode" class="d-flex flex-column">-->
+<!--                    <div class="d-flex flex-column gap-3">-->
+<!--                        <div v-for="field in fields" :key="field.id" class="d-flex align-items-center gap-3">-->
+<!--                            <div class="flex-grow-1">-->
+<!--                                <small style="padding-left: 0.75rem">{{ field.name }}</small>-->
+<!--                                <Message class="mt-1" v-if="UtilsService.isURL(field.content)"><a :href="field.content" target="_blank">{{ field.content }}</a></Message>-->
+<!--                                <Message v-else class="mt-1">{{ field.content }}</Message>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
             </div>
 
             <Button
@@ -69,11 +81,13 @@
 </style>
 
 <script lang="ts">
-import { defineComponent, ref, onUnmounted, PropType } from 'vue';
+import { defineComponent, ref, onUnmounted, PropType, onMounted } from 'vue';
 import { Subscription } from 'rxjs';
 import AdminService from '@/services/admin.service';
 import { useToast } from 'primevue/usetoast';
 import { UsersApi } from "@/types/api";
+import { UtilsService } from "@/services";
+// import StudentService from "@/services/student.service";
 
 export default defineComponent({
     name: 'TeacherDialog',
@@ -89,12 +103,12 @@ export default defineComponent({
         const toast = useToast();
         const submitted = ref<boolean>(false);
         const editMode = ref<boolean>(false);
-
         const firstName = ref<string>('');
         const lastName = ref<string>('');
         const patronymic = ref<string>('');
         const email = ref<string>('');
         let wasChanged = false;
+        const fields = ref<any[]>([]);
 
         if (props.editData) {
             editMode.value = true;
@@ -177,6 +191,28 @@ export default defineComponent({
             }
         };
 
+        onMounted(() => {
+            // if (!editMode.value) {
+            //     return;
+            // }
+            //
+            // const subscription = StudentService.getTeacher(props.editData!.id).subscribe({
+            //     next: (response) => {
+            //         fields.value = response.teacherFields;
+            //     },
+            //     error: ({ response } = {}) => {
+            //         toast.add({
+            //             severity: 'error',
+            //             summary: 'Failed to load teacher fields',
+            //             detail: response?.data.message,
+            //             life: 5000
+            //         });
+            //     },
+            // });
+            //
+            // subscriptions.add(subscription);
+        });
+
         onUnmounted(() => {
             if (wasChanged) {
                 emit('reload');
@@ -195,6 +231,8 @@ export default defineComponent({
             editProfile,
             addProfile,
             editMode,
+            UtilsService,
+            fields,
         };
     }
 });
