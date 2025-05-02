@@ -14,6 +14,17 @@
         modal
         :draggable="false"
         class="w-75"
+        v-model:visible="editStudentsDialog">
+        <StudentsDialog :student-ids="selectedStudents.map((s) => s.id)" @reload="loadStudents"/>
+        <template #header>
+            <CardHeader icon="user-edit" title="Edit students"/>
+        </template>
+    </Dialog>
+
+    <Dialog
+        modal
+        :draggable="false"
+        class="w-75"
         v-model:visible="addStudentDialog">
         <StudentDialog @reload="loadStudents(); addStudentDialog = false"/>
         <template #header>
@@ -87,10 +98,10 @@
                              :model="items"/>
 
                 <Button
-                    label="Edit Student"
-                    @click="editSelectedStudent"
+                    :label="selectedStudents.length > 1 ? 'Edit Students' : 'Edit Student&nbsp;&nbsp;'"
+                    @click="editSelectedStudents"
                     icon="pi pi-pencil"
-                    :disabled="!selectedStudents || selectedStudents.length !== 1"
+                    :disabled="!selectedStudents || selectedStudents.length === 0"
                     class="p-button-rounded"
                 />
 
@@ -285,13 +296,17 @@ import { useToast } from 'primevue/usetoast';
 import { UsersApi } from "@/types/api";
 import { FilterMatchMode } from '@primevue/core/api';
 import StudentDialog from "@/views/admin/dialogs/StudentDialog.vue";
+import StudentsDialog from "@/views/admin/dialogs/StudentsDialog.vue";
 import UtilsService from "@/services/utils.service";
 import { AxiosError } from "axios";
 import { AxiosErrorData } from "@/types/global.interface";
 
 export default defineComponent({
     name: 'StudentsTable',
-    components: { StudentDialog },
+    components: {
+        StudentDialog,
+        StudentsDialog,
+    },
     setup() {
         const toast = useToast();
         const subscriptions = new Set<Subscription>();
@@ -299,6 +314,7 @@ export default defineComponent({
         const selectedStudents = ref<UsersApi.Admin.Student[]>([]);
         const addStudentDialog = ref(false);
         const editStudentDialog = ref(false);
+        const editStudentsDialog = ref(false);
         const uploadCsvDialog = ref(false);
         const csvFile = ref<File | null>(null);
         const csvUploading = ref(false);
@@ -378,7 +394,7 @@ export default defineComponent({
             subscriptions.add(subscription);
         };
 
-        const editSelectedStudent = () => {
+        const editSelectedStudents = () => {
             if (selectedStudents.value.length === 1) {
                 const student = selectedStudents.value[0];
                 editedStudent.value = {
@@ -393,6 +409,9 @@ export default defineComponent({
                     canSelect: student.canSelect,
                 };
                 editStudentDialog.value = true;
+            }
+            else if (selectedStudents.value.length > 1) {
+                editStudentsDialog.value = true;
             }
         };
 
@@ -525,6 +544,7 @@ export default defineComponent({
             selectedStudents,
             addStudentDialog,
             editStudentDialog,
+            editStudentsDialog,
             editedStudent,
             filters,
             markStudentsActive,
@@ -532,7 +552,7 @@ export default defineComponent({
             loading,
             statusOptions,
             loadStudents,
-            editSelectedStudent,
+            editSelectedStudents,
             selectOptions,
             getStudentsCsvTemplate,
             items,

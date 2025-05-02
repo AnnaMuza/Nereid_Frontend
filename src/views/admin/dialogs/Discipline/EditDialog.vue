@@ -31,7 +31,8 @@
                     <div v-for="field in disciplineFields" :key="field.id" class="d-flex align-items-center gap-3">
                         <div class="flex-grow-1">
                             <small style="padding-left: 0.75rem">{{ field.name }}</small>
-                            <Message class="mt-1">{{ field.content }}</Message>
+                            <Message class="mt-1" v-if="UtilsService.isURL(field.content)"><a :href="field.content" target="_blank">{{ field.content }}</a></Message>
+                            <Message v-else class="mt-1">{{ field.content }}</Message>
                         </div>
                     </div>
                 </div>
@@ -74,6 +75,7 @@ import { Subscription } from 'rxjs';
 import { useRoute } from 'vue-router';
 import { useToast } from "primevue/usetoast";
 import { useConfirm } from "primevue/useconfirm";
+import { UtilsService } from "@/services";
 
 export default defineComponent({
     name: 'EditDisciplineDialog',
@@ -202,6 +204,7 @@ export default defineComponent({
             loading,
             error,
             confirmRelease,
+            UtilsService,
         };
     }
 });

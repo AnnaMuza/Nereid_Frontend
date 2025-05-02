@@ -25,6 +25,20 @@ class UtilsService {
     URL.revokeObjectURL(url);
   }
 
+  public isURL(string?: string | null): boolean {
+    if (!string) {
+      return false;
+    }
+
+    let url;
+    try {
+      url = new URL(string);
+    } catch (_) {
+      return false;
+    }
+    return url.protocol === "http:" || url.protocol === "https:";
+  }
+
   public sortDisciplines<T extends { name: string }>(disciplines: T[]): T[] {
     return disciplines.sort((a, b) => a.name.localeCompare(b.name));
   }
