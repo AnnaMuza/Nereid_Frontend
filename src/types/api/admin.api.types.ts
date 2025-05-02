@@ -67,10 +67,8 @@ export namespace Admin {
         canSelect?: boolean;
         semester1MinCredits?: number;
         semester1MaxCredits?: number;
-        semester1Credits?: number;
         semester2MinCredits?: number;
         semester2MaxCredits?: number;
-        semester2Credits?: number;
     }
 
     export interface EditTeachers {

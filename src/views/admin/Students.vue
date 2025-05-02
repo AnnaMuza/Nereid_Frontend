@@ -15,7 +15,7 @@
         :draggable="false"
         class="w-75"
         v-model:visible="editStudentsDialog">
-        <StudentsDialog @reload="loadStudents"/>
+        <StudentsDialog :student-ids="selectedStudents.map((s) => s.id)" @reload="loadStudents"/>
         <template #header>
             <CardHeader icon="user-edit" title="Edit students"/>
         </template>
@@ -98,7 +98,7 @@
                              :model="items"/>
 
                 <Button
-                    label="Edit Students"
+                    :label="selectedStudents.length > 1 ? 'Edit Students' : 'Edit Student&nbsp;&nbsp;'"
                     @click="editSelectedStudents"
                     icon="pi pi-pencil"
                     :disabled="!selectedStudents || selectedStudents.length === 0"

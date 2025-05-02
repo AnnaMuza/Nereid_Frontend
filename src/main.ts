@@ -24,6 +24,7 @@ import ConfirmDialog from 'primevue/confirmdialog';
 import DataView from 'primevue/dataview';
 import Row from 'primevue/row';
 import SpeedDial from 'primevue/speeddial';
+import Tag from 'primevue/tag';
 import StyleClass from "primevue/styleclass";
 import Ripple from "primevue/ripple";
 import SplitButton from 'primevue/splitbutton';
@@ -106,6 +107,7 @@ createApp(App)
     .component('DataTable', DataTable)
     .component('ToggleSwitch', ToggleSwitch)
     .component('SplitButton', SplitButton)
+    .component('Tag', Tag)
     .component('InputText', InputText)
     .component('InputNumber', InputNumber)
     .component('SpeedDial', SpeedDial)
