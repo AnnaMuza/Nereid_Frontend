@@ -41,7 +41,8 @@
                         <Checkbox v-model="selectedFields" :value="field.id"/>
                         <div class="flex-grow-1">
                             <small style="padding-left: 0.75rem">{{ field.name }}</small>
-                            <Message v-if="field.content" class="mt-1">{{ field.content }}</Message>
+                            <Message class="mt-1" v-if="UtilsService.isURL(field.content)"><a :href="field.content" target="_blank">{{ field.content }}</a></Message>
+                            <Message v-else class="mt-1">{{ field.content }}</Message>
                         </div>
                     </div>
                 </div>
@@ -82,6 +83,7 @@ import { UsersApi } from '@/types/api';
 import { Subscription } from 'rxjs';
 import { useRoute } from 'vue-router';
 import { useToast } from "primevue/usetoast";
+import { UtilsService } from "@/services";
 
 export default defineComponent({
     name: 'DisciplineDetails',
@@ -292,7 +294,8 @@ export default defineComponent({
             showAddFieldForm,
             cancelAddField,
             saveNewField,
-            deleteSelectedFields
+            deleteSelectedFields,
+            UtilsService,
         };
     }
 });
