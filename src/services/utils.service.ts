@@ -1,4 +1,6 @@
 class UtilsService {
+  private emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
   public downloadCsv(content: string, filename: string = 'download.csv'): void {
     // Create a Blob with the CSV content
     const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
@@ -37,6 +39,10 @@ class UtilsService {
       return false;
     }
     return url.protocol === "http:" || url.protocol === "https:";
+  }
+
+  public isEmail(string: string): boolean {
+    return this.emailRegex.test(string);
   }
 
   public sortDisciplines<T extends { name: string }>(disciplines: T[]): T[] {
