@@ -7,10 +7,8 @@
                     <InputText
                         id="lastName"
                         v-model="lastName"
-                        aria-describedby="lastName-help"
-                        :class="{ 'p-invalid': submitted && !lastName }"
                     />
-                    <small v-if="submitted && !lastName" class="p-error">Last Name is required.</small>
+                    <small v-if="submitted && !lastName.trim()" class="p-error">Last Name is required.</small>
                 </FloatLabel>
 
                 <FloatLabel variant="over">
@@ -18,21 +16,16 @@
                     <InputText
                         id="firstName"
                         v-model="firstName"
-                        aria-describedby="firstName-help"
-                        :class="{ 'p-invalid': submitted && !firstName }"
                     />
-                    <small v-if="submitted && !firstName" class="p-error">First Name is required.</small>
+                    <small v-if="submitted && !firstName.trim()" class="p-error">First Name is required.</small>
                 </FloatLabel>
 
                 <FloatLabel variant="over">
-                    <label for="patronymic">Patronymic*</label>
+                    <label for="patronymic">Patronymic</label>
                     <InputText
                         id="patronymic"
                         v-model="patronymic"
-                        aria-describedby="patronymic-help"
-                        :class="{ 'p-invalid': submitted && !patronymic }"
                     />
-                    <small v-if="submitted && !patronymic" class="p-error">Patronymic is required.</small>
                 </FloatLabel>
 
                 <FloatLabel variant="over">
@@ -40,10 +33,8 @@
                     <InputText
                         id="email"
                         v-model="email"
-                        aria-describedby="email-help"
-                        :class="{ 'p-invalid': submitted && !email }"
                     />
-                    <small v-if="submitted && !email" class="p-error">Email is required.</small>
+                    <small v-if="submitted && !UtilsService.isEmail(email)" class="p-error">PLease enter valid email.</small>
                 </FloatLabel>
 
 <!--                <div v-if="editMode" class="d-flex flex-column">-->
@@ -87,7 +78,6 @@ import AdminService from '@/services/admin.service';
 import { useToast } from 'primevue/usetoast';
 import { UsersApi } from "@/types/api";
 import { UtilsService } from "@/services";
-// import StudentService from "@/services/student.service";
 
 export default defineComponent({
     name: 'TeacherDialog',
@@ -122,13 +112,13 @@ export default defineComponent({
             submitted.value = true;
 
             // Simple validation
-            if (firstName.value && lastName.value && email.value && patronymic.value) {
-                const userData = {
+            if (firstName.value.trim() && lastName.value && UtilsService.isEmail(email.value)) {
+                const userData: UsersApi.Admin.EditTeacher = {
                     id: props.editData!.id,
-                    firstName: firstName.value,
-                    lastName: lastName.value,
-                    patronymic: patronymic.value,
-                    email: email.value,
+                    firstName: firstName.value.trim(),
+                    lastName: lastName.value.trim(),
+                    patronymic: patronymic.value.trim(),
+                    email: email.value.trim().toLowerCase(),
                 };
 
                 const subscription = AdminService.editTeacher(userData).subscribe({
@@ -159,12 +149,12 @@ export default defineComponent({
             submitted.value = true;
 
             // Simple validation
-            if (firstName.value && lastName.value && email.value && patronymic.value) {
-                const userData = {
-                    firstName: firstName.value,
-                    lastName: lastName.value,
-                    patronymic: patronymic.value,
-                    email: email.value,
+            if (firstName.value.trim() && lastName.value && UtilsService.isEmail(email.value)) {
+                const userData: UsersApi.Admin.AddTeacher = {
+                    firstName: firstName.value.trim(),
+                    lastName: lastName.value.trim(),
+                    patronymic: patronymic.value.trim(),
+                    email: email.value.trim().toLowerCase(),
                 };
 
                 const subscription = AdminService.addTeacher(userData).subscribe({

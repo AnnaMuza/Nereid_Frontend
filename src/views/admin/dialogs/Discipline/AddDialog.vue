@@ -7,10 +7,8 @@
                     <InputText
                         id="lastName"
                         v-model="name"
-                        aria-describedby="lastName-help"
-                        :class="{ 'p-invalid': submitted && !name }"
                     />
-                    <small v-if="submitted && !name" class="p-error">Name is required.</small>
+                    <small v-if="submitted && !name.trim()" class="p-error">Name is required.</small>
                 </FloatLabel>
 
                 <FloatLabel variant="over">
@@ -20,7 +18,6 @@
                         v-model="credits"
                         aria-describedby="firstName-help"
                         fluid
-                        :class="{ 'p-invalid': submitted && !credits }"
                     />
                     <small v-if="submitted && !credits" class="p-error">Amount of credits is required.</small>
                 </FloatLabel>
@@ -54,7 +51,7 @@
 </style>
 
 <script lang="ts">
-import { defineComponent, ref, onUnmounted, PropType } from 'vue';
+import { defineComponent, ref, onUnmounted } from 'vue';
 import { Subscription } from 'rxjs';
 import AdminService from '@/services/admin.service';
 import { useToast } from 'primevue/usetoast';
@@ -79,9 +76,9 @@ export default defineComponent({
             submitted.value = true;
 
             // Simple validation
-            if (name.value && credits.value && semester.value) {
-                const userData = {
-                    name: name.value,
+            if (name.value.trim() && credits.value && semester.value) {
+                const userData: UsersApi.Admin.AddDiscipline = {
+                    name: name.value.trim(),
                     credits: credits.value,
                     semester: semester.value,
                 };

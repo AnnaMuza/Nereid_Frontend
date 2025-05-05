@@ -37,7 +37,8 @@ export namespace Admin {
         patronymic: string;
         educationalProgram: string;
         course: string;
-        year: string;
+        year?: string;
+        canSelect: boolean;
     }
 
     export interface EditStudent {
@@ -48,7 +49,7 @@ export namespace Admin {
         patronymic: string;
         educationalProgram: string;
         course: string;
-        year: string;
+        year?: string;
         canSelect: boolean;
         semester1MinCredits?: number;
         semester1MaxCredits?: number;

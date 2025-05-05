@@ -7,10 +7,8 @@
                     <InputText
                         id="lastName"
                         v-model="lastName"
-                        aria-describedby="lastName-help"
-                        :class="{ 'p-invalid': submitted && !lastName }"
                     />
-                    <small v-if="submitted && !lastName" class="p-error">Last Name is required.</small>
+                    <small v-if="submitted && !lastName.trim()" class="p-error">Last Name is required.</small>
                 </FloatLabel>
 
                 <FloatLabel variant="over">
@@ -18,21 +16,16 @@
                     <InputText
                         id="firstName"
                         v-model="firstName"
-                        aria-describedby="firstName-help"
-                        :class="{ 'p-invalid': submitted && !firstName }"
                     />
-                    <small v-if="submitted && !firstName" class="p-error">First Name is required.</small>
+                    <small v-if="submitted && !firstName.trim()" class="p-error">First Name is required.</small>
                 </FloatLabel>
 
                 <FloatLabel variant="over">
-                    <label for="patronymic">Patronymic*</label>
+                    <label for="patronymic">Patronymic</label>
                     <InputText
                         id="patronymic"
                         v-model="patronymic"
-                        aria-describedby="patronymic-help"
-                        :class="{ 'p-invalid': submitted && !patronymic }"
                     />
-                    <small v-if="submitted && !patronymic" class="p-error">Patronymic is required.</small>
                 </FloatLabel>
 
                 <FloatLabel variant="over">
@@ -40,20 +33,16 @@
                     <InputText
                         id="email"
                         v-model="email"
-                        aria-describedby="email-help"
-                        :class="{ 'p-invalid': submitted && !email }"
                     />
-                    <small v-if="submitted && !email" class="p-error">Email is required.</small>
+                    <small v-if="submitted && !UtilsService.isEmail(email)" class="p-error">PLease enter valid email.</small>
                 </FloatLabel>
 
                 <FloatLabel variant="over">
                     <label for="group">Educational program*</label>
                     <InputText
                         id="group"
-                        v-model="educationalProgram"
-                        :class="{ 'p-invalid': submitted && !educationalProgram }"
-                        aria-describedby="group-help"/>
-                    <small v-if="submitted && !educationalProgram" class="p-error">Educational program is required.</small>
+                        v-model="educationalProgram"/>
+                    <small v-if="submitted && !educationalProgram.trim()" class="p-error">Educational program is required.</small>
                 </FloatLabel>
 
                 <FloatLabel variant="over">
@@ -63,23 +52,19 @@
                         fluid
                         v-model="course"
                         allow-empty
-                        :format="false"
-                        :class="{ 'p-invalid': submitted && !course }"
-                        aria-describedby="year-help"/>
+                        :format="false"/>
                     <small v-if="submitted && !course" class="p-error">Course is required.</small>
                 </FloatLabel>
 
                 <FloatLabel variant="over">
-                    <label class="z-3" for="year">Year*</label>
+                    <label class="z-3" for="year">Year</label>
                     <InputNumber
                         id="year"
                         fluid
                         v-model="year"
                         allow-empty
                         :format="false"
-                        :class="{ 'p-invalid': submitted && !year }"
-                        aria-describedby="year-help"/>
-                    <small v-if="submitted && !year" class="p-error">Year is required.</small>
+                      />
                 </FloatLabel>
 
                 <div class="d-flex gap-2">
@@ -115,6 +100,7 @@ import { Subscription } from 'rxjs';
 import AdminService from '@/services/admin.service';
 import { useToast } from 'primevue/usetoast';
 import { UsersApi } from "@/types/api";
+import UtilsService from "@/services/utils.service";
 
 export default defineComponent({
     name: 'StudentDialog',
@@ -130,7 +116,6 @@ export default defineComponent({
         const toast = useToast();
         const submitted = ref<boolean>(false);
         const editMode = ref<boolean>(false);
-
         const firstName = ref<string>('');
         const lastName = ref<string>('');
         const patronymic = ref<string>('');
@@ -157,18 +142,22 @@ export default defineComponent({
             submitted.value = true;
 
             // Simple validation
-            if (firstName.value && lastName.value && email.value && educationalProgram.value && year.value && patronymic.value && course.value) {
-                const userData = {
+            if (firstName.value.trim() && lastName.value.trim() && email.value.trim() &&
+                educationalProgram.value.trim() && course.value && UtilsService.isEmail(email.value)) {
+                const userData: UsersApi.Admin.EditStudent = {
                     id: props.editData!.id,
-                    firstName: firstName.value,
-                    lastName: lastName.value,
-                    patronymic: patronymic.value,
-                    email: email.value,
-                    educationalProgram: educationalProgram.value,
+                    firstName: firstName.value.trim(),
+                    lastName: lastName.value.trim(),
+                    patronymic: patronymic.value.trim(),
+                    email: email.value.trim().toLowerCase(),
+                    educationalProgram: educationalProgram.value.trim(),
                     course: course.value.toString(),
-                    year: year.value.toString(),
                     canSelect: canSelect.value,
                 };
+
+                if (year.value?.toString().trim()) {
+                    userData.year = year.value.toString();
+                }
 
                 const subscription = AdminService.editStudent(userData).subscribe({
                     next: () => {
@@ -198,17 +187,21 @@ export default defineComponent({
             submitted.value = true;
 
             // Simple validation
-            if (firstName.value && lastName.value && email.value && educationalProgram.value && year.value && patronymic.value && course.value) {
-                const userData = {
-                    firstName: firstName.value,
-                    lastName: lastName.value,
-                    patronymic: patronymic.value,
-                    email: email.value,
-                    educationalProgram: educationalProgram.value,
+            if (firstName.value.trim() && lastName.value.trim() && email.value.trim() &&
+                educationalProgram.value.trim() && course.value && UtilsService.isEmail(email.value)) {
+                const userData: UsersApi.Admin.AddStudent = {
+                    firstName: firstName.value.trim(),
+                    lastName: lastName.value.trim(),
+                    patronymic: patronymic.value.trim(),
+                    email: email.value.trim().toLowerCase(),
+                    educationalProgram: educationalProgram.value.trim(),
                     course: course.value.toString(),
-                    year: year.value.toString(),
                     canSelect: canSelect.value,
                 };
+
+                if (year.value?.toString().trim()) {
+                    userData.year = year.value.toString();
+                }
 
                 const subscription = AdminService.addStudent(userData).subscribe({
                     next: () => {
@@ -256,6 +249,7 @@ export default defineComponent({
             editMode,
             course,
             canSelect,
+            UtilsService,
         };
     }
 });

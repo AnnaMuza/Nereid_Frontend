@@ -195,6 +195,15 @@ body {
       padding-block: 0.7rem;
     }
   }
+
+  .p-floatlabel {
+    small {
+      position: absolute;
+      left: 0;
+      bottom: -1.1rem;
+      color: var(--p-inputtext-invalid-border-color);
+    }
+  }
 }
 
 html,

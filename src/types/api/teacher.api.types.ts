@@ -98,7 +98,7 @@ export namespace Teacher {
 
   export interface EditDisciplineRequest {
     name: string;
-    description: string;
+    description?: string;
     semester: string;
     credits: number;
   }
