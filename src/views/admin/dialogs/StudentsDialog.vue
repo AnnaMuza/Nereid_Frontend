@@ -102,6 +102,7 @@ import { defineComponent, ref, onUnmounted } from 'vue';
 import { Subscription } from 'rxjs';
 import AdminService from '@/services/admin.service';
 import { useToast } from 'primevue/usetoast';
+import { UsersApi } from '@/types/api';
 
 export default defineComponent({
     name: 'StudentsDialog',
@@ -129,9 +130,9 @@ export default defineComponent({
 
         const editProfiles = () => {
             submitted.value = true;
-            const userData = {
+            const userData: UsersApi.Admin.EditStudents = {
                 studentIds: props.studentIds,
-                educationalProgram: educationalProgram.value || undefined,
+                educationalProgram: educationalProgram.value.trim() || undefined,
                 course: course.value ? course.value.toString() : undefined,
                 year: year.value ? year.value.toString(): undefined,
                 canSelect: enableCanSelect.value ? canSelect.value : undefined,
@@ -146,6 +147,15 @@ export default defineComponent({
                 if (userData[key] === undefined) {
                     delete userData[key];
                 }
+            }
+
+            if (Object.keys(userData).length <= 1) {
+                toast.add({
+                    severity: 'info',
+                    summary: 'Nothing to update',
+                    life: 3000
+                });
+                return;
             }
 
             const subscription = AdminService.editStudents(userData).subscribe({
