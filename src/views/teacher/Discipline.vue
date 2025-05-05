@@ -3,18 +3,29 @@
         <template #content>
             <div class="d-flex flex-column gap-5 mt-20">
                 <FloatLabel variant="over">
-                    <label for="disciplineName">Name</label>
+                    <label for="disciplineName">Name*</label>
                     <InputText v-model="disciplineForm.name" id="disciplineName"/>
+                    <small v-if="submitted && !disciplineForm.name.trim()" class="p-error">Name is required.</small>
                 </FloatLabel>
 
                 <FloatLabel variant="over">
-                    <label for="credits">Credits</label>
-                    <InputText v-model="disciplineForm.credits" id="credits"/>
+                    <label for="credits">Credits*</label>
+                    <InputNumber v-model="disciplineForm.credits" id="credits"/>
+                    <small v-if="submitted && !disciplineForm.credits" class="p-error">Amount of credits is required.</small>
                 </FloatLabel>
 
                 <FloatLabel variant="over">
-                    <label for="semester">Semester</label>
-                    <InputText v-model="disciplineForm.semester" id="semester"/>
+                    <label for="patronymic" class="z-3">Semester*</label>
+                    <Select
+                        id="patronymic"
+                        v-model="disciplineForm.semester"
+                        :options="semesterOptions"
+                        variant="filled"
+                        optionLabel="label"
+                        optionValue="value"
+                        class="w-25"
+                    />
+                    <small v-if="submitted && !disciplineForm.semester" class="p-error">Semester is required.</small>
                 </FloatLabel>
 
                 <FloatLabel variant="over">
@@ -96,6 +107,7 @@ export default defineComponent({
     emits: ['reload'],
     setup(props, {emit}) {
         const route = useRoute();
+        const submitted = ref<boolean>(false);
         const id = props.disciplineId || Number(route.params.id);
         const toast = useToast();
         const discipline = ref<UsersApi.Teacher.Discipline | null>(null);
@@ -106,11 +118,16 @@ export default defineComponent({
         const subscriptions = new Set<Subscription>();
         const showAddField = ref(false);
         let wasChanged = false;
+        const semesterOptions = ref([
+            { label: '1', value: '1' },
+            { label: '2', value: '2' }
+        ]);
 
-        const disciplineForm = reactive({
+        const disciplineForm = reactive<UsersApi.Teacher.EditDisciplineRequest>({
             name: '',
             description: '',
-            credits: '',
+            //@ts-ignore
+            credits: undefined,
             semester: '',
         });
 
@@ -130,7 +147,8 @@ export default defineComponent({
                     // Update form data
                     disciplineForm.name = response.discipline.name;
                     disciplineForm.description = response.discipline.description || '';
-                    disciplineForm.credits = response.discipline.credits.toString() || '';
+                    // @ts-ignore
+                    disciplineForm.credits = response.discipline.credits ? Number(response.discipline.credits) : undefined;
                     disciplineForm.semester = response.discipline.semester || '';
 
                     loading.value = false;
@@ -151,40 +169,48 @@ export default defineComponent({
 
         const saveDiscipline = () => {
             if (!discipline.value) return;
-
+            submitted.value = true;
             loading.value = true;
 
-            const subscription = TeacherService.editDiscipline(id, {
-                name: disciplineForm.name,
-                description: disciplineForm.description,
-                semester: disciplineForm.semester,
-                credits: +disciplineForm.credits,
-            }).subscribe({
-                next: () => {
-                    wasChanged = true;
-                    toast.add({
-                        severity: 'success',
-                        summary: 'Success',
-                        detail: 'Discipline details saved',
-                        life: 3000
-                    });
+            // Simple validation
+            if (disciplineForm.name.trim() && disciplineForm.semester && disciplineForm.credits) {
+                const userData: UsersApi.Teacher.EditDisciplineRequest = {
+                    name: disciplineForm.name.trim(),
+                    semester: disciplineForm.semester,
+                    credits: disciplineForm.credits,
+                };
 
-                    // Refresh discipline data
-                    fetchDisciplineDetails();
-                    loading.value = false;
-                },
-                error: (err) => {
-                    toast.add({
-                        severity: 'error',
-                        summary: 'Failed to save discipline details',
-                        detail: err.response?.data.message,
-                        life: 3000
-                    });
-                    loading.value = false;
+                if (disciplineForm.description?.toString().trim()) {
+                    userData.description = disciplineForm.description.toString().trim();
                 }
-            });
 
-            subscriptions.add(subscription);
+                const subscription = TeacherService.editDiscipline(id, userData).subscribe({
+                    next: () => {
+                        wasChanged = true;
+                        toast.add({
+                            severity: 'success',
+                            summary: 'Success',
+                            detail: 'Discipline details saved',
+                            life: 3000
+                        });
+
+                        // Refresh discipline data
+                        fetchDisciplineDetails();
+                        loading.value = false;
+                    },
+                    error: (err) => {
+                        toast.add({
+                            severity: 'error',
+                            summary: 'Failed to save discipline details',
+                            detail: err.response?.data.message,
+                            life: 3000
+                        });
+                        loading.value = false;
+                    }
+                });
+
+                subscriptions.add(subscription);
+            }
         };
 
         const showAddFieldForm = () => {
@@ -296,6 +322,8 @@ export default defineComponent({
             saveNewField,
             deleteSelectedFields,
             UtilsService,
+            submitted,
+            semesterOptions,
         };
     }
 });

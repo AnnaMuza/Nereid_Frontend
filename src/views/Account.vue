@@ -12,10 +12,8 @@
                 <InputText
                     id="firstName"
                     v-model="firstName"
-                    aria-describedby="firstName-help"
-                    :class="{ 'p-invalid': submitted && !firstName }"
                 />
-                <small v-if="submitted && !firstName" class="p-error">First Name is required.</small>
+                <small v-if="submitted && !firstName.trim()" class="p-error">First Name is required.</small>
             </FloatLabel>
 
             <FloatLabel variant="over">
@@ -23,10 +21,8 @@
                 <InputText
                     id="lastName"
                     v-model="lastName"
-                    aria-describedby="lastName-help"
-                    :class="{ 'p-invalid': submitted && !lastName }"
                 />
-                <small v-if="submitted && !lastName" class="p-error">Last Name is required.</small>
+                <small v-if="submitted && !lastName.trim()" class="p-error">Last Name is required.</small>
             </FloatLabel>
 
             <FloatLabel variant="over">
@@ -34,10 +30,7 @@
                 <InputText
                     id="patronymic"
                     v-model="patronymic"
-                    aria-describedby="patronymic-help"
-                    :class="{ 'p-invalid': submitted && !patronymic }"
                 />
-                <small v-if="submitted && !patronymic" class="p-error">Patronymic is required.</small>
             </FloatLabel>
 
             <FloatLabel variant="over">
@@ -45,10 +38,8 @@
                 <InputText
                     id="email"
                     v-model="email"
-                    aria-describedby="email-help"
-                    :class="{ 'p-invalid': submitted && !email }"
                 />
-                <small v-if="submitted && !email" class="p-error">Email is required.</small>
+                <small v-if="submitted && !UtilsService.isEmail(email)" class="p-error">PLease enter valid email.</small>
             </FloatLabel>
         </div>
         <Button
@@ -199,12 +190,12 @@ export default defineComponent({
             submitted.value = true;
 
             // Simple validation
-            if (firstName.value && lastName.value && email.value) {
+            if (firstName.value.trim() && lastName.value && UtilsService.isEmail(email.value)) {
                 const userData = {
-                    firstName: firstName.value,
-                    lastName: lastName.value,
-                    patronymic: patronymic.value,
-                    email: email.value,
+                    firstName: firstName.value.trim(),
+                    lastName: lastName.value.trim(),
+                    patronymic: patronymic.value.trim(),
+                    email: email.value.trim().toLowerCase(),
                 };
 
                 (user.value?.roleId === Role.admin ? AdminService.editAdminProfile(userData) :
