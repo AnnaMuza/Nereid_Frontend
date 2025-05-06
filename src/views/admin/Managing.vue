@@ -28,11 +28,11 @@
         <div class="d-flex flex-column my-5">
             <span class="d-flex align-self-center">Reports</span>
             <Divider/>
-            <div>
+            <div class="d-flex gap-5">
                 <Panel style="width: 320px">
                     <template #header>
                         <Select
-                            v-model="semester"
+                            v-model="semester1"
                             :options="semesters"
                             variant="filled"
                             option-label="name"/>
@@ -41,6 +41,20 @@
                         label="Download list of students for each discipline"
                         size="large"
                         @click="getStudentsForAllDisciplines"/>
+                </Panel>
+
+                <Panel style="width: 320px">
+                    <template #header>
+                        <Select
+                            v-model="semester2"
+                            :options="semesters"
+                            variant="filled"
+                            option-label="name"/>
+                    </template>
+                    <Button
+                        label="Download list of disciplines for each student"
+                        size="large"
+                        @click="getDisciplinesForAllStudents"/>
                 </Panel>
             </div>
         </div>
@@ -68,7 +82,8 @@ export default defineComponent({
             { name: 'Semester 1', code: '1' },
             { name: 'Semester 2', code: '2' },
         ]);
-        const semester = ref<Semester>(semesters.value[0]);
+        const semester1 = ref<Semester>(semesters.value[0]);
+        const semester2 = ref<Semester>(semesters.value[0]);
         const isSelectionLocked = ref<boolean | null>(null);
 
         const lockDisciplineSelection = () => {
@@ -120,9 +135,27 @@ export default defineComponent({
         };
 
         const getStudentsForAllDisciplines = () => {
-            const subscription = AdminService.getStudentsForAllDisciplines(semester.value.code).subscribe({
+            const subscription = AdminService.getStudentsForAllDisciplines(semester1.value.code).subscribe({
                 next: (response) => {
-                    UtilsService.downloadCsv(response, 'report.csv');
+                    UtilsService.downloadExcel(response, `report_students-for-all-disciplines_semester-${semester1.value.code}`);
+                },
+                error: (err: AxiosError<AxiosErrorData>) => {
+                    toast.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: err.response?.data.message,
+                        life: 3000
+                    });
+                },
+            });
+
+            subscriptions.add(subscription);
+        };
+
+        const getDisciplinesForAllStudents = () => {
+            const subscription = AdminService.getDisciplinesForAllStudents(semester2.value.code).subscribe({
+                next: (response) => {
+                    UtilsService.downloadExcel(response, `report_disciplines-for-all-students_semester-${semester2.value.code}`);
                 },
                 error: (err: AxiosError<AxiosErrorData>) => {
                     toast.add({
@@ -169,8 +202,10 @@ export default defineComponent({
             lockDisciplineSelection,
             unlockDisciplineSelection,
             getStudentsForAllDisciplines,
+            getDisciplinesForAllStudents,
             semesters,
-            semester,
+            semester1,
+            semester2,
             isSelectionLocked,
         };
     }

@@ -33,6 +33,7 @@ class AdminService extends ApiService {
     lockDisciplineSelection: '/admin/lock-discipline-selection',
     unlockDisciplineSelection: '/admin/unlock-discipline-selection',
     getStudentsForAllDisciplines: '/admin/get-students-for-all-disciplines',
+    getDisciplinesForAllStudents: '/admin/get-disciplines-for-all-students',
     recalculateStudentsCredits: '/admin/recalculate-students-credits',
   }
 
@@ -158,6 +159,10 @@ class AdminService extends ApiService {
 
   getStudentsForAllDisciplines(semester: string): Observable<string> {
     return this.get<string>(this.endpoints.getStudentsForAllDisciplines, { params: { semester } });
+  }
+
+  getDisciplinesForAllStudents(semester: string): Observable<string> {
+    return this.get<string>(this.endpoints.getDisciplinesForAllStudents, { params: { semester } });
   }
 }
 
